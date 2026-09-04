@@ -85,6 +85,20 @@ function vLesson(id){
     if(b[0]==='h') return `<h3>${b[1]}</h3>`;
     if(b[0]==='ex') return `<div class="ex"><b>${b[1]}</b><span>${b[2]}</span></div>`;
     if(b[0]==='cards') return `<div class="grid">${b[1].map(n=>tile(byN(n))).join('')}</div>`;
+    if(b[0]==='img') return `<figure class="fig"><img src="${b[1]}" alt="${b[2]}" loading="lazy">
+      <figcaption class="cap">${b[2]}</figcaption></figure>`;
+    if(b[0]==='tableau'){ // 大牌阵排布图，用格子画
+      const cols=b[1],extra=b[2],main=36-extra;
+      const cell=n=>`<span class="tc${n>main?' ex':''}">${n}</span>`;
+      const rows=[];
+      for(let r=0;r<main/cols;r++)
+        rows.push(`<div class="trow" style="grid-template-columns:repeat(${cols},1fr)">`+
+          Array.from({length:cols},(_,i)=>cell(r*cols+i+1)).join('')+`</div>`);
+      if(extra) rows.push(`<div class="trow ex-row" style="grid-template-columns:repeat(${extra},1fr)">`+
+        Array.from({length:extra},(_,i)=>cell(main+i+1)).join('')+`</div>`);
+      return `<figure class="plate"><div class="tableau">${rows.join('')}</div>
+        <figcaption class="cap">${b[3]}</figcaption></figure>`;
+    }
     if(b[0]==='plate'){ // 牌面插图：几张牌 + 运算符 + 图注
       const parts=b[1].map(x=>typeof x==='number'?tile(byN(x)):`<span class="op">${x}</span>`).join('');
       return `<figure class="plate"><div class="cards">${parts}</div>

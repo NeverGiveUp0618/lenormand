@@ -43,6 +43,14 @@ LESSONS.forEach(l=>{
   ok(l.body.length>=3,`第 ${l.id} 课内容过短`);
   l.body.filter(b=>b[0]==='cards').forEach(b=>
     b[1].forEach(n=>ok(!!DECK.find(c=>c.n===n),`第 ${l.id} 课引用了不存在的牌 ${n}`)));
+  l.body.filter(b=>b[0]==='img').forEach(b=>{
+    const f=path.join(ROOT,b[1]);
+    ok(fs.existsSync(f),`第 ${l.id} 课的图不在：${b[1]}`);
+    if(fs.existsSync(f)) ok(fs.statSync(f).size<400*1024,`${b[1]} 超过 400KB，手机上会慢`);
+    ok(b[2]&&b[2].length>6,`第 ${l.id} 课有照片缺图注`);});
+  l.body.filter(b=>b[0]==='tableau').forEach(b=>{
+    ok(b[1]*4+b[2]===36,`第 ${l.id} 课排布图格数不等于 36：${b[1]}×4+${b[2]}`);
+    ok(b[3]&&b[3].length>6,`第 ${l.id} 课排布图缺图注`);});
   l.body.filter(b=>b[0]==='plate').forEach(b=>{
     b[1].filter(x=>typeof x==='number').forEach(n=>
       ok(!!DECK.find(c=>c.n===n),`第 ${l.id} 课插图引用了不存在的牌 ${n}`));
@@ -67,6 +75,18 @@ go('#/cards');
 ok(w.document.querySelectorAll('#cg .tile').length===36,'查牌页应铺出 36 张牌，实为 '+w.document.querySelectorAll('#cg .tile').length);
 go('#/card/24');
 ok(view().includes('心')&&view().includes('红桃J'),'牌详情应显示牌名与扑克');
+go('#/lesson/1');
+ok(w.document.querySelectorAll('.fig img').length===4,'第 1 课应有 4 张照片');
+ok([...w.document.querySelectorAll('.fig img')].every(i=>i.getAttribute('loading')==='lazy'),
+  '课程照片都应带 loading=lazy');
+ok([...w.document.querySelectorAll('.fig img')].every(i=>i.alt),'课程照片都应有 alt');
+go('#/lesson/3');
+{const tabs=w.document.querySelectorAll('.tableau');
+ ok(tabs.length===2,'第 3 课应有 2 张排布图');
+ tabs.forEach((t,i)=>{const cells=t.querySelectorAll('.tc');
+   ok(cells.length===36,`第 ${i+1} 张排布图应有 36 格，实为 ${cells.length}`);
+   ok([...cells].map(c=>+c.textContent).join()===Array.from({length:36},(_,k)=>k+1).join(),
+     `第 ${i+1} 张排布图编号应为 1–36 顺序`);});}
 go('#/lesson/4');
 ok(w.document.querySelectorAll('.tile').length===8,'第 4 课应内嵌 8 张牌');
 go('#/combo/18');ok(view().includes('主语'),'组合器应渲染');
