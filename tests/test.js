@@ -56,6 +56,9 @@ LESSONS.forEach(l=>{
       ok(!!DECK.find(c=>c.n===n),`第 ${l.id} 课插图引用了不存在的牌 ${n}`));
     ok(b[2]&&b[2].length>6,`第 ${l.id} 课有插图缺图注`);});
 });
+LESSONS.forEach(l=>ok(/^https:\/\/mp\.weixin\.qq\.com\/s\/[\w-]+$/.test(l.src||''),
+  `第 ${l.id} 课缺原文链接或格式不对：${l.src}`));
+ok(new Set(LESSONS.map(l=>l.src)).size===LESSONS.length,'五课的原文链接不能重复');
 ok(SPREADS.every(s=>s.slots.length===s.size),'牌阵 slots 数量须等于 size');
 ok(LESSONS.reduce((n,l)=>n+l.body.filter(b=>b[0]==='plate').length,0)>=6,'课文插图应不少于 6 张');
 ok(SPREADS.every(s=>s.size<=36),'牌阵张数不能超过牌库');
@@ -87,6 +90,12 @@ go('#/lesson/3');
    ok(cells.length===36,`第 ${i+1} 张排布图应有 36 格，实为 ${cells.length}`);
    ok([...cells].map(c=>+c.textContent).join()===Array.from({length:36},(_,k)=>k+1).join(),
      `第 ${i+1} 张排布图编号应为 1–36 顺序`);});}
+go('#/lesson/2');
+{const a=w.document.querySelector('a.btn.src');
+ ok(!!a,'课程页应有原文链接按钮');
+ ok(a&&a.getAttribute('target')==='_blank'&&/noopener/.test(a.getAttribute('rel')||''),
+   '原文链接须新开窗口且带 rel=noopener');
+ ok(a&&a.getAttribute('href')===LESSONS.find(l=>l.id===2).src,'第 2 课链接指向应与数据一致');}
 go('#/lesson/4');
 ok(w.document.querySelectorAll('.tile').length===8,'第 4 课应内嵌 8 张牌');
 go('#/combo/18');ok(view().includes('主语'),'组合器应渲染');
@@ -124,6 +133,26 @@ sec('四之三、月相');
     const p=i/400, path=w.eval(`moonPath(${p})`);
     if(!/^M12 3 A 9 9 0 0 [01] 12 21 A [\d.]+ 9 0 0 [01] 12 3 Z$/.test(path))bad++;}
   ok(bad===0,`有 ${bad} 个月相路径格式异常`);
+}
+sec('四之四、原文入口只在本地版出现');
+{
+  go('#/lesson/1');
+  ok(!view().includes('读这一课的原文'),'公开版不该出现原文入口');
+  w.location.hash='#/orig/1'; w.eval('route()');
+  ok(view().includes('课程'),'公开版访问 #/orig 应回落到课程页');
+  // 注入一份假的本地原文，模拟本地版
+  w.eval(`window.ORIGINALS={1:{title:'测试标题',src:'https://example.test/x',
+    blocks:[['p','第一段'],['img','content/01/img/01.png'],['p','第二段 <b>不该当成标签</b>']]}}`);
+  go('#/lesson/1');
+  ok(view().includes('读这一课的原文'),'本地版应出现原文入口');
+  go('#/orig/1');
+  ok(w.document.querySelectorAll('.body p').length===2,'原文视图应渲染 2 段');
+  ok(w.document.querySelectorAll('.fig img').length===1,'原文视图应渲染 1 张图');
+  ok(!view().includes('<b>不该当成标签</b>'),'原文正文须转义，不能当 HTML 执行');
+  ok(w.document.getElementById('stl').textContent==='测试标题','原文视图应把原标题放进副标题');
+  w.eval('delete window.ORIGINALS');
+  go('#/lesson/1');
+  ok(!view().includes('读这一课的原文'),'撤掉本地原文后入口应消失');
 }
 sec('五、出题引擎（每型 400 题）');
 ['num','key','combo','mix'].forEach(m=>{

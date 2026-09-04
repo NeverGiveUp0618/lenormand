@@ -4,6 +4,7 @@ const S=(()=>{try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){retur
 S.stat=S.stat||{}; S.journal=S.journal||[]; S.read=S.read||{};
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 const byN=n=>DECK.find(c=>c.n===+n);
+const hasOrig=id=>typeof ORIGINALS!=='undefined'&&ORIGINALS&&ORIGINALS[id];
 const svg=(n,cls)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"
   stroke-linecap="round" stroke-linejoin="round" class="${cls||''}">${ICONS[n]}</svg>`;
 const orn=(k,cls)=>`<svg class="${cls||''}" viewBox="${ORN[k].vb}" fill="none" stroke="currentColor"
@@ -57,7 +58,7 @@ function route(){
   const p=location.hash.replace(/^#\/?/,'').split('/');
   const v=document.getElementById('view');
   const r={learn:vLearn,lesson:vLesson,cards:vCards,card:vCard,combo:vCombo,
-           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal}[p[0]]||vLearn;
+           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal,orig:vOrig}[p[0]]||vLearn;
   v.innerHTML=r(p[1],p[2])||''; v.scrollTop=0; window.scrollTo(0,0); nav();
 }
 
@@ -107,9 +108,26 @@ function vLesson(id){
     return '';
   }).join('');
   const nx=LESSONS.find(x=>x.id===l.id+1);
-  return `<div class="body rd">${html}</div>`+
+  const link=l.src?`<a class="btn src" href="${l.src}" target="_blank" rel="noopener">
+    <b>读公众号原文 ›</b><br><span class="mut">作者原稿全文，在微信里打开</span></a>`:'';
+  const og=hasOrig(l.id)?`<button class="btn" data-go="#/orig/${l.id}" style="margin-bottom:9px">
+    <b>读这一课的原文</b><br><span class="mut">公众号原稿，图文按原序（本地版才有）</span></button>`:'';
+  return `<div class="body rd">${html}</div>`+link+og+
     (nx?`<button class="btn pri" data-go="#/lesson/${nx.id}">下一课 · ${nx.title}</button>`
        :`<button class="btn pri" data-go="#/train">五课读完了，去练一练</button>`);
+}
+
+/* ---------- 原文（仅本地版） ---------- */
+function vOrig(id){
+  const o=hasOrig(id); if(!o) return vLearn();
+  head('原文 · 第 '+id+' 课',o.title,'#/lesson/'+id);
+  const body=o.blocks.map(b=>b[0]==='img'
+    ? `<figure class="fig"><img src="${b[1]}" alt="课程原图" loading="lazy"></figure>`
+    : `<p>${esc(b[1])}</p>`).join('');
+  return `<div class="card pad mut" style="margin-bottom:14px">
+      公众号原稿，图文按原序。${o.src?`<br><span style="word-break:break-all">${esc(o.src)}</span>`:''}
+    </div><div class="body rd">${body}</div>
+    <button class="btn pri" data-go="#/lesson/${id}">回到第 ${id} 课讲解</button>`;
 }
 
 /* ---------- 查 ---------- */
