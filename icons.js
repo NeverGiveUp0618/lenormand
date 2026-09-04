@@ -37,3 +37,37 @@ const ICONS = {
 35:'<circle cx="12" cy="4.5" r="2"/><path d="M12 6.5V21"/><path d="M7 9h10"/><path d="M4 13c0 5 4 8 8 8s8-3 8-8"/><path d="M4 13l-1.5 2.5M4 13l2.5 1M20 13l1.5 2.5M20 13l-2.5 1"/>',
 36:'<path d="M9 21V4h6v17z"/><path d="M3 9h18v5H3z"/>'
 };
+
+/* 双鱼座装饰件 */
+const ORN = {
+  /* ♓ 双鱼符号：两道背向的弧，一横相连 */
+  pisces:{vb:'0 0 24 24',d:'<path d="M6.5 3.5c-3.2 3.4-3.2 13.6 0 17M17.5 3.5c3.2 3.4 3.2 13.6 0 17"/><path d="M3.5 12h17"/>'},
+  /* 双鱼座星群：两串星在「结」处相连（Alrescha 即阿尔里沙，那颗结星） */
+  constel:{vb:'0 0 74 26',d:
+    '<path d="M4 6.5 13 4 22 7 31 9.5 40 13.5 49 10 58 5.5 67 8" opacity=".38"/>'+
+    '<circle fill="currentColor" cx="4" cy="6.5" r="1.1"/><circle fill="currentColor" cx="13" cy="4" r="1.4"/><circle fill="currentColor" cx="22" cy="7" r="1"/>'+
+    '<circle fill="currentColor" cx="31" cy="9.5" r="1.2"/><circle fill="currentColor" cx="40" cy="13.5" r="2" opacity=".95"/>'+
+    '<circle fill="currentColor" cx="49" cy="10" r="1.1"/><circle fill="currentColor" cx="58" cy="5.5" r="1.4"/><circle fill="currentColor" cx="67" cy="8" r="1"/>'+
+    '<path d="M40 15.5v6" opacity=".28"/><circle fill="currentColor" cx="40" cy="22" r=".9" opacity=".6"/>'},
+  /* 两条鱼朝相反方向游，一根绳系着——顺序一换意思就变 */
+  fishpair:{vb:'0 0 150 44',d:
+    '<path d="M10 22c9-11 27-11 36 0-9 11-27 11-36 0z"/><path d="M46 22l10-7v14z"/><circle fill="currentColor" cx="20" cy="19" r="1.3"/>'+
+    '<path d="M140 22c-9-11-27-11-36 0 9 11 27 11 36 0z"/><path d="M104 22l-10-7v14z"/><circle fill="currentColor" cx="130" cy="19" r="1.3"/>'+
+    '<path d="M58 22c5-6 10 6 15 0s10-6 15 0" opacity=".7"/>'+
+    '<path d="M75 12v-4M75 32v4" opacity=".35"/>'},
+  /* 海浪分隔 */
+  wave:{vb:'0 0 60 8',d:'<path d="M1 4c4-4 8 4 12 0s8-4 12 0 8 4 12 0 8-4 12 0" opacity=".6"/>'}
+};
+/* 月相：p 为 0(新月)→0.5(满月)→1，返回可填充的路径 */
+function moonPath(p){
+  const r=9,cx=12,cy=12,k=Math.cos(2*Math.PI*p),rx=Math.abs(k)*r,waxing=p<0.5;
+  const so=waxing?1:0, si=waxing?(k>0?0:1):(k>0?1:0);
+  return `M${cx} ${cy-r} A ${r} ${r} 0 0 ${so} ${cx} ${cy+r} A ${rx.toFixed(2)} ${r} 0 0 ${si} ${cx} ${cy-r} Z`;
+}
+const MOON_NAMES=['新月','娥眉月','上弦月','盈凸月','满月','亏凸月','下弦月','残月'];
+function moonOf(dateStr){
+  const d=new Date(dateStr+'T12:00:00');
+  const syn=29.530588853, base=Date.UTC(2000,0,6,18,14)/86400000;
+  let p=((d.getTime()/86400000-base)/syn)%1; if(p<0)p+=1;
+  return {p,name:MOON_NAMES[Math.round(p*8)%8]};
+}

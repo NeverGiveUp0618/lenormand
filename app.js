@@ -6,6 +6,11 @@ function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 const byN=n=>DECK.find(c=>c.n===+n);
 const svg=(n,cls)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"
   stroke-linecap="round" stroke-linejoin="round" class="${cls||''}">${ICONS[n]}</svg>`;
+const orn=(k,cls)=>`<svg class="${cls||''}" viewBox="${ORN[k].vb}" fill="none" stroke="currentColor"
+  stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${ORN[k].d}</svg>`;
+const SEC=t=>`<h2 class="sec">${orn('pisces','gl')}${t}</h2>`;
+const moonSvg=p=>`<svg class="moon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"
+  stroke-width="1"><circle cx="12" cy="12" r="9" fill="none" opacity=".3"/><path d="${moonPath(p)}"/></svg>`;
 const polCls=p=>p>0?'pos':(p<0?'neg':'');
 const polTag=p=>p>=2?'<span class="pol p">强正面</span>':p===1?'<span class="pol p">正面</span>'
   :p===-1?'<span class="pol n">负面</span>':'<span class="pol z">中性</span>';
@@ -23,6 +28,7 @@ function tile(c,extra){
 /* ---------- 路由 ---------- */
 const TABS=[['learn','学','学'],['cards','查','查'],['train','练','练'],['journal','记','记']];
 function nav(){
+  const o=document.getElementById('orn'); if(o&&!o.innerHTML) o.innerHTML=orn('constel');
   const cur=(location.hash.split('/')[1]||'learn');
   document.getElementById('nav').innerHTML=TABS.map(([id,blk,txt])=>
     `<button data-go="#/${id}" class="${cur===id?'on':''}"><span class="blk">${blk}</span>${txt}</button>`).join('');
@@ -43,12 +49,12 @@ function route(){
 /* ---------- 学 ---------- */
 function vLearn(){
   head('雷诺曼 · 三十六牌','从零开始的五课');
-  return `<h2 class="sec">课程</h2><div class="card">`+
+  return `${SEC(`课程`)}<div class="card">`+
    LESSONS.map(l=>`<div class="lesson-li" data-go="#/lesson/${l.id}">
      <span class="idx">${l.id}</span><div><div class="t">${l.title}</div><div class="s">${l.sub}</div></div>
      </div>`).join('')+
    `</div>
-   <h2 class="sec">快速入口</h2><div class="row">
+   ${SEC(`快速入口`)}<div class="row">
      <button class="btn" data-go="#/cards">36 张牌义</button>
      <button class="btn" data-go="#/combo">两张牌组合器</button></div>
    <div class="row" style="margin-top:8px">
@@ -90,7 +96,7 @@ function vCard(n){
   const F=(t,v)=>v&&v.length?`<dt>${t}</dt><dd>${Array.isArray(v)
     ?`<div class="chips">${v.map(x=>`<span class="chip">${x}</span>`).join('')}</div>`:v}</dd>`:'';
   return `<div class="card pad rd">
-    <div class="hero">${svg(c.n)}<div>
+    <div class="hero">${svg(c.n,'big')}<div>
       <div class="nm">${c.name}</div>
       <div class="meta">${c.en} · ${c.pk} · ${String(c.n).padStart(2,'0')} 号</div>
       <div style="margin-top:6px">${polTag(c.pol)}</div></div></div>
@@ -126,12 +132,14 @@ function vCombo(pre){
       <div class="chips" style="margin-top:6px">${phrases(b,a).map(p=>`<span class="chip">${p}</span>`).join('')}</div>
       </div>`;
   }
-  return `<div class="spread">
+  return `${orn('fishpair','fishpair')}
+    <div class="mut" style="text-align:center;margin:-2px 0 4px">两条鱼朝相反方向游，绳子却系在一起——换个顺序，就是另一句话。</div>
+    <div class="spread">
       <div>${a?tile(a,'sel'):'<div class="tile" style="opacity:.4">?</div>'}<span class="slot">主语</span></div>
       <div>${b?tile(b,'sel'):'<div class="tile" style="opacity:.4">?</div>'}<span class="slot">修饰</span></div>
     </div>${res}
     <button class="btn" id="creset" style="text-align:center">清空重选</button>
-    <h2 class="sec">选牌</h2>
+    ${SEC(`选牌`)}
     <div class="grid" id="cg">${DECK.map(c=>tile(c,(c.n===comboA||c.n===comboB)?'sel':'')).join('')}</div>`;
 }
 
@@ -156,11 +164,11 @@ function vTrain(){
       <div class="mut">累计答题 ${done} 题 · 正确率 ${rate}%</div>
       <div class="bar"><i style="width:${rate}%"></i></div>
     </div>
-    <h2 class="sec">题型</h2><div class="opts">`+
+    ${SEC(`题型`)}<div class="opts">`+
     MODES.map(m=>`<button class="btn" data-go="#/quiz/${m.id}"><b>${m.t}</b><br>
       <span class="mut">${m.d}</span></button>`).join('')+`</div>`+
-    (wk.length?`<h2 class="sec">薄弱的牌</h2><div class="grid">${wk.map(c=>tile(c)).join('')}</div>`:'')+
-    `<h2 class="sec">抽牌</h2><div class="opts">`+
+    (wk.length?`${SEC(`薄弱的牌`)}<div class="grid">${wk.map(c=>tile(c)).join('')}</div>`:'')+
+    `${SEC(`抽牌`)}<div class="opts">`+
     SPREADS.map(s=>`<button class="btn" data-go="#/draw/${s.id}"><b>${s.name}</b><br>
       <span class="mut">${s.tip}</span></button>`).join('')+`</div>`;
 }
@@ -242,7 +250,8 @@ function vDraw(id){
   const j=sp.id==='d1';
   return `<div class="${cls}">${body}</div>${read}
     ${j?`<div class="card pad" style="margin-top:12px">
-      <div class="mut">今天你怎么解？晚上回来补一句实际发生了什么。</div>
+      <div class="mut">${moonSvg(moonOf(today()).p)}${today()} · ${moonOf(today()).name}</div>
+      <div class="mut" style="margin-top:6px">今天你怎么解？晚上回来补一句实际发生了什么。</div>
       <textarea id="jn" placeholder="我的解读…" style="margin-top:8px"></textarea>
       <button class="btn pri" id="jsave" style="margin-top:8px">存进日记</button></div>`:''}
     <button class="btn" id="redraw" style="margin-top:12px;text-align:center">重新抽</button>`;
@@ -259,7 +268,7 @@ function vJournal(){
     return `<div class="card pad" style="margin-bottom:10px">
       <div class="row" style="align-items:center">
         <div style="flex:0 0 66px">${tile(c)}</div>
-        <div style="flex:1"><div class="mut">${e.d}</div><div>${esc(e.txt||'')}</div></div></div>
+        <div style="flex:1"><div class="mut">${moonSvg(moonOf(e.d).p)}${e.d} · ${moonOf(e.d).name}</div><div>${esc(e.txt||'')}</div></div></div>
       ${e.real?`<div class="ex" style="margin:10px 0 0"><b>实际</b><span>${esc(e.real)}</span></div>`:
       `<input type="text" data-real="${i}" placeholder="实际发生了什么？回车保存" style="margin-top:10px">`}
     </div>`}).join('');
