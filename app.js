@@ -1,0 +1,310 @@
+/* 雷诺曼学习站 · 逻辑层 */
+const LS='lenormand_v1';
+const S=(()=>{try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}}})();
+S.stat=S.stat||{}; S.journal=S.journal||[]; S.read=S.read||{};
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+const byN=n=>DECK.find(c=>c.n===+n);
+const svg=(n,cls)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"
+  stroke-linecap="round" stroke-linejoin="round" class="${cls||''}">${ICONS[n]}</svg>`;
+const polCls=p=>p>0?'pos':(p<0?'neg':'');
+const polTag=p=>p>=2?'<span class="pol p">强正面</span>':p===1?'<span class="pol p">正面</span>'
+  :p===-1?'<span class="pol n">负面</span>':'<span class="pol z">中性</span>';
+const esc=s=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.random()*a.length|0];
+const today=()=>new Date().toLocaleDateString('sv');
+
+function tile(c,extra){
+  return `<div class="tile ${polCls(c.pol)} ${extra||''}" data-card="${c.n}">
+    <span class="no">${String(c.n).padStart(2,'0')}</span><span class="pk">${c.pk}</span>
+    ${svg(c.n)}<div class="nm">${c.name}</div><div class="en">${c.en}</div></div>`;
+}
+
+/* ---------- 路由 ---------- */
+const TABS=[['learn','学','学'],['cards','查','查'],['train','练','练'],['journal','记','记']];
+function nav(){
+  const cur=(location.hash.split('/')[1]||'learn');
+  document.getElementById('nav').innerHTML=TABS.map(([id,blk,txt])=>
+    `<button data-go="#/${id}" class="${cur===id?'on':''}"><span class="blk">${blk}</span>${txt}</button>`).join('');
+}
+function head(t,s,back){
+  document.getElementById('ttl').textContent=t;
+  document.getElementById('stl').textContent=s||'';
+  const b=document.getElementById('back'); b.hidden=!back; b.dataset.go=back||'';
+}
+function route(){
+  const p=location.hash.replace(/^#\/?/,'').split('/');
+  const v=document.getElementById('view');
+  const r={learn:vLearn,lesson:vLesson,cards:vCards,card:vCard,combo:vCombo,
+           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal}[p[0]]||vLearn;
+  v.innerHTML=r(p[1],p[2])||''; v.scrollTop=0; window.scrollTo(0,0); nav();
+}
+
+/* ---------- 学 ---------- */
+function vLearn(){
+  head('雷诺曼 · 三十六牌','从零开始的五课');
+  return `<h2 class="sec">课程</h2><div class="card">`+
+   LESSONS.map(l=>`<div class="lesson-li" data-go="#/lesson/${l.id}">
+     <span class="idx">${l.id}</span><div><div class="t">${l.title}</div><div class="s">${l.sub}</div></div>
+     </div>`).join('')+
+   `</div>
+   <h2 class="sec">快速入口</h2><div class="row">
+     <button class="btn" data-go="#/cards">36 张牌义</button>
+     <button class="btn" data-go="#/combo">两张牌组合器</button></div>
+   <div class="row" style="margin-top:8px">
+     <button class="btn" data-go="#/train">开始练习</button>
+     <button class="btn" data-go="#/draw/d1">今日一张</button></div>`;
+}
+function vLesson(id){
+  const l=LESSONS.find(x=>x.id===+id)||LESSONS[0];
+  S.read[l.id]=1; save();
+  head(`第 ${l.id} 课 · ${l.title}`,l.sub,'#/learn');
+  const html=l.body.map(b=>{
+    if(b[0]==='p') return `<p>${b[1]}</p>`;
+    if(b[0]==='h') return `<h3>${b[1]}</h3>`;
+    if(b[0]==='ex') return `<div class="ex"><b>${b[1]}</b><span>${b[2]}</span></div>`;
+    if(b[0]==='cards') return `<div class="grid">${b[1].map(n=>tile(byN(n))).join('')}</div>`;
+    return '';
+  }).join('');
+  const nx=LESSONS.find(x=>x.id===l.id+1);
+  return `<div class="body rd">${html}</div>`+
+    (nx?`<button class="btn pri" data-go="#/lesson/${nx.id}">下一课 · ${nx.title}</button>`
+       :`<button class="btn pri" data-go="#/train">五课读完了，去练一练</button>`);
+}
+
+/* ---------- 查 ---------- */
+let filter='all';
+function vCards(){
+  head('36 张牌','点开看牌义');
+  const f={all:()=>1,pos:c=>c.pol>0,neg:c=>c.pol<0,mid:c=>c.pol===0};
+  const list=DECK.filter(f[filter]);
+  return `<div class="row" style="margin-bottom:12px">`+
+    [['all','全部'],['pos','正面'],['neg','负面'],['mid','中性']].map(([k,t])=>
+      `<button class="btn ${filter===k?'on':''}" data-filter="${k}" style="text-align:center">${t}</button>`).join('')+
+    `</div><input type="text" id="q" placeholder="搜牌名 / 英文 / 扑克 / 关键词" style="margin-bottom:12px">
+    <div class="grid" id="cg">${list.map(c=>tile(c)).join('')}</div>`;
+}
+function vCard(n){
+  const c=byN(n); if(!c) return vCards();
+  head(`${String(c.n).padStart(2,'0')} ${c.name}`,c.en+' · '+c.pk,'#/cards');
+  const F=(t,v)=>v&&v.length?`<dt>${t}</dt><dd>${Array.isArray(v)
+    ?`<div class="chips">${v.map(x=>`<span class="chip">${x}</span>`).join('')}</div>`:v}</dd>`:'';
+  return `<div class="card pad rd">
+    <div class="hero">${svg(c.n)}<div>
+      <div class="nm">${c.name}</div>
+      <div class="meta">${c.en} · ${c.pk} · ${String(c.n).padStart(2,'0')} 号</div>
+      <div style="margin-top:6px">${polTag(c.pol)}</div></div></div>
+    <dl class="f">
+      ${F('概括',c.gist)}${F('作用',c.role)}
+      <dt>关键词</dt><dd><div class="chips">${c.keys.map(k=>`<span class="chip k">${k}</span>`).join('')}</div></dd>
+      ${F('名词',c.noun)}${F('形容词',c.adj)}${F('动词',c.verb)}${F('副词',c.adv)}
+      ${F('人物',c.people)}${F('时间',c.time)}
+    </dl></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" data-go="#/combo/${c.n}">用它做组合</button>
+      <button class="btn" data-go="#/card/${c.n%36+1}">下一张 ›</button></div>`;
+}
+
+/* ---------- 组合器 ---------- */
+let comboA=null,comboB=null;
+function phrases(a,b){
+  const out=[];
+  b.adj.forEach(x=>a.noun.slice(0,2).forEach(y=>out.push(`${x}${y}`)));
+  a.noun.slice(0,1).forEach(y=>b.verb.slice(0,2).forEach(v=>out.push(`${y}${v}`)));
+  return [...new Set(out)].slice(0,6);
+}
+function vCombo(pre){
+  if(pre){comboA=+pre;comboB=null}
+  head('组合器','第一张是主语，第二张修饰它','#/cards');
+  const a=comboA&&byN(comboA), b=comboB&&byN(comboB);
+  let res='';
+  if(a&&b){
+    res=`<div class="card pad" style="margin:12px 0">
+      <div class="mut">${a.name} + ${b.name}</div>
+      <div class="chips" style="margin-top:8px">${phrases(a,b).map(p=>`<span class="chip k">${p}</span>`).join('')}</div>
+      <div class="mut" style="margin-top:10px">反过来读（${b.name} + ${a.name}）：</div>
+      <div class="chips" style="margin-top:6px">${phrases(b,a).map(p=>`<span class="chip">${p}</span>`).join('')}</div>
+      </div>`;
+  }
+  return `<div class="spread">
+      <div>${a?tile(a,'sel'):'<div class="tile" style="opacity:.4">?</div>'}<span class="slot">主语</span></div>
+      <div>${b?tile(b,'sel'):'<div class="tile" style="opacity:.4">?</div>'}<span class="slot">修饰</span></div>
+    </div>${res}
+    <button class="btn" id="creset" style="text-align:center">清空重选</button>
+    <h2 class="sec">选牌</h2>
+    <div class="grid" id="cg">${DECK.map(c=>tile(c,(c.n===comboA||c.n===comboB)?'sel':'')).join('')}</div>`;
+}
+
+/* ---------- 练 ---------- */
+const MODES=[
+ {id:'num',t:'牌号与扑克',d:'号 ↔ 牌名 ↔ 扑克牌，铺大牌阵的基本功'},
+ {id:'key',t:'关键词认牌',d:'看关键词想是哪张牌'},
+ {id:'combo',t:'组合造句',d:'把两张牌读成一句话'},
+ {id:'mix',t:'混合练习',d:'三种题型打散来一轮'}
+];
+function weak(){
+  return DECK.map(c=>{const s=S.stat[c.n]||{r:0,w:0};return{c,score:s.w*2-s.r}})
+    .sort((a,b)=>b.score-a.score).map(x=>x.c);
+}
+function vTrain(){
+  head('练习','答错的牌会被多抽到');
+  const done=Object.values(S.stat).reduce((n,s)=>n+s.r+s.w,0);
+  const rate=(()=>{let r=0,w=0;Object.values(S.stat).forEach(s=>{r+=s.r;w+=s.w});
+    return r+w?Math.round(r*100/(r+w)):0})();
+  const wk=weak().filter(c=>{const s=S.stat[c.n];return s&&s.w>s.r}).slice(0,8);
+  return `<div class="card pad">
+      <div class="mut">累计答题 ${done} 题 · 正确率 ${rate}%</div>
+      <div class="bar"><i style="width:${rate}%"></i></div>
+    </div>
+    <h2 class="sec">题型</h2><div class="opts">`+
+    MODES.map(m=>`<button class="btn" data-go="#/quiz/${m.id}"><b>${m.t}</b><br>
+      <span class="mut">${m.d}</span></button>`).join('')+`</div>`+
+    (wk.length?`<h2 class="sec">薄弱的牌</h2><div class="grid">${wk.map(c=>tile(c)).join('')}</div>`:'')+
+    `<h2 class="sec">抽牌</h2><div class="opts">`+
+    SPREADS.map(s=>`<button class="btn" data-go="#/draw/${s.id}"><b>${s.name}</b><br>
+      <span class="mut">${s.tip}</span></button>`).join('')+`</div>`;
+}
+let quiz=null;
+function makeQ(mode){
+  const pool=weak(), c=pick(pool.slice(0,12).concat(shuffle(DECK).slice(0,12)));
+  const m=mode==='mix'?pick(['num','key','combo']):mode;
+  if(m==='num'){
+    const ask=pick(['n2name','pk2name','name2n']);
+    if(ask==='n2name'){
+      const o=shuffle([c,...shuffle(DECK.filter(x=>x.n!==c.n)).slice(0,3)]);
+      return{q:`${c.n} 号是哪张牌？`,opts:o.map(x=>({t:x.name,ok:x.n===c.n})),card:c,
+        tip:`${c.n} ${c.name} ${c.en}（${c.pk}）`};
+    }
+    if(ask==='pk2name'){
+      const o=shuffle([c,...shuffle(DECK.filter(x=>x.n!==c.n)).slice(0,3)]);
+      return{q:`${c.pk} 对应哪张牌？`,opts:o.map(x=>({t:`${x.n} ${x.name}`,ok:x.n===c.n})),card:c,
+        tip:`${c.pk} → ${c.n} ${c.name}`};
+    }
+    const o=shuffle([c.n,...shuffle(DECK.filter(x=>x.n!==c.n)).slice(0,3).map(x=>x.n)]);
+    return{q:`${c.name}是几号牌？`,opts:o.map(n=>({t:`${n} 号`,ok:n===c.n})),card:c,
+      tip:`${c.name} = ${c.n} 号（${c.pk}）`};
+  }
+  if(m==='key'){
+    const o=shuffle([c,...shuffle(DECK.filter(x=>x.n!==c.n&&x.pol!==c.pol)).slice(0,3)]);
+    return{q:`「${c.keys.join(' · ')}」说的是哪张牌？`,opts:o.map(x=>({t:`${x.n} ${x.name}`,ok:x.n===c.n})),
+      card:c,tip:c.gist};
+  }
+  const ph=(x,y)=>`${y.adj[0]}${x.noun[0]}`;
+  const a=c;
+  // 干扰项不能凑出和正确答案一样的短语，否则一题两解
+  const bs=shuffle(DECK.filter(x=>x.n!==a.n&&x.adj.length&&ph(x,a)!==ph(a,x)));
+  const b=bs[0];
+  const target=ph(a,b);
+  const c3=pick(DECK.filter(x=>x.n!==a.n&&x.n!==b.n
+    &&ph(a,x)!==target&&ph(x,b)!==target&&ph(x,a)!==target&&ph(b,x)!==target))
+    ||DECK.find(x=>x.n!==a.n&&x.n!==b.n);
+  const opts=shuffle([
+    {t:`${a.name} + ${b.name}`,ok:true},
+    {t:`${b.name} + ${a.name}`,ok:false},
+    {t:`${a.name} + ${c3.name}`,ok:false},
+    {t:`${c3.name} + ${b.name}`,ok:false}]);
+  return{q:`要读出「${target}」，该是哪个组合？`,opts,card:a,
+    tip:`第一张给名词（${a.name}→${a.noun[0]}），第二张给修饰（${b.name}→${b.adj[0]}）。顺序反过来意思就变了。`};
+}
+function vQuiz(mode){
+  const m=MODES.find(x=>x.id===mode)||MODES[0];
+  if(!quiz||quiz.mode!==m.id){quiz={mode:m.id,i:0,r:0,q:makeQ(m.id),ans:null}}
+  head(m.t,`第 ${quiz.i+1} 题 · 答对 ${quiz.r}`,'#/train');
+  const q=quiz.q;
+  return `<div class="card pad">
+      <div class="q">${q.q}</div>
+      <div class="opts">${q.opts.map((o,i)=>{
+        let cls='';
+        if(quiz.ans!==null) cls=o.ok?'ok':(i===quiz.ans?'bad':'');
+        return `<button class="btn ${cls}" data-opt="${i}">${o.t}</button>`}).join('')}</div>
+      ${quiz.ans===null?'':`<div class="fb ${q.opts[quiz.ans].ok?'ok':'bad'}">
+        ${q.opts[quiz.ans].ok?'对了。':'不对。'}${q.tip}</div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" data-go="#/card/${q.card.n}">看这张牌</button>
+          <button class="btn pri" id="next">下一题</button></div>`}
+    </div>`;
+}
+
+/* ---------- 抽牌 ---------- */
+let drawn=null;
+function vDraw(id){
+  const sp=SPREADS.find(s=>s.id===id)||SPREADS[0];
+  head(sp.name,sp.tip,'#/train');
+  if(!drawn||drawn.id!==sp.id) drawn={id:sp.id,cards:shuffle(DECK).slice(0,sp.size)};
+  const cls=sp.size===9?'nine':'spread';
+  const body=drawn.cards.map((c,i)=>`<div>${tile(c)}${sp.slots[i]?`<span class="slot">${sp.slots[i]}</span>`:''}</div>`).join('');
+  let read='';
+  if(sp.size>1){
+    const [a,b]=drawn.cards;
+    read=`<div class="card pad" style="margin-top:12px"><div class="mut">前两张先连起来读：</div>
+      <div class="chips" style="margin-top:8px">${phrases(a,b).map(p=>`<span class="chip k">${p}</span>`).join('')}</div></div>`;
+  }
+  const j=sp.id==='d1';
+  return `<div class="${cls}">${body}</div>${read}
+    ${j?`<div class="card pad" style="margin-top:12px">
+      <div class="mut">今天你怎么解？晚上回来补一句实际发生了什么。</div>
+      <textarea id="jn" placeholder="我的解读…" style="margin-top:8px"></textarea>
+      <button class="btn pri" id="jsave" style="margin-top:8px">存进日记</button></div>`:''}
+    <button class="btn" id="redraw" style="margin-top:12px;text-align:center">重新抽</button>`;
+}
+
+/* ---------- 记 ---------- */
+function vJournal(){
+  head('抽牌日记','回看比抽牌更重要');
+  if(!S.journal.length) return `<div class="card pad mut">还没有记录。去「练 › 每日一张」抽一张，写下你的解读；
+    过几天回来补上实际发生了什么，这一栏最值钱。</div>
+    <button class="btn pri" data-go="#/draw/d1" style="margin-top:12px">抽今天这一张</button>`;
+  return S.journal.map((e,i)=>{
+    const c=byN(e.n);
+    return `<div class="card pad" style="margin-bottom:10px">
+      <div class="row" style="align-items:center">
+        <div style="flex:0 0 66px">${tile(c)}</div>
+        <div style="flex:1"><div class="mut">${e.d}</div><div>${esc(e.txt||'')}</div></div></div>
+      ${e.real?`<div class="ex" style="margin:10px 0 0"><b>实际</b><span>${esc(e.real)}</span></div>`:
+      `<input type="text" data-real="${i}" placeholder="实际发生了什么？回车保存" style="margin-top:10px">`}
+    </div>`}).join('');
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g&&g.dataset.go){location.hash=g.dataset.go;return}
+  const t=e.target.closest('[data-card]');
+  if(t&&location.hash.startsWith('#/combo')){
+    const n=+t.dataset.card;
+    if(comboA===n){comboA=comboB;comboB=null}
+    else if(comboB===n){comboB=null}
+    else if(comboA===null)comboA=n; else comboB=n;
+    route();return;
+  }
+  if(t){location.hash='#/card/'+t.dataset.card;return}
+  const f=e.target.closest('[data-filter]');
+  if(f){filter=f.dataset.filter;route();return}
+  if(e.target.id==='creset'){comboA=comboB=null;route();return}
+  if(e.target.id==='redraw'){drawn=null;route();return}
+  if(e.target.id==='next'){quiz.i++;quiz.q=makeQ(quiz.mode);quiz.ans=null;route();return}
+  if(e.target.id==='jsave'){
+    const c=drawn.cards[0],txt=document.getElementById('jn').value.trim();
+    S.journal.unshift({d:today(),n:c.n,txt});save();location.hash='#/journal';return;
+  }
+  const o=e.target.closest('[data-opt]');
+  if(o&&quiz&&quiz.ans===null){
+    const i=+o.dataset.opt,ok=quiz.q.opts[i].ok,n=quiz.q.card.n;
+    S.stat[n]=S.stat[n]||{r:0,w:0}; S.stat[n][ok?'r':'w']++; save();
+    quiz.ans=i; if(ok)quiz.r++; route();
+  }
+});
+document.addEventListener('input',e=>{
+  if(e.target.id==='q'){
+    const v=e.target.value.trim().toLowerCase();
+    const hit=DECK.filter(c=>!v||[c.name,c.en,c.pk,...c.keys,...c.noun].join(' ').toLowerCase().includes(v));
+    document.getElementById('cg').innerHTML=hit.map(c=>tile(c)).join('')||'<div class="mut">没有匹配的牌</div>';
+  }
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.dataset.real!==undefined){
+    S.journal[+e.target.dataset.real].real=e.target.value.trim();save();route();
+  }
+});
+window.addEventListener('hashchange',route);
+route();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});

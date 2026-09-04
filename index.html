@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>雷诺曼 · 三十六牌</title>
+<meta name="theme-color" content="#f5f0e6">
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --bg:#f5f0e6; --paper:#fffdf7; --ink:#2a241d; --ink2:#6b5f4e;
+  --gold:#a9843f; --green:#2f5d50; --red:#8c3b3b; --line:#e0d5c0;
+  --shadow:0 1px 3px rgba(60,45,20,.10),0 6px 18px rgba(60,45,20,.06);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  padding-bottom:calc(62px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:none;padding:14px 16px}
+.rd{max-width:34em}
+header.top{
+  position:sticky;top:0;z-index:20;background:rgba(245,240,230,.94);
+  backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line);
+  padding:10px 16px;display:flex;align-items:center;gap:10px;
+}
+header.top h1{margin:0;font-size:16px;font-weight:600;letter-spacing:.05em}
+header.top .sub{font-size:12px;color:var(--ink2)}
+.back{border:0;background:none;color:var(--gold);font-size:14px;padding:2px 6px 2px 0;cursor:pointer}
+h2.sec{font-size:14px;color:var(--ink2);font-weight:600;letter-spacing:.1em;margin:22px 0 10px;
+  display:flex;align-items:center;gap:8px}
+h2.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+.pad{padding:14px 16px}
+
+/* 牌面 */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.tile{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 6px 8px;
+  text-align:center;box-shadow:var(--shadow);cursor:pointer;position:relative;transition:transform .12s}
+.tile:active{transform:scale(.97)}
+.tile .no{position:absolute;top:5px;left:7px;font-size:10px;color:var(--gold);letter-spacing:.06em}
+.tile .pk{position:absolute;top:5px;right:7px;font-size:10px;color:var(--ink2)}
+.tile svg{width:34px;height:34px;display:block;margin:8px auto 4px;color:var(--ink)}
+.tile .nm{font-size:13px;font-weight:600}
+.tile .en{font-size:10px;color:var(--ink2);letter-spacing:.04em}
+.tile.pos{border-color:#cfd9cd}
+.tile.neg{border-color:#e3cdcd}
+.tile.sel{outline:2px solid var(--gold);outline-offset:1px}
+.pol{display:inline-block;font-size:11px;padding:1px 7px;border-radius:20px;border:1px solid var(--line)}
+.pol.p{color:var(--green);border-color:#bcd0c6;background:#f1f7f3}
+.pol.n{color:var(--red);border-color:#e0c4c4;background:#fbf2f2}
+.pol.z{color:var(--ink2)}
+
+/* 详情 */
+.hero{display:flex;gap:14px;align-items:center}
+.hero svg{width:56px;height:56px;flex:none;color:var(--gold)}
+.hero .nm{font-size:22px;font-weight:600;line-height:1.3}
+.hero .meta{font-size:12px;color:var(--ink2);letter-spacing:.06em}
+dl.f{margin:0}
+dl.f dt{font-size:12px;color:var(--gold);letter-spacing:.1em;margin-top:14px}
+dl.f dd{margin:3px 0 0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{font-size:12px;background:#f0eadd;border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:var(--ink2)}
+.chip.k{background:#fff;color:var(--ink)}
+
+/* 课程 */
+.lesson-li{display:flex;gap:12px;align-items:center;padding:13px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.lesson-li:last-child{border-bottom:0}
+.lesson-li .idx{width:26px;height:26px;flex:none;border-radius:7px;background:var(--green);color:#fff;
+  font-size:12px;display:grid;place-items:center}
+.lesson-li .t{font-weight:600}
+.lesson-li .s{font-size:12px;color:var(--ink2)}
+.body p{margin:0 0 14px}
+.body h3{font-size:15px;margin:22px 0 8px;color:var(--green)}
+.ex{background:var(--paper);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:10px 14px;margin:0 0 14px}
+.ex b{display:block;font-size:13px;letter-spacing:.05em}
+.ex span{font-size:13px;color:var(--ink2)}
+
+/* 练习 */
+.btn{display:inline-block;border:1px solid var(--line);background:var(--paper);color:var(--ink);
+  border-radius:9px;padding:11px 14px;font:inherit;font-size:14px;cursor:pointer;text-align:left;width:100%}
+.btn:active{background:#f0eadd}
+.btn.on{background:var(--green);color:#fff;border-color:var(--green)}
+.btn.ok{background:#eef6f0;border-color:var(--green);color:var(--green)}
+.btn.bad{background:#fbf1f1;border-color:var(--red);color:var(--red)}
+.btn.pri{background:var(--gold);color:#fff;border-color:var(--gold);text-align:center;font-weight:600}
+.opts{display:grid;gap:8px;margin-top:14px}
+.q{font-size:17px;font-weight:600;line-height:1.6}
+.bar{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin:10px 0 2px}
+.bar i{display:block;height:100%;background:var(--gold)}
+.fb{margin-top:12px;font-size:14px;padding:10px 12px;border-radius:9px}
+.fb.ok{background:#eef6f0;color:var(--green)}
+.fb.bad{background:#fbf1f1;color:var(--red)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1}
+textarea,input[type=text]{width:100%;font:inherit;padding:9px 11px;border:1px solid var(--line);
+  border-radius:9px;background:var(--paper);color:var(--ink)}
+textarea{min-height:72px;resize:vertical}
+.mut{color:var(--ink2);font-size:13px}
+.spread{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.spread .tile{width:104px;flex:none}
+.spread .slot{font-size:11px;color:var(--gold);margin-top:4px;display:block}
+.nine{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:340px;margin:14px auto}
+.nine .tile{width:auto}
+
+/* 底栏 */
+nav.tab{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;
+  background:rgba(255,253,247,.97);border-top:1px solid var(--line);
+  padding:6px 0 calc(4px + env(safe-area-inset-bottom));backdrop-filter:blur(8px)}
+nav.tab button{flex:1;border:0;background:none;padding:4px 0 2px;display:flex;flex-direction:column;
+  align-items:center;gap:3px;font:inherit;font-size:11px;color:var(--ink2);cursor:pointer}
+nav.tab .blk{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:var(--paper);
+  display:grid;place-items:center;font-size:14px;font-weight:600;color:var(--ink2);transition:.15s}
+nav.tab button.on .blk{background:var(--green);border-color:var(--green);color:#fff}
+nav.tab button.on{color:var(--green)}
+@media(min-width:780px){ .wrap{padding:18px 28px} }
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="back" id="back" hidden>‹ 返回</button>
+  <div><h1 id="ttl">雷诺曼 · 三十六牌</h1><div class="sub" id="stl">学 · 查 · 练</div></div>
+</header>
+<main id="view" class="wrap"></main>
+<nav class="tab" id="nav"></nav>
+<script src="data.js"></script>
+<script src="icons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
