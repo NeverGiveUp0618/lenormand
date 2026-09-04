@@ -43,8 +43,13 @@ LESSONS.forEach(l=>{
   ok(l.body.length>=3,`第 ${l.id} 课内容过短`);
   l.body.filter(b=>b[0]==='cards').forEach(b=>
     b[1].forEach(n=>ok(!!DECK.find(c=>c.n===n),`第 ${l.id} 课引用了不存在的牌 ${n}`)));
+  l.body.filter(b=>b[0]==='plate').forEach(b=>{
+    b[1].filter(x=>typeof x==='number').forEach(n=>
+      ok(!!DECK.find(c=>c.n===n),`第 ${l.id} 课插图引用了不存在的牌 ${n}`));
+    ok(b[2]&&b[2].length>6,`第 ${l.id} 课有插图缺图注`);});
 });
 ok(SPREADS.every(s=>s.slots.length===s.size),'牌阵 slots 数量须等于 size');
+ok(LESSONS.reduce((n,l)=>n+l.body.filter(b=>b[0]==='plate').length,0)>=6,'课文插图应不少于 6 张');
 ok(SPREADS.every(s=>s.size<=36),'牌阵张数不能超过牌库');
 
 sec('四、页面与路由');
@@ -71,6 +76,35 @@ SPREADS.forEach(s=>{go('#/draw/'+s.id);
   const ns=[...w.document.querySelectorAll('.tile')].map(t=>t.dataset.card);
   ok(new Set(ns).size===ns.length,`${s.name} 抽牌不应重复`);});
 
+sec('四之二、三套主题');
+{
+  const th=w.eval('THEMES');
+  ok(th.length===3,'应有 3 套主题');
+  const box=w.document.getElementById('themes');
+  ok(box.querySelectorAll('button').length===3,'顶栏应有 3 个主题按钮');
+  th.forEach(([id])=>{
+    w.eval(`applyTheme(${JSON.stringify(id)})`);
+    ok(w.document.documentElement.getAttribute('data-theme')===id,`切到 ${id} 主题失败`);
+    ok(JSON.parse(w.localStorage.getItem('lenormand_v1')).theme===id,`${id} 主题没存住`);
+    ok(box.querySelectorAll('button.on').length===1,`${id} 主题下选中态应唯一`);
+  });
+  w.eval("applyTheme('nope')");
+  ok(w.document.documentElement.getAttribute('data-theme')==='pearl','非法主题名应回落到 pearl');
+  const marks=w.document.querySelectorAll('#mark svg');
+  ok(marks.length===1,'背景应有一张双鱼水印');
+}
+sec('四之三、月相');
+{
+  const known={'2026-01-03':'满月','2026-01-18':'新月'};
+  Object.entries(known).forEach(([d,nm])=>{
+    const m=w.eval(`moonOf(${JSON.stringify(d)})`);
+    ok(m.name===nm,`${d} 月相应为 ${nm}，算出 ${m.name}`);});
+  let bad=0;
+  for(let i=0;i<400;i++){
+    const p=i/400, path=w.eval(`moonPath(${p})`);
+    if(!/^M12 3 A 9 9 0 0 [01] 12 21 A [\d.]+ 9 0 0 [01] 12 3 Z$/.test(path))bad++;}
+  ok(bad===0,`有 ${bad} 个月相路径格式异常`);
+}
 sec('五、出题引擎（每型 400 题）');
 ['num','key','combo','mix'].forEach(m=>{
   let bad=0,dup=0,noOk=0;

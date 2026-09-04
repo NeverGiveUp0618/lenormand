@@ -39,24 +39,32 @@ const ICONS = {
 };
 
 /* 双鱼座装饰件 */
+/* 一条朝右游的鱼，60×30 的格子里 */
+const FISH =
+ '<path d="M4 15C10 5 34 5 44 15 34 25 10 25 4 15z"/>'+          /* 身 */
+ '<path d="M44 15L57 6.5 54 15l3 8.5z"/>'+                        /* 分叉尾 */
+ '<path d="M21 6.2C25 1.6 31 2.6 33.5 6.8"/>'+                    /* 背鳍 */
+ '<path d="M20 23.8C24 28.2 29 27.2 31.5 23"/>'+                  /* 腹鳍 */
+ '<path d="M16 8.6C13 12 13 18 16 21.4" opacity=".6"/>'+          /* 鳃 */
+ '<circle cx="11.5" cy="13" r="1.35"/>';
 const ORN = {
   /* ♓ 双鱼符号：两道背向的弧，一横相连 */
   pisces:{vb:'0 0 24 24',d:'<path d="M6.5 3.5c-3.2 3.4-3.2 13.6 0 17M17.5 3.5c3.2 3.4 3.2 13.6 0 17"/><path d="M3.5 12h17"/>'},
   /* 双鱼座星群：两串星在「结」处相连（Alrescha 即阿尔里沙，那颗结星） */
   constel:{vb:'0 0 74 26',d:
     '<path d="M4 6.5 13 4 22 7 31 9.5 40 13.5 49 10 58 5.5 67 8" opacity=".38"/>'+
-    '<circle fill="currentColor" cx="4" cy="6.5" r="1.1"/><circle fill="currentColor" cx="13" cy="4" r="1.4"/><circle fill="currentColor" cx="22" cy="7" r="1"/>'+
-    '<circle fill="currentColor" cx="31" cy="9.5" r="1.2"/><circle fill="currentColor" cx="40" cy="13.5" r="2" opacity=".95"/>'+
-    '<circle fill="currentColor" cx="49" cy="10" r="1.1"/><circle fill="currentColor" cx="58" cy="5.5" r="1.4"/><circle fill="currentColor" cx="67" cy="8" r="1"/>'+
-    '<path d="M40 15.5v6" opacity=".28"/><circle fill="currentColor" cx="40" cy="22" r=".9" opacity=".6"/>'},
-  /* 两条鱼朝相反方向游，一根绳系着——顺序一换意思就变 */
-  fishpair:{vb:'0 0 150 44',d:
-    '<path d="M10 22c9-11 27-11 36 0-9 11-27 11-36 0z"/><path d="M46 22l10-7v14z"/><circle fill="currentColor" cx="20" cy="19" r="1.3"/>'+
-    '<path d="M140 22c-9-11-27-11-36 0 9 11 27 11 36 0z"/><path d="M104 22l-10-7v14z"/><circle fill="currentColor" cx="130" cy="19" r="1.3"/>'+
-    '<path d="M58 22c5-6 10 6 15 0s10-6 15 0" opacity=".7"/>'+
-    '<path d="M75 12v-4M75 32v4" opacity=".35"/>'},
+    '<circle cx="4" cy="6.5" r="1.1"/><circle cx="13" cy="4" r="1.4"/><circle cx="22" cy="7" r="1"/>'+
+    '<circle cx="31" cy="9.5" r="1.2"/><circle cx="40" cy="13.5" r="2" opacity=".95"/>'+
+    '<circle cx="49" cy="10" r="1.1"/><circle cx="58" cy="5.5" r="1.4"/><circle cx="67" cy="8" r="1"/>'+
+    '<path d="M40 15.5v6" opacity=".28"/><circle cx="40" cy="22" r=".9" opacity=".6"/>'},
+  /* 两条鱼朝相反方向游开，尾巴被一根绳系住，绳心是「结」 */
+  fishpair:{vb:'0 0 200 42',d:
+    '<g transform="translate(60,6) scale(-1,1)">'+FISH+'</g>'+
+    '<g transform="translate(140,6)">'+FISH+'</g>'+
+    '<path d="M60 21c8-7 14 7 22 0s14-7 22 0 14 7 22 0 14-7 14 0" opacity=".75"/>'+
+    '<path d="M100 14.5l1.4 3.4 3.4 1.4-3.4 1.4-1.4 3.4-1.4-3.4-3.4-1.4 3.4-1.4z" opacity=".9"/>'},
   /* 海浪分隔 */
-  wave:{vb:'0 0 60 8',d:'<path d="M1 4c4-4 8 4 12 0s8-4 12 0 8 4 12 0 8-4 12 0" opacity=".6"/>'}
+  wave:{vb:'0 0 120 10',d:'<path d="M2 5c5-5 10 5 15 0s10-5 15 0 10 5 15 0 10-5 15 0 10 5 15 0 10-5 15 0 10 5 13 0" opacity=".55"/>'}
 };
 /* 月相：p 为 0(新月)→0.5(满月)→1，返回可填充的路径 */
 function moonPath(p){

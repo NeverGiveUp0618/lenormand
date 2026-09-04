@@ -25,6 +25,21 @@ function tile(c,extra){
     ${svg(c.n)}<div class="nm">${c.name}</div><div class="en">${c.en}</div></div>`;
 }
 
+/* ---------- 主题 ---------- */
+const THEMES=[['pearl','珠贝','奶白贝壳，海沫青与藕荷紫'],
+              ['dusk','暮汐','黄昏的海面，藕紫蜜桃'],
+              ['sea','深海','午夜潮汐，星与水'] ];
+function applyTheme(t){
+  if(!THEMES.some(x=>x[0]===t)) t='pearl';
+  S.theme=t; save();
+  document.documentElement.setAttribute('data-theme',t);
+  const tc=getComputedStyle(document.documentElement).getPropertyValue('--tc').trim();
+  const m=document.getElementById('tc'); if(m&&tc) m.setAttribute('content',tc);
+  const box=document.getElementById('themes');
+  if(box) box.innerHTML=THEMES.map(([id,nm,d])=>
+    `<button data-theme-set="${id}" class="${t===id?'on':''}" title="${nm} · ${d}" aria-label="${nm}"></button>`).join('');
+}
+
 /* ---------- 路由 ---------- */
 const TABS=[['learn','学','学'],['cards','查','查'],['train','练','练'],['journal','记','记']];
 function nav(){
@@ -49,7 +64,7 @@ function route(){
 /* ---------- 学 ---------- */
 function vLearn(){
   head('雷诺曼 · 三十六牌','从零开始的五课');
-  return `${SEC(`课程`)}<div class="card">`+
+  return orn('constel','constel')+`${SEC(`课程`)}<div class="card">`+
    LESSONS.map(l=>`<div class="lesson-li" data-go="#/lesson/${l.id}">
      <span class="idx">${l.id}</span><div><div class="t">${l.title}</div><div class="s">${l.sub}</div></div>
      </div>`).join('')+
@@ -70,6 +85,11 @@ function vLesson(id){
     if(b[0]==='h') return `<h3>${b[1]}</h3>`;
     if(b[0]==='ex') return `<div class="ex"><b>${b[1]}</b><span>${b[2]}</span></div>`;
     if(b[0]==='cards') return `<div class="grid">${b[1].map(n=>tile(byN(n))).join('')}</div>`;
+    if(b[0]==='plate'){ // 牌面插图：几张牌 + 运算符 + 图注
+      const parts=b[1].map(x=>typeof x==='number'?tile(byN(x)):`<span class="op">${x}</span>`).join('');
+      return `<figure class="plate"><div class="cards">${parts}</div>
+        <figcaption class="cap">${b[2]}</figcaption>${orn('wave','wv')}</figure>`;
+    }
     return '';
   }).join('');
   const nx=LESSONS.find(x=>x.id===l.id+1);
@@ -276,6 +296,8 @@ function vJournal(){
 
 /* ---------- 事件 ---------- */
 document.addEventListener('click',e=>{
+  const th=e.target.closest('[data-theme-set]');
+  if(th){applyTheme(th.dataset.themeSet);return}
   const g=e.target.closest('[data-go]'); if(g&&g.dataset.go){location.hash=g.dataset.go;return}
   const t=e.target.closest('[data-card]');
   if(t&&location.hash.startsWith('#/combo')){
@@ -315,5 +337,7 @@ document.addEventListener('keydown',e=>{
   }
 });
 window.addEventListener('hashchange',route);
+applyTheme(new URLSearchParams(location.search).get('t')||S.theme||'pearl');
+{const m=document.getElementById('mark'); if(m) m.innerHTML=orn('fishpair');}
 route();
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
