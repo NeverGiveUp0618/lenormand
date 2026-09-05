@@ -183,14 +183,14 @@ sec('四之三、月相');
 sec('四之四、原文入口只在本地版出现');
 {
   go('#/lesson/1');
-  ok(!view().includes('读这一课的原文'),'公开版不该出现原文入口');
+  ok(!view().includes('读这一篇的原文'),'公开版不该出现原文入口');
   w.location.hash='#/orig/1'; w.eval('route()');
   ok(view().includes('课程'),'公开版访问 #/orig 应回落到课程页');
   // 注入一份假的本地原文，模拟本地版
   w.eval(`window.ORIGINALS={1:{title:'测试标题',src:'https://example.test/x',
     blocks:[['p','第一段'],['img','content/01/img/01.png'],['p','第二段 <b>不该当成标签</b>']]}}`);
   go('#/lesson/1');
-  ok(view().includes('读这一课的原文'),'本地版应出现原文入口');
+  ok(view().includes('读这一篇的原文'),'本地版应出现原文入口');
   go('#/orig/1');
   ok(w.document.querySelectorAll('.body p').length===2,'原文视图应渲染 2 段');
   ok(w.document.querySelectorAll('.fig img').length===1,'原文视图应渲染 1 张图');
@@ -198,7 +198,7 @@ sec('四之四、原文入口只在本地版出现');
   ok(w.document.getElementById('stl').textContent==='测试标题','原文视图应把原标题放进副标题');
   w.eval('delete window.ORIGINALS');
   go('#/lesson/1');
-  ok(!view().includes('读这一课的原文'),'撤掉本地原文后入口应消失');
+  ok(!view().includes('读这一篇的原文'),'撤掉本地原文后入口应消失');
 }
 sec('五、出题引擎（每型 400 题）');
 ['num','key','combo','mix'].forEach(m=>{
