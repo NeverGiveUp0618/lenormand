@@ -1,0 +1,652 @@
+[
+ {
+  "key": "01-01",
+  "lesson": 1,
+  "cls": "A",
+  "desc": "狗牌的三种牌面风格",
+  "src": "content/01/img/01.png",
+  "w": 1080,
+  "h": 542,
+  "out": ""
+ },
+ {
+  "key": "01-02",
+  "lesson": 1,
+  "cls": "A",
+  "desc": "三叶草的三种牌面",
+  "src": "content/01/img/02.png",
+  "w": 1080,
+  "h": 502,
+  "out": ""
+ },
+ {
+  "key": "01-03",
+  "lesson": 1,
+  "cls": "A",
+  "desc": "狗 + 三叶草",
+  "src": "content/01/img/03.png",
+  "w": 1055,
+  "h": 766,
+  "out": ""
+ },
+ {
+  "key": "01-04",
+  "lesson": 1,
+  "cls": "A",
+  "desc": "三叶草 + 狗",
+  "src": "content/01/img/04.png",
+  "w": 1080,
+  "h": 779,
+  "out": ""
+ },
+ {
+  "key": "02-01",
+  "lesson": 2,
+  "cls": "A",
+  "desc": "鹳鸟牌与女人牌",
+  "src": "content/02/img/01.png",
+  "w": 1080,
+  "h": 770,
+  "out": ""
+ },
+ {
+  "key": "02-02",
+  "lesson": 2,
+  "cls": "A",
+  "desc": "男人牌与塔牌",
+  "src": "content/02/img/02.png",
+  "w": 1080,
+  "h": 720,
+  "out": ""
+ },
+ {
+  "key": "02-03",
+  "lesson": 2,
+  "cls": "A",
+  "desc": "人物牌夹在中间的两组三张",
+  "src": "content/02/img/03.png",
+  "w": 1080,
+  "h": 1016,
+  "out": ""
+ },
+ {
+  "key": "03-01",
+  "lesson": 3,
+  "cls": "B",
+  "desc": "大牌阵 4×8+4 排布",
+  "src": "content/03/img/01.png",
+  "w": 1080,
+  "h": 481,
+  "out": ""
+ },
+ {
+  "key": "03-02",
+  "lesson": 3,
+  "cls": "B",
+  "desc": "大牌阵 4×9 排布",
+  "src": "content/03/img/02.png",
+  "w": 1080,
+  "h": 408,
+  "out": ""
+ },
+ {
+  "key": "09-01",
+  "lesson": 9,
+  "cls": "B",
+  "desc": "单牌解读的六个牌位",
+  "src": "content/09/img/01.png",
+  "w": 1080,
+  "h": 905,
+  "out": ""
+ },
+ {
+  "key": "09-02",
+  "lesson": 9,
+  "cls": "A",
+  "desc": "六张牌面：山/棺材/钥匙/熊/蛇/狐狸",
+  "src": "content/09/img/02.png",
+  "w": 1053,
+  "h": 1148,
+  "out": ""
+ },
+ {
+  "key": "09-03",
+  "lesson": 9,
+  "cls": "B",
+  "desc": "六张牌名方框（树/钥匙/狗/花园/锚/信）",
+  "src": "content/09/img/03.png",
+  "w": 1080,
+  "h": 894,
+  "out": ""
+ },
+ {
+  "key": "09-04",
+  "lesson": 9,
+  "cls": "B",
+  "desc": "六张牌名方框（花束/棺材/蛇/三叶草/书/骑士）",
+  "src": "content/09/img/04.png",
+  "w": 1080,
+  "h": 895,
+  "out": ""
+ },
+ {
+  "key": "11-01",
+  "lesson": 11,
+  "cls": "B",
+  "desc": "主题牌的十字布局（1–5 号位）",
+  "src": "content/11/img/01.png",
+  "w": 1068,
+  "h": 1302,
+  "out": ""
+ },
+ {
+  "key": "11-02",
+  "lesson": 11,
+  "cls": "A",
+  "desc": "十字布局的牌面示例",
+  "src": "content/11/img/02.png",
+  "w": 802,
+  "h": 1231,
+  "out": ""
+ },
+ {
+  "key": "11-03",
+  "lesson": 11,
+  "cls": "B",
+  "desc": "六宫位编号方框",
+  "src": "content/11/img/03.png",
+  "w": 988,
+  "h": 1236,
+  "out": ""
+ },
+ {
+  "key": "12-01",
+  "lesson": 12,
+  "cls": "A",
+  "desc": "两张牌面：作用/影响示例",
+  "src": "content/12/img/01.png",
+  "w": 1005,
+  "h": 629,
+  "out": ""
+ },
+ {
+  "key": "12-02",
+  "lesson": 12,
+  "cls": "A",
+  "desc": "云 + 骑士",
+  "src": "content/12/img/02.png",
+  "w": 992,
+  "h": 630,
+  "out": ""
+ },
+ {
+  "key": "12-03",
+  "lesson": 12,
+  "cls": "A",
+  "desc": "戒指 + 镰刀",
+  "src": "content/12/img/03.png",
+  "w": 984,
+  "h": 485,
+  "out": ""
+ },
+ {
+  "key": "12-04",
+  "lesson": 12,
+  "cls": "A",
+  "desc": "戒指 + 镰刀（另一副牌）",
+  "src": "content/12/img/04.png",
+  "w": 992,
+  "h": 482,
+  "out": ""
+ },
+ {
+  "key": "13-01",
+  "lesson": 13,
+  "cls": "B",
+  "desc": "故事板五张牌位",
+  "src": "content/13/img/01.png",
+  "w": 1080,
+  "h": 264,
+  "out": ""
+ },
+ {
+  "key": "13-02",
+  "lesson": 13,
+  "cls": "A",
+  "desc": "五张牌面串成的故事",
+  "src": "content/13/img/02.png",
+  "w": 1080,
+  "h": 294,
+  "out": ""
+ },
+ {
+  "key": "13-03",
+  "lesson": 13,
+  "cls": "A",
+  "desc": "五张牌面（另一副牌）",
+  "src": "content/13/img/03.png",
+  "w": 1080,
+  "h": 309,
+  "out": ""
+ },
+ {
+  "key": "13-04",
+  "lesson": 13,
+  "cls": "A",
+  "desc": "五张牌面（第三副牌）",
+  "src": "content/13/img/04.png",
+  "w": 1080,
+  "h": 302,
+  "out": ""
+ },
+ {
+  "key": "13-05",
+  "lesson": 13,
+  "cls": "B",
+  "desc": "故事板七张牌位（带牌名）",
+  "src": "content/13/img/05.png",
+  "w": 1080,
+  "h": 773,
+  "out": ""
+ },
+ {
+  "key": "13-06",
+  "lesson": 13,
+  "cls": "B",
+  "desc": "故事板牌名方框",
+  "src": "content/13/img/06.png",
+  "w": 1080,
+  "h": 792,
+  "out": ""
+ },
+ {
+  "key": "13-07",
+  "lesson": 13,
+  "cls": "B",
+  "desc": "五张牌名横排",
+  "src": "content/13/img/07.png",
+  "w": 1080,
+  "h": 275,
+  "out": ""
+ },
+ {
+  "key": "13-08",
+  "lesson": 13,
+  "cls": "B",
+  "desc": "五张牌名横排（另一组）",
+  "src": "content/13/img/08.png",
+  "w": 1080,
+  "h": 275,
+  "out": ""
+ },
+ {
+  "key": "14-01",
+  "lesson": 14,
+  "cls": "A",
+  "desc": "云牌单张放大",
+  "src": "content/14/img/01.png",
+  "w": 363,
+  "h": 507,
+  "out": ""
+ },
+ {
+  "key": "14-02",
+  "lesson": 14,
+  "cls": "A",
+  "desc": "故事与修饰语各三张牌面",
+  "src": "content/14/img/02.png",
+  "w": 1080,
+  "h": 931,
+  "out": ""
+ },
+ {
+  "key": "14-03",
+  "lesson": 14,
+  "cls": "B",
+  "desc": "三张牌名方框（山/鱼/塔）",
+  "src": "content/14/img/03.png",
+  "w": 1080,
+  "h": 392,
+  "out": ""
+ },
+ {
+  "key": "14-04",
+  "lesson": 14,
+  "cls": "B",
+  "desc": "三张牌名方框（狐狸/骑士/塔）",
+  "src": "content/14/img/04.png",
+  "w": 1080,
+  "h": 371,
+  "out": ""
+ },
+ {
+  "key": "14-05",
+  "lesson": 14,
+  "cls": "B",
+  "desc": "三张牌名方框（锚/十字架/钥匙）",
+  "src": "content/14/img/05.png",
+  "w": 1080,
+  "h": 379,
+  "out": ""
+ },
+ {
+  "key": "14-06",
+  "lesson": 14,
+  "cls": "B",
+  "desc": "三张牌名方框（花园/狗/鹳鸟）",
+  "src": "content/14/img/06.png",
+  "w": 1080,
+  "h": 396,
+  "out": ""
+ },
+ {
+  "key": "15-01",
+  "lesson": 15,
+  "cls": "B",
+  "desc": "五张牌名方框（塔/树/山/花园/信）",
+  "src": "content/15/img/01.png",
+  "w": 1080,
+  "h": 273,
+  "out": ""
+ },
+ {
+  "key": "16-01",
+  "lesson": 16,
+  "cls": "B",
+  "desc": "九宫格牌位编号",
+  "src": "content/16/img/01.png",
+  "w": 1049,
+  "h": 1265,
+  "out": ""
+ },
+ {
+  "key": "16-02",
+  "lesson": 16,
+  "cls": "A",
+  "desc": "九宫格的牌面示例",
+  "src": "content/16/img/02.png",
+  "w": 879,
+  "h": 1369,
+  "out": ""
+ },
+ {
+  "key": "16-03",
+  "lesson": 16,
+  "cls": "C",
+  "desc": "九宫格里的走位方向图：棋盘格底、中心一张牌、八个方向箭头与落点",
+  "src": "content/16/img/03.png",
+  "w": 960,
+  "h": 536,
+  "out": "assets/figs/L16-03.jpg"
+ },
+ {
+  "key": "16-04",
+  "lesson": 16,
+  "cls": "B",
+  "desc": "九宫格牌名（钥匙/月亮/鹳鸟…）",
+  "src": "content/16/img/04.png",
+  "w": 971,
+  "h": 1230,
+  "out": ""
+ },
+ {
+  "key": "16-05",
+  "lesson": 16,
+  "cls": "B",
+  "desc": "九宫格牌名（同上，另一版）",
+  "src": "content/16/img/05.png",
+  "w": 971,
+  "h": 1230,
+  "out": ""
+ },
+ {
+  "key": "16-06",
+  "lesson": 16,
+  "cls": "B",
+  "desc": "九宫格牌名（鱼/棺材/花园…）",
+  "src": "content/16/img/06.png",
+  "w": 991,
+  "h": 1248,
+  "out": ""
+ },
+ {
+  "key": "16-07",
+  "lesson": 16,
+  "cls": "B",
+  "desc": "九宫格牌名（男人/十字架/船…）",
+  "src": "content/16/img/07.png",
+  "w": 988,
+  "h": 1250,
+  "out": ""
+ },
+ {
+  "key": "16-08",
+  "lesson": 16,
+  "cls": "B",
+  "desc": "九宫格牌名（镰刀/房子/花束…）",
+  "src": "content/16/img/08.png",
+  "w": 988,
+  "h": 1245,
+  "out": ""
+ },
+ {
+  "key": "16-09",
+  "lesson": 16,
+  "cls": "B",
+  "desc": "九宫格牌名（鞭子/老鼠/钥匙…）",
+  "src": "content/16/img/09.png",
+  "w": 977,
+  "h": 1243,
+  "out": ""
+ },
+ {
+  "key": "16-10",
+  "lesson": 16,
+  "cls": "B",
+  "desc": "九宫格牌名（鞭子/花束/蛇…）",
+  "src": "content/16/img/10.png",
+  "w": 977,
+  "h": 1242,
+  "out": ""
+ },
+ {
+  "key": "17-01",
+  "lesson": 17,
+  "cls": "B",
+  "desc": "36 宫位全表（牌名密排）",
+  "src": "content/17/img/01.png",
+  "w": 1080,
+  "h": 813,
+  "out": ""
+ },
+ {
+  "key": "17-02",
+  "lesson": 17,
+  "cls": "A",
+  "desc": "牌与宫位对照的牌面示例",
+  "src": "content/17/img/02.png",
+  "w": 1080,
+  "h": 843,
+  "out": ""
+ },
+ {
+  "key": "17-03",
+  "lesson": 17,
+  "cls": "B",
+  "desc": "牌与宫位对照方框（女人/太阳/树）",
+  "src": "content/17/img/03.png",
+  "w": 1080,
+  "h": 847,
+  "out": ""
+ },
+ {
+  "key": "17-04",
+  "lesson": 17,
+  "cls": "B",
+  "desc": "牌与宫位对照方框（鱼/鸟/房屋）",
+  "src": "content/17/img/04.png",
+  "w": 1080,
+  "h": 838,
+  "out": ""
+ },
+ {
+  "key": "17-05",
+  "lesson": 17,
+  "cls": "B",
+  "desc": "十宫位编号方框（我的过去…我想要的未来）",
+  "src": "content/17/img/05.png",
+  "w": 1080,
+  "h": 613,
+  "out": ""
+ },
+ {
+  "key": "17-06",
+  "lesson": 17,
+  "cls": "B",
+  "desc": "十宫位牌名（船/小孩/书…）",
+  "src": "content/17/img/06.png",
+  "w": 1080,
+  "h": 624,
+  "out": ""
+ },
+ {
+  "key": "17-07",
+  "lesson": 17,
+  "cls": "B",
+  "desc": "十宫位牌名（十字架/钥匙/男人…）",
+  "src": "content/17/img/07.png",
+  "w": 1080,
+  "h": 614,
+  "out": ""
+ },
+ {
+  "key": "17-08",
+  "lesson": 17,
+  "cls": "B",
+  "desc": "十宫位牌名（鹳鸟/熊/月亮…）",
+  "src": "content/17/img/08.png",
+  "w": 1080,
+  "h": 621,
+  "out": ""
+ },
+ {
+  "key": "18-01",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/01.png",
+  "w": 760,
+  "h": 316,
+  "out": ""
+ },
+ {
+  "key": "18-02",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/02.png",
+  "w": 747,
+  "h": 317,
+  "out": ""
+ },
+ {
+  "key": "18-03",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/03.png",
+  "w": 752,
+  "h": 314,
+  "out": ""
+ },
+ {
+  "key": "18-04",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/04.png",
+  "w": 752,
+  "h": 312,
+  "out": ""
+ },
+ {
+  "key": "18-05",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/05.png",
+  "w": 749,
+  "h": 317,
+  "out": ""
+ },
+ {
+  "key": "18-06",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/06.png",
+  "w": 751,
+  "h": 313,
+  "out": ""
+ },
+ {
+  "key": "18-07",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/07.png",
+  "w": 753,
+  "h": 316,
+  "out": ""
+ },
+ {
+  "key": "18-08",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/08.png",
+  "w": 748,
+  "h": 319,
+  "out": ""
+ },
+ {
+  "key": "18-09",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/09.png",
+  "w": 748,
+  "h": 317,
+  "out": ""
+ },
+ {
+  "key": "18-10",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/10.png",
+  "w": 749,
+  "h": 312,
+  "out": ""
+ },
+ {
+  "key": "18-11",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/11.png",
+  "w": 750,
+  "h": 321,
+  "out": ""
+ },
+ {
+  "key": "18-12",
+  "lesson": 18,
+  "cls": "B",
+  "desc": "点数牌对照方框（牌名 + 扑克点数）",
+  "src": "content/18/img/12.png",
+  "w": 751,
+  "h": 316,
+  "out": ""
+ }
+]
