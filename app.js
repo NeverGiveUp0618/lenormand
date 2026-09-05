@@ -5,8 +5,11 @@ S.stat=S.stat||{}; S.journal=S.journal||[]; S.read=S.read||{};
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 const byN=n=>DECK.find(c=>c.n===+n);
 const hasOrig=id=>typeof ORIGINALS!=='undefined'&&ORIGINALS&&ORIGINALS[id];
-const svg=(n,cls)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"
-  stroke-linecap="round" stroke-linejoin="round" class="${cls||''}">${ICONS[n]}</svg>`;
+/* 牌图位：用户把自己设计的牌存成 assets/cards/01.jpg…36.jpg，放进去就自动显示；
+   没有该文件时图元素自行移除，牌面退回纯文字排版 */
+const CARD_DIR='assets/cards/';
+const face=n=>`<img class="face" src="${CARD_DIR}${String(n).padStart(2,'0')}.jpg"
+  alt="" loading="lazy" onerror="this.remove()">`;
 const orn=(k,cls)=>`<svg class="${cls||''}" viewBox="${ORN[k].vb}" fill="none" stroke="currentColor"
   stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${ORN[k].d}</svg>`;
 const SEC=t=>`<h2 class="sec">${orn('pisces','gl')}${t}</h2>`;
@@ -23,7 +26,7 @@ const today=()=>new Date().toLocaleDateString('sv');
 function tile(c,extra){
   return `<div class="tile ${polCls(c.pol)} ${extra||''}" data-card="${c.n}">
     <span class="no">${String(c.n).padStart(2,'0')}</span><span class="pk">${c.pk}</span>
-    ${svg(c.n)}<div class="nm">${c.name}</div><div class="en">${c.en}</div></div>`;
+    ${face(c.n)}<div class="nm">${c.name}</div><div class="en">${c.en}</div></div>`;
 }
 
 /* ---------- 主题 ---------- */
@@ -58,7 +61,7 @@ function route(){
   const p=location.hash.replace(/^#\/?/,'').split('/');
   const v=document.getElementById('view');
   const r={learn:vLearn,lesson:vLesson,cards:vCards,card:vCard,combo:vCombo,
-           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal,orig:vOrig}[p[0]]||vLearn;
+           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal,orig:vOrig,slots:vSlots}[p[0]]||vLearn;
   v.innerHTML=r(p[1],p[2])||''; v.scrollTop=0; window.scrollTo(0,0); nav();
 }
 
@@ -75,7 +78,9 @@ function vLearn(){
      <button class="btn" data-go="#/combo">两张牌组合器</button></div>
    <div class="row" style="margin-top:8px">
      <button class="btn" data-go="#/train">开始练习</button>
-     <button class="btn" data-go="#/draw/d1">今日一张</button></div>`;
+     <button class="btn" data-go="#/draw/d1">今日一张</button></div>
+   <div class="row" style="margin-top:8px">
+     <button class="btn" data-go="#/slots">图位清单 · 等补图</button></div>`;
 }
 function vLesson(id){
   const l=LESSONS.find(x=>x.id===+id)||LESSONS[0];
@@ -86,6 +91,16 @@ function vLesson(id){
     if(b[0]==='h') return `<h3>${b[1]}</h3>`;
     if(b[0]==='ex') return `<div class="ex"><b>${b[1]}</b><span>${b[2]}</span></div>`;
     if(b[0]==='cards') return `<div class="grid">${b[1].map(n=>tile(byN(n))).join('')}</div>`;
+    if(b[0]==='fig'){ // 图位：图做好了就显示，没做就显示标记框
+      return `<figure class="fig slot" data-slot="${b[1]}">
+        <img src="${CARD_DIR}../figs/${b[1]}.jpg" alt="${b[2]}" loading="lazy"
+          onload="this.closest('.slot').classList.add('done')" onerror="this.remove()">
+        <div class="ph">
+          <div class="ph-id">图位 ${b[1]}</div>
+          <div class="ph-t">${b[2]}</div>
+          <div class="ph-e">${b[3]}</div>
+        </div></figure>`;
+    }
     if(b[0]==='img') return `<figure class="fig"><img src="${b[1]}" alt="${b[2]}" loading="lazy">
       <figcaption class="cap">${b[2]}</figcaption></figure>`;
     if(b[0]==='tableau'){ // 大牌阵排布图，用格子画
@@ -115,6 +130,29 @@ function vLesson(id){
   return `<div class="body rd">${html}</div>`+link+og+
     (nx?`<button class="btn pri" data-go="#/lesson/${nx.id}">下一课 · ${nx.title}</button>`
        :`<button class="btn pri" data-go="#/train">五课读完了，去练一练</button>`);
+}
+
+/* ---------- 图位清单 ---------- */
+const FIGS=()=>LESSONS.flatMap(l=>l.body.filter(b=>b[0]==='fig')
+  .map(b=>({id:b[1],what:b[2],el:b[3],where:`第 ${l.id} 课 · ${l.title}`,
+            file:`assets/figs/${b[1]}.jpg`})));
+function vSlots(){
+  head('图位清单','等你的牌图和插图','#/learn');
+  const rows=(arr)=>arr.map(s=>`<div class="sl" data-slot="${s.id}">
+      <img src="${s.file}" alt="" loading="lazy"
+        onload="this.closest('.sl').classList.add('done')" onerror="this.remove()">
+      <div class="sl-b"><div class="sl-h"><b>${s.id}</b>
+        <span class="st st-wait">待补</span><span class="st st-done">已补</span></div>
+        <div class="sl-t">${s.what}</div>
+        <div class="sl-e">${s.el}</div>
+        <div class="sl-f">${s.file}</div></div></div>`).join('');
+  const cards=DECK.map(c=>({id:String(c.n).padStart(2,'0'),what:`${c.name} ${c.en}`,
+    el:`${c.pk} · ${c.keys.join(' / ')}`,where:'牌面',
+    file:`${CARD_DIR}${String(c.n).padStart(2,'0')}.jpg`}));
+  return `<div class="card pad mut">图做好了按下面的文件名存进去，页面会自动换上，不用改代码。
+      牌面统一竖版，长宽比 2:3；课程插图宽度按 900px 出图即可。</div>
+    ${SEC(`课程插图 · ${FIGS().length} 个`)}<div class="slots">${rows(FIGS())}</div>
+    ${SEC(`牌面 · 36 张`)}<div class="slots">${rows(cards)}</div>`;
 }
 
 /* ---------- 原文（仅本地版） ---------- */
@@ -148,7 +186,7 @@ function vCard(n){
   const F=(t,v)=>v&&v.length?`<dt>${t}</dt><dd>${Array.isArray(v)
     ?`<div class="chips">${v.map(x=>`<span class="chip">${x}</span>`).join('')}</div>`:v}</dd>`:'';
   return `<div class="card pad rd">
-    <div class="hero">${svg(c.n,'big')}<div>
+    <div class="hero"><div class="facebox">${face(c.n)}<span>${String(c.n).padStart(2,'0')}</span></div><div>
       <div class="nm">${c.name}</div>
       <div class="meta">${c.en} · ${c.pk} · ${String(c.n).padStart(2,'0')} 号</div>
       <div style="margin-top:6px">${polTag(c.pol)}</div></div></div>

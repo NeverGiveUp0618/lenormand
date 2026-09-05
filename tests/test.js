@@ -10,7 +10,7 @@ const sec=t=>console.log('\n'+t);
 
 const src=f=>fs.readFileSync(path.join(ROOT,f),'utf8');
 const {DECK,SPREADS,LESSONS}=new Function(src('data.js')+';return{DECK,SPREADS,LESSONS}')();
-const {ICONS}=new Function(src('icons.js')+';return{ICONS}')();
+const {ORN}=new Function(src('icons.js')+';return{ORN}')();
 
 sec('一、牌库数据');
 ok(DECK.length===36,'应有 36 张牌，实为 '+DECK.length);
@@ -29,13 +29,21 @@ DECK.forEach(c=>{
   ok([-1,0,1,2].includes(c.pol),`${c.name} 极性取值异常`);
 });
 ok(DECK.filter(c=>c.pol>0).length>=12&&DECK.filter(c=>c.pol<0).length>=6,'正负面牌数量分布应合理');
-sec('二、图标');
-ok(Object.keys(ICONS).length===36,'图标应有 36 个');
-Array.from({length:36},(_,i)=>i+1).forEach(n=>{
-  ok(!!ICONS[n],n+' 号缺图标');
-  ok(!/["]/.test(ICONS[n]||'')===false||true,'');
-  ok(/^<(path|circle|rect)/.test(ICONS[n]||''),n+' 号图标不是合法 svg 片段');
-});
+sec('二、装饰件与图位');
+['pisces','constel','fishpair','wave'].forEach(k=>{
+  ok(ORN[k]&&ORN[k].vb&&ORN[k].d,`装饰件 ${k} 缺失`);
+  ok(/^<(g|path|circle|rect)/.test(ORN[k].d),`装饰件 ${k} 不是合法 svg 片段`);});
+ok(!/ICONS/.test(src('icons.js'))&&!/ICONS/.test(src('app.js')),'手绘牌面图标应已全部移除');
+ok(!fs.existsSync(path.join(ROOT,'assets','course')),'原文照片目录应已删除');
+{
+  const figs=LESSONS.flatMap(l=>l.body.filter(b=>b[0]==='fig').map(b=>({l:l.id,b})));
+  ok(figs.length>=10,`图位太少：${figs.length}`);
+  ok(new Set(figs.map(f=>f.b[1])).size===figs.length,'图位编号不能重复');
+  figs.forEach(({l,b})=>{
+    ok(new RegExp(`^L${l}-\\d\\d$`).test(b[1]),`图位编号应形如 L${l}-01，实为 ${b[1]}`);
+    ok(b[2]&&b[2].length>3,`图位 ${b[1]} 没写该配什么`);
+    ok(b[3]&&b[3].length>10,`图位 ${b[1]} 没写清元素`);});
+}
 sec('三、课程与牌阵');
 ok(LESSONS.length===5,'应有 5 课');
 LESSONS.forEach(l=>{
@@ -60,7 +68,7 @@ LESSONS.forEach(l=>ok(/^https:\/\/mp\.weixin\.qq\.com\/s\/[\w-]+$/.test(l.src||'
   `第 ${l.id} 课缺原文链接或格式不对：${l.src}`));
 ok(new Set(LESSONS.map(l=>l.src)).size===LESSONS.length,'五课的原文链接不能重复');
 ok(SPREADS.every(s=>s.slots.length===s.size),'牌阵 slots 数量须等于 size');
-ok(LESSONS.reduce((n,l)=>n+l.body.filter(b=>b[0]==='plate').length,0)>=6,'课文插图应不少于 6 张');
+ok(LESSONS.reduce((n,l)=>n+l.body.filter(b=>b[0]==='plate').length,0)===0,'手绘插图应已全部撤除');
 ok(SPREADS.every(s=>s.size<=36),'牌阵张数不能超过牌库');
 
 sec('四、页面与路由');
@@ -79,10 +87,23 @@ ok(w.document.querySelectorAll('#cg .tile').length===36,'查牌页应铺出 36 �
 go('#/card/24');
 ok(view().includes('心')&&view().includes('红桃J'),'牌详情应显示牌名与扑克');
 go('#/lesson/1');
-ok(w.document.querySelectorAll('.fig img').length===4,'第 1 课应有 4 张照片');
-ok([...w.document.querySelectorAll('.fig img')].every(i=>i.getAttribute('loading')==='lazy'),
-  '课程照片都应带 loading=lazy');
-ok([...w.document.querySelectorAll('.fig img')].every(i=>i.alt),'课程照片都应有 alt');
+ok(w.document.querySelectorAll('.fig.slot').length===4,'第 1 课应有 4 个图位');
+ok([...w.document.querySelectorAll('.fig.slot')].every(f=>f.querySelector('.ph-id')&&
+   f.querySelector('.ph-t')&&f.querySelector('.ph-e')),'图位标记应含编号/该配什么/元素三行');
+ok([...w.document.querySelectorAll('.fig.slot img')].every(i=>i.getAttribute('loading')==='lazy'),
+  '图位的图应带 loading=lazy');
+go('#/cards');
+ok(w.document.querySelectorAll('#cg .tile svg').length===0,'牌面不应再有手绘图标');
+{const t0=w.document.querySelector('#cg .tile');
+ ok(/骑士/.test(t0.textContent)&&/红桃9/.test(t0.textContent)&&/Rider/.test(t0.textContent),
+   '牌面应显示牌名、扑克牌、英文名');
+ ok(t0.querySelector('img.face')&&t0.querySelector('img.face').getAttribute('src')==='assets/cards/01.jpg',
+   '牌面应留出牌图位 assets/cards/01.jpg');}
+go('#/slots');
+{const sl=w.document.querySelectorAll('.sl');
+ ok(sl.length===11+36,`图位清单应列 47 条（11 插图 + 36 牌面），实为 ${sl.length}`);
+ ok([...sl].every(s=>s.querySelector('.sl-f').textContent.trim()),'每条都应写明文件名');
+ ok([...sl].every(s=>s.querySelector('.st-wait')),'每条都应有待补/已补状态');}
 go('#/lesson/3');
 {const tabs=w.document.querySelectorAll('.tableau');
  ok(tabs.length===2,'第 3 课应有 2 张排布图');
