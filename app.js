@@ -67,7 +67,7 @@ function route(){
 
 /* ---------- 学 ---------- */
 function vLearn(){
-  head('雷诺曼 · 三十六牌','从零开始的五课');
+  head('雷诺曼 · 三十六牌','从零到能读盘，十二篇');
   return orn('constel','constel')+`${SEC(`课程`)}<div class="card">`+
    LESSONS.map(l=>`<div class="lesson-li" data-go="#/lesson/${l.id}">
      <span class="idx">${l.id}</span><div><div class="t">${l.title}</div><div class="s">${l.sub}</div></div>
@@ -85,7 +85,7 @@ function vLearn(){
 function vLesson(id){
   const l=LESSONS.find(x=>x.id===+id)||LESSONS[0];
   S.read[l.id]=1; save();
-  head(`第 ${l.id} 课 · ${l.title}`,l.sub,'#/learn');
+  head(`第 ${l.id} 篇 · ${l.title}`,l.sub,'#/learn');
   const html=l.body.map(b=>{
     if(b[0]==='p') return `<p>${b[1]}</p>`;
     if(b[0]==='h') return `<h3>${b[1]}</h3>`;
@@ -103,6 +103,12 @@ function vLesson(id){
     }
     if(b[0]==='img') return `<figure class="fig"><img src="${b[1]}" alt="${b[2]}" loading="lazy">
       <figcaption class="cap">${b[2]}</figcaption></figure>`;
+    if(b[0]==='layout'){ // 牌位示意图：一格一个标签，空串留白
+      const rows=b[1].map(r=>`<div class="lrow" style="grid-template-columns:repeat(${r.length},1fr)">`+
+        r.map(x=>x?`<span class="lc">${x}</span>`:'<span class="lc none"></span>').join('')+'</div>').join('');
+      return `<figure class="plate"><div class="lay">${rows}</div>
+        <figcaption class="cap">${b[2]}</figcaption></figure>`;
+    }
     if(b[0]==='tableau'){ // 大牌阵排布图，用格子画
       const cols=b[1],extra=b[2],main=36-extra;
       const cell=n=>`<span class="tc${n>main?' ex':''}">${n}</span>`;
@@ -123,18 +129,21 @@ function vLesson(id){
     return '';
   }).join('');
   const nx=LESSONS.find(x=>x.id===l.id+1);
-  const link=l.src?`<a class="btn src" href="${l.src}" target="_blank" rel="noopener">
-    <b>读公众号原文 ›</b><br><span class="mut">作者原稿全文，在微信里打开</span></a>`:'';
+  const srcs=[].concat(l.src||[]);
+  const link=srcs.length?`${SEC(`这一篇的原文`)}
+    <div class="mut" style="margin:-4px 0 10px">本篇由我通读全部课程后重写。对应的作者原稿共 ${srcs.length} 篇，在微信里打开：</div>
+    <div class="opts">`+srcs.map((u,i)=>`<a class="btn src" href="${u}" target="_blank" rel="noopener">
+      <b>原文 ${i+1} ›</b></a>`).join('')+`</div>`:'';
   const og=hasOrig(l.id)?`<button class="btn" data-go="#/orig/${l.id}" style="margin-bottom:9px">
-    <b>读这一课的原文</b><br><span class="mut">公众号原稿，图文按原序（本地版才有）</span></button>`:'';
+    <b>读这一篇的原文</b><br><span class="mut">公众号原稿，图文按原序（本地版才有）</span></button>`:'';
   return `<div class="body rd">${html}</div>`+link+og+
-    (nx?`<button class="btn pri" data-go="#/lesson/${nx.id}">下一课 · ${nx.title}</button>`
-       :`<button class="btn pri" data-go="#/train">五课读完了，去练一练</button>`);
+    (nx?`<button class="btn pri" data-go="#/lesson/${nx.id}">下一篇 · ${nx.title}</button>`
+       :`<button class="btn pri" data-go="#/train">十二篇读完了，去练一练</button>`);
 }
 
 /* ---------- 图位清单 ---------- */
 const FIGS=()=>LESSONS.flatMap(l=>l.body.filter(b=>b[0]==='fig')
-  .map(b=>({id:b[1],what:b[2],el:b[3],where:`第 ${l.id} 课 · ${l.title}`,
+  .map(b=>({id:b[1],what:b[2],el:b[3],where:`第 ${l.id} 篇 · ${l.title}`,
             file:`assets/figs/${b[1]}.jpg`})));
 function vSlots(){
   head('图位清单','等你的牌图和插图','#/learn');
@@ -158,7 +167,7 @@ function vSlots(){
 /* ---------- 原文（仅本地版） ---------- */
 function vOrig(id){
   const o=hasOrig(id); if(!o) return vLearn();
-  head('原文 · 第 '+id+' 课',o.title,'#/lesson/'+id);
+  head('原文 · 第 '+id+' 篇',o.title,'#/lesson/'+id);
   const body=o.blocks.map(b=>b[0]==='img'
     ? `<figure class="fig"><img src="${b[1]}" alt="课程原图" loading="lazy"></figure>`
     : `<p>${esc(b[1])}</p>`).join('');
