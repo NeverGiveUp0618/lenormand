@@ -2,3 +2,6 @@
 content/
 .DS_Store
 content-local.js
+_conflicts.md
+_conflicts.json
+_course_cards.json
