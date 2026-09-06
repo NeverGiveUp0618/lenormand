@@ -102,6 +102,21 @@ function nav(){
   document.getElementById('nav').innerHTML=TABS.map(([id,blk,txt])=>
     `<button data-go="#/${id}" class="${cur===id?'on':''}"><span class="blk">${blk}</span>${txt}</button>`).join('');
 }
+/* 返回：按真实来路回退，写死的目标只作直接开链接时的兜底 */
+let navStack=[], backing=false;
+function trackNav(){
+  const h=location.hash||'#/learn';
+  if(backing){backing=false; return}
+  if(navStack[navStack.length-1]!==h) navStack.push(h);
+  if(navStack.length>40) navStack.shift();
+}
+function goBack(fb){
+  navStack.pop();
+  const prev=navStack[navStack.length-1];
+  backing=true;
+  const target=prev||fb||'#/learn';
+  if(location.hash===target){backing=false; route()} else location.hash=target;
+}
 function head(t,s,back){
   document.getElementById('ttl').textContent=t;
   document.getElementById('stl').textContent=s||'';
@@ -109,6 +124,7 @@ function head(t,s,back){
 }
 function route(){
   document.body.classList.remove('guiding');
+  trackNav();
   const p=location.hash.replace(/^#\/?/,'').split('/');
   const v=document.getElementById('view');
   const r={learn:vLearn,lesson:vLesson,cards:vCards,card:vCard,combo:vCombo,
@@ -641,6 +657,10 @@ function checkRead(txt,cards){
     {ok:concl, t:`给了一句结论`, d:concl?'':'结尾没有落到判断上——实战时对方要的就是这一句'}
   ];
 }
+function keepDraft(){          // 跳走前把没提交的读法留住
+  const el=document.getElementById('rtxt');
+  if(el&&rCase) rCase.txt=el.value;
+}
 function vRead(){
   if(!rCase) rCase=newCase();
   const {q,cards,shown}=rCase;
@@ -680,7 +700,7 @@ function vRead(){
 
 /* ---------- 记 ---------- */
 function vJournal(){
-  head('抽牌日记','回看比抽牌更重要');
+  head('抽牌日记','回看比抽牌更重要','#/train');
   if(!S.journal.length) return `<div class="card pad mut">还没有记录。去「练 › 每日一张」抽一张，写下你的解读；
     过几天回来补上实际发生了什么，这一栏最值钱。</div>
     <button class="btn pri" data-go="#/draw/d1" style="margin-top:12px">抽今天这一张</button>`;
@@ -698,11 +718,14 @@ function vJournal(){
 /* ---------- 事件 ---------- */
 document.addEventListener('click',e=>{
   if(e.target.closest('#zoomer')){closeZoom();return}
+  const bk=e.target.closest('#back');
+  if(bk){goBack(bk.dataset.go);return}
   const z=e.target.closest('[data-zoom]');
   if(z){openZoom(+z.dataset.zoom);return}
   const th=e.target.closest('[data-theme-set]');
   if(th){applyTheme(th.dataset.themeSet);return}
-  const g=e.target.closest('[data-go]'); if(g&&g.dataset.go){location.hash=g.dataset.go;return}
+  const g=e.target.closest('[data-go]');
+  if(g&&g.dataset.go){keepDraft();location.hash=g.dataset.go;return}
   const t=e.target.closest('[data-card]');
   if(t&&location.hash.startsWith('#/combo')){
     const n=+t.dataset.card;
@@ -711,7 +734,7 @@ document.addEventListener('click',e=>{
     else if(comboA===null)comboA=n; else comboB=n;
     route();return;
   }
-  if(t){location.hash='#/card/'+t.dataset.card;return}
+  if(t){keepDraft();location.hash='#/card/'+t.dataset.card;return}
   const f=e.target.closest('[data-filter]');
   if(f){filter=f.dataset.filter;location.hash='#/cards/'+filter;route();return}
   if(e.target.id==='creset'){comboA=comboB=null;route();return}

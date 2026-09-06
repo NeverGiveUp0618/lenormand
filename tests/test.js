@@ -412,6 +412,42 @@ sec('四之八、读盘练习');
   }
   ok(bad===0,`出题 300 次应始终三张不重复，异常 ${bad} 次`);
 }
+sec('四之九、返回逻辑');
+{
+  const back=()=>{const b=w.document.getElementById('back');
+    ok(!b.hidden,'该页应有返回按钮'); b.click(); w.eval('route()'); return w.location.hash};
+  // 从课文点牌进牌义 → 返回应回课文，而不是查牌页
+  go('#/lesson/3');
+  w.document.querySelector('.tile[data-card]').click(); w.eval('route()');
+  ok(w.location.hash==='#/card/1'||/^#\/card\//.test(w.location.hash),'点牌应进牌义页');
+  ok(back()==='#/lesson/3',`从课文进牌义，返回应回课文，实为 ${w.location.hash}`);
+  // 从练习题进牌义 → 返回应回练习题
+  go('#/quiz/num'); w.eval('quiz.ans=null');
+  w.document.querySelector('[data-opt]').click(); w.eval('route()');
+  const bcard=w.document.querySelector('[data-go^="#/card/"]');
+  if(bcard){ bcard.click(); w.eval('route()');
+    ok(back()==='#/quiz/num',`从练习题进牌义，返回应回练习题，实为 ${w.location.hash}`); }
+  // 从抽牌盘面点牌 → 返回应回抽牌页
+  go('#/draw/s3');
+  w.document.querySelector('.tile[data-card]').click(); w.eval('route()');
+  ok(back()==='#/draw/s3',`从抽牌盘面进牌义，返回应回抽牌页，实为 ${w.location.hash}`);
+  // 日记页必须有返回
+  go('#/journal');
+  ok(!w.document.getElementById('back').hidden,'抽牌日记应有返回按钮');
+  ok(back()==='#/draw/s3'||w.location.hash!=='#/journal','日记返回应离开当前页');
+  // 直接深链进入时走兜底
+  w.eval('navStack.length=0');
+  go('#/card/24');
+  w.document.getElementById('back').click(); w.eval('route()');
+  ok(w.location.hash==='#/cards','没有来路时应回落到声明的兜底目标');
+  // 连续回退不应卡死或越界
+  w.eval('navStack.length=0');
+  go('#/learn'); go('#/cards'); go('#/card/7'); go('#/combo/7');
+  back(); back();
+  ok(w.location.hash==='#/cards',`连续回退应逐层退回，实为 ${w.location.hash}`);
+  for(let i=0;i<6;i++){const b=w.document.getElementById('back'); if(b&&!b.hidden){b.click();w.eval('route()')}}
+  ok(typeof w.location.hash==='string','多次回退不应抛错');
+}
 sec('五、出题引擎（每型 400 题）');
 ['num','key','combo','peg','mix'].forEach(m=>{
   let bad=0,dup=0,noOk=0;
