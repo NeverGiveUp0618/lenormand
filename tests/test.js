@@ -111,6 +111,17 @@ const go=h=>{w.location.hash=h;w.eval('route()')};
 go('#/cards');
 ok(w.document.querySelectorAll('#cg .tile').length===36,'查牌页应铺出 36 张牌，实为 '+w.document.querySelectorAll('#cg .tile').length);
 go('#/card/24');
+{
+  const z=w.document.querySelector('[data-zoom]');
+  ok(z,'牌义页大图应可点开放大');
+  z.click();
+  const zi=w.document.querySelector('#zoomer img');
+  ok(zi,'点击后应出现全屏查看层');
+  ok(w.document.querySelector('#zoomer source').getAttribute('srcset').includes('/z/'),
+    '全屏层应加载 1024 原始分辨率档');
+  w.document.getElementById('zoomer').click();
+  ok(!w.document.getElementById('zoomer'),'再点一次应关闭');
+}
 ok(view().includes('心')&&view().includes('红桃J'),'牌详情应显示牌名与扑克');
 ok(view().includes('雷诺曼宇宙')&&view().includes(DECK.find(c=>c.n===24).univ),
   '牌详情应显示「雷诺曼宇宙」称号');
@@ -132,7 +143,19 @@ ok(w.document.querySelectorAll('#cg .tile svg').length===0,'牌面不应再有�
  ok(t0.getAttribute('data-no')==='1','牌面应带号码水印属性');
  ok(t0.querySelector('img.face')&&t0.querySelector('img.face').getAttribute('src')==='assets/cards/t/01.jpg',
    '网格应使用缩略牌图 assets/cards/t/01.jpg');
- ok(fs.existsSync(path.join(ROOT,'assets','cards','t','01.jpg')),'缩略牌图文件应存在');}
+ ok(fs.existsSync(path.join(ROOT,'assets','cards','t','01.jpg')),'缩略牌图文件应存在');
+// 三档牌图齐全：网格 260 / 显示 600 / 放大 1024
+for(let n=1;n<=36;n++){
+  const id=String(n).padStart(2,'0');
+  ['t/'+id+'.webp','t/'+id+'.jpg',id+'.webp',id+'.jpg','z/'+id+'.webp'].forEach(f=>
+    ok(fs.existsSync(path.join(ROOT,'assets','cards',f)),`缺牌图 ${f}`));
+}
+{
+  const big=fs.statSync(path.join(ROOT,'assets','cards','z','01.webp')).size;
+  const mid=fs.statSync(path.join(ROOT,'assets','cards','01.webp')).size;
+  ok(big>mid*1.6,'放大档应显著大于显示档，否则等于没提清晰度');
+  ok(big<900*1024,'放大档单张不应超过 900KB');
+}}
 go('#/cards/list');
 ok(w.document.querySelectorAll('.lst .li').length===36,'速查应一行一张列出 36 张');
 ok(w.document.querySelectorAll('.fbar .btn').length===5,'筛选条应有 5 个按钮');

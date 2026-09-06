@@ -9,11 +9,29 @@ const hasOrig=id=>typeof ORIGINALS!=='undefined'&&ORIGINALS&&ORIGINALS[id];
    没有该文件时图元素自行移除，牌面退回纯文字排版 */
 const CARD_DIR='assets/cards/', FIG_DIR='assets/figs/';
 /* 牌图两档：网格用 260px 缩略，详情用 600px 大图 */
-const face=(n,big)=>{
-  const p=`${CARD_DIR}${big?'':'t/'}${String(n).padStart(2,'0')}`;
+/* 三档：t=网格缩略(260) / 空=正常显示(600) / z=放大看细节(1024，原始分辨率) */
+const face=(n,big,zoom)=>{
+  const id=String(n).padStart(2,'0'), p=`${CARD_DIR}${big?'':'t/'}${id}`;
   return `<picture><source srcset="${p}.webp" type="image/webp">
-    <img class="face" src="${p}.jpg" alt="" loading="lazy" onerror="this.remove()"></picture>`;
+    <img class="face${zoom?' zoomable':''}" ${zoom?`data-zoom="${n}"`:''}
+      src="${p}.jpg" alt="" loading="lazy" onerror="this.remove()"></picture>`;
 };
+/* 全屏看细节 */
+function openZoom(n){
+  const c=byN(n), id=String(n).padStart(2,'0');
+  const el=document.createElement('div');
+  el.className='zoomer'; el.id='zoomer';
+  el.innerHTML=`<div class="zbox"><picture>
+      <source srcset="${CARD_DIR}z/${id}.webp" type="image/webp">
+      <img src="${CARD_DIR}${id}.jpg" alt="${c.name}"></picture>
+      <div class="zcap">${c.n} · ${c.name} · ${c.pk}</div></div>`;
+  document.body.appendChild(el);
+  document.body.style.overflow='hidden';
+}
+function closeZoom(){
+  const el=document.getElementById('zoomer');
+  if(el){el.remove(); document.body.style.overflow='';}
+}
 const orn=(k,cls)=>`<svg class="${cls||''}" viewBox="${ORN[k].vb}" fill="none" stroke="currentColor"
   stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${ORN[k].d}</svg>`;
 const SEC=t=>`<h2 class="sec">${orn('pisces','gl')}<span class="t">${t}</span></h2>`;
@@ -232,7 +250,7 @@ function vCard(n){
   const F=(t,v)=>v&&v.length?`<dt>${t}</dt><dd>${Array.isArray(v)
     ?`<div class="chips">${v.map(x=>`<span class="chip">${x}</span>`).join('')}</div>`:v}</dd>`:'';
   return `<div class="card pad rd">
-    <div class="hero"><div class="facebox">${face(c.n,1)}<span>${String(c.n).padStart(2,'0')}</span></div><div>
+    <div class="hero"><div class="facebox">${face(c.n,1,1)}<span>${String(c.n).padStart(2,'0')}</span></div><div>
       <div class="nm">${c.name}</div>
       <div class="meta">${c.en} · ${c.pk} · ${String(c.n).padStart(2,'0')} 号</div>
       <div style="margin-top:6px">${polTag(c.pol)}</div></div></div>
@@ -314,6 +332,7 @@ function vMem(arg){
     <div class="memcard">${q}</div>${grid}
     ${ans===null?'':`<div class="fb ${ok?'ok':'bad'}" style="margin-top:14px">
         ${ok?'对了。':`不对，是 <b>${c.n} ${c.name}</b>。`}</div>
+      <div class="mcard mcard-a">${face(c.n,1,1)}</div>
       <div class="memsc"><b>${c.n} · ${m.peg} · ${c.name}</b>
         <p>${m.scene}</p><p class="mwhy">${m.why}</p></div>
       <button class="btn pri" id="mnext" style="margin-top:12px">下一题</button>`}`;
@@ -469,6 +488,9 @@ function vJournal(){
 
 /* ---------- 事件 ---------- */
 document.addEventListener('click',e=>{
+  if(e.target.closest('#zoomer')){closeZoom();return}
+  const z=e.target.closest('[data-zoom]');
+  if(z){openZoom(+z.dataset.zoom);return}
   const th=e.target.closest('[data-theme-set]');
   if(th){applyTheme(th.dataset.themeSet);return}
   const g=e.target.closest('[data-go]'); if(g&&g.dataset.go){location.hash=g.dataset.go;return}
@@ -517,7 +539,8 @@ document.addEventListener('keydown',e=>{
     S.journal[+e.target.dataset.real].real=e.target.value.trim();save();route();
   }
 });
-window.addEventListener('hashchange',route);
+window.addEventListener('hashchange',()=>{closeZoom();route()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeZoom()});
 applyTheme(new URLSearchParams(location.search).get('t')||S.theme||'pearl');
 {const m=document.getElementById('mark'); if(m) m.innerHTML=orn('fishpair');}
 route();
