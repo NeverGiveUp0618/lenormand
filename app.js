@@ -112,7 +112,7 @@ function route(){
   const p=location.hash.replace(/^#\/?/,'').split('/');
   const v=document.getElementById('view');
   const r={learn:vLearn,lesson:vLesson,cards:vCards,card:vCard,combo:vCombo,
-           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal,orig:vOrig,slots:vSlots,mem:vMem}[p[0]]||vLearn;
+           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal,orig:vOrig,slots:vSlots,mem:vMem,read:vRead}[p[0]]||vLearn;
   v.innerHTML=r(p[1],p[2])||''; v.scrollTop=0; window.scrollTo(0,0); nav();
 }
 
@@ -405,8 +405,9 @@ function vTrain(){
     return r+w?Math.round(r*100/(r+w)):0})();
   const wk=weak().filter(c=>{const s=S.stat[c.n];return s&&s.w>s.r}).slice(0,8);
   const memd=memDone();
-  return `<button class="btn pri" data-go="#/mem" style="margin-bottom:12px">
-      数字桩记忆 · ${memd}/36</button>
+  return `<div class="row" style="margin-bottom:12px">
+      <button class="btn pri" data-go="#/mem">数字桩记忆 · ${memd}/36</button>
+      <button class="btn pri" data-go="#/read">读盘练习</button></div>
     <div class="card pad">
       <div class="mut">累计答题 ${done} 题 · 正确率 ${rate}%</div>
       <div class="bar"><i style="width:${rate}%"></i></div>
@@ -604,6 +605,79 @@ function vDraw(id){
     <button class="btn" id="redraw" style="margin-top:12px;text-align:center">重新抽</button>`;
 }
 
+/* ---------- 读盘练习 ---------- */
+let rCase=null;
+function newCase(){
+  return {q:pick(CASES), cards:shuffle(DECK).slice(0,3), txt:'', shown:false};
+}
+/* 参考读法：把课程的机械步骤走一遍，不是标准答案 */
+function refRead(cards){
+  const [a,b,c]=cards, s=stats(cards);
+  const pairs=[[a,b],[b,c]].map(([x,y])=>({x,y,p:phrases(x,y).slice(0,3)}));
+  const tone=s.pol.p-s.pol.n;
+  return {
+    subject:`${a.name}是主语——先把它读成一个名词：${a.noun.slice(0,3).join(' / ')}。`,
+    pairs,
+    line:`整行连读：${a.noun[0]}，${b.adj[0]}，最后落到${c.noun[0]}。说出口时要加连接词，别读成电报稿。`,
+    tone: tone>0?`幸运牌多于挑战牌（${s.pol.p} : ${s.pol.n}），整体偏顺。`
+         :tone<0?`挑战牌多于幸运牌（${s.pol.n} : ${s.pol.p}），这件事有阻力，重点在阻力出在哪一张。`
+         :`吉凶各半（幸运 ${s.pol.p}、挑战 ${s.pol.n}），结果取决于当事人怎么做。`,
+    hard:cards.filter(x=>x.pol<0).map(x=>`${x.name}：${x.role}`),
+    stats:s
+  };
+}
+/* 客观检查：只看写没写到，不评价对错 */
+function checkRead(txt,cards){
+  const t=(txt||'').trim();
+  const named=cards.filter(c=>t.includes(c.name));
+  const kw=[];
+  cards.forEach(c=>[...c.noun,...c.adj,...c.keys].forEach(k=>{if(t.includes(k))kw.push(k)}));
+  const concl=/(会|能|可以|不会|需要|建议|应该|得先|所以|因此)/.test(t.slice(-40));
+  return [
+    {ok:named.length===cards.length, t:`三张牌都提到了`,
+     d:named.length===cards.length?'':`漏了 ${cards.filter(c=>!named.includes(c)).map(c=>c.name).join('、')}`},
+    {ok:kw.length>=2, t:`用上了牌义关键词`, d:kw.length?`用到：${[...new Set(kw)].slice(0,6).join(' / ')}`:'一个关键词都没用上'},
+    {ok:t.length>=30, t:`展开够了（${t.length} 字）`, d:t.length>=30?'':'太短，通常说明只报了牌名没连成话'},
+    {ok:concl, t:`给了一句结论`, d:concl?'':'结尾没有落到判断上——实战时对方要的就是这一句'}
+  ];
+}
+function vRead(){
+  if(!rCase) rCase=newCase();
+  const {q,cards,shown}=rCase;
+  head('读盘练习','写完再对参考读法','#/train');
+  const board=`<div class="spread" style="--n:3">`+cards.map((c,i)=>
+    `<div class="dslot">${tile(c)}<span class="slot">${['起','承','结'][i]}</span></div>`).join('')+`</div>`;
+  if(!shown){
+    return `<div class="qcase"><span class="qf">${q.f}</span><p>${q.q}</p></div>
+      ${board}
+      <div class="card pad" style="margin-top:12px">
+        <div class="mut">用一段话回答上面的问题。先点主语，再把两对连起来，最后给一句结论。</div>
+        <textarea id="rtxt" placeholder="我的读法…" style="margin-top:9px">${esc(rCase.txt)}</textarea>
+        <button class="btn pri" id="rshow" style="margin-top:9px">对参考读法</button>
+      </div>
+      <button class="btn" id="rskip" style="margin-top:9px;text-align:center">换一题</button>`;
+  }
+  const r=refRead(cards), ck=checkRead(rCase.txt,cards);
+  return `<div class="qcase"><span class="qf">${q.f}</span><p>${q.q}</p></div>
+    ${board}
+    <div class="card pad" style="margin-top:12px"><div class="mut">你写的</div>
+      <p style="margin:8px 0 0;white-space:pre-wrap">${esc(rCase.txt)||'（没写）'}</p></div>
+    <div class="chk"><div class="ch"><b>机械检查</b><span>只看写没写到，不评价对错</span></div>
+      ${ck.map(x=>`<div class="ci ${x.ok?'ok':''}"><span class="cb">${x.ok?'✓':'!'}</span>
+        <span class="ct"><b>${x.t}</b>${x.d?`<i>${x.d}</i>`:''}</span></div>`).join('')}</div>
+    <div class="ref"><div class="rh"><b>参考读法</b><span>课程的机械步骤，不是标准答案</span></div>
+      <div class="rb">
+        <div class="rs"><i>一 · 定主语</i><p>${r.subject}</p></div>
+        ${r.pairs.map((p,k)=>`<div class="rs"><i>${k===0?'二':'三'} · ${p.x.name} + ${p.y.name}</i>
+          <div class="chips">${p.p.map(x=>`<span class="chip k">${x}</span>`).join('')}</div></div>`).join('')}
+        <div class="rs"><i>四 · 连读</i><p>${r.line}</p></div>
+        <div class="rs"><i>五 · 盘面</i><p>${r.tone}</p>
+          ${r.hard.length?`<p class="mut" style="margin-top:6px">${r.hard.join('；')}</p>`:''}</div>
+      </div></div>
+    ${vStats(cards)}
+    <button class="btn pri" id="rnext" style="margin-top:12px">再来一题</button>`;
+}
+
 /* ---------- 记 ---------- */
 function vJournal(){
   head('抽牌日记','回看比抽牌更重要');
@@ -652,6 +726,11 @@ document.addEventListener('click',e=>{
   if(e.target.id==='gprev'){gStep--;route();return}
   if(e.target.id==='gend'){gStep=null;route();return}
   if(e.target.id==='mnext'){memQ=nextMem();route();return}
+  if(e.target.id==='rshow'){
+    const el=document.getElementById('rtxt'); rCase.txt=el?el.value:''; rCase.shown=true;
+    route(); return;
+  }
+  if(e.target.id==='rskip'||e.target.id==='rnext'){rCase=newCase();route();return}
   const mo=e.target.closest('[data-mem]');
   if(mo&&memQ&&memQ.ans===null){
     const pickN=+mo.dataset.mem, right=pickN===memQ.c.n, n=memQ.c.n;

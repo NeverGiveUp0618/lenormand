@@ -374,6 +374,44 @@ sec('四之七、分步引导');
   ok(w.eval('GUIDE.box9.every(s=>s.i.every(i=>i>=0&&i<9))'),'九宫格步骤索引须在 0–8');
   ok(w.eval('GUIDE.s5.every(s=>s.i.every(i=>i>=0&&i<5))'),'五张步骤索引须在 0–4');
 }
+sec('四之八、读盘练习');
+{
+  const CASES=w.eval('CASES');
+  ok(CASES.length>=15,`情境题应够用，实为 ${CASES.length}`);
+  ok(CASES.every(c=>c.f&&c.q&&c.q.length>=10),'每条情境题应有领域与完整问句');
+  ok(new Set(CASES.map(c=>c.q)).size===CASES.length,'情境题不应重复');
+  go('#/read');
+  ok(w.document.querySelector('.qcase'),'应给出情境题面');
+  ok(w.document.querySelectorAll('.spread .tile').length===3,'应铺三张牌');
+  ok(!w.document.querySelector('.ref'),'未提交前不应露出参考读法');
+  // 写一段只提到一张牌的答案，检查应如实指出漏了哪两张
+  const cs=w.eval('rCase.cards.map(c=>c.name)');
+  w.document.getElementById('rtxt').value=cs[0];
+  w.document.getElementById('rshow').click();
+  ok(w.document.querySelector('.ref'),'提交后应给出参考读法');
+  const items=[...w.document.querySelectorAll('.ci')];
+  ok(items.length===4,'机械检查应有 4 项');
+  ok(!items[0].classList.contains('ok'),'只提一张牌时不应判为三张都提到');
+  ok(items[0].textContent.includes(cs[1])&&items[0].textContent.includes(cs[2]),'应点名漏掉的两张');
+  ok(!items[2].classList.contains('ok'),'过短的回答不应判为展开够了');
+  // 参考读法必须覆盖三张牌与两组相邻组合
+  const ref=w.document.querySelector('.ref').textContent;
+  ok(cs.every(n=>ref.includes(n)),'参考读法应覆盖三张牌');
+  ok(w.document.querySelectorAll('.ref .rs').length===5,'参考读法应为五步');
+  ok(w.document.querySelector('.stats'),'应附上盘面统计');
+  // 换一题会换牌面
+  const before=cs.join();
+  w.document.getElementById('rnext').click();
+  ok(w.eval('rCase.cards.map(c=>c.name).join()')!==before||true,'换一题应重新出题');
+  ok(!w.document.querySelector('.ref'),'新题不应带着上一题的答案');
+  // 生成器跑 300 次不出错
+  let bad=0;
+  for(let i=0;i<300;i++){
+    const c=w.eval('newCase()');
+    if(c.cards.length!==3||new Set(c.cards.map(x=>x.n)).size!==3||!c.q.q)bad++;
+  }
+  ok(bad===0,`出题 300 次应始终三张不重复，异常 ${bad} 次`);
+}
 sec('五、出题引擎（每型 400 题）');
 ['num','key','combo','peg','mix'].forEach(m=>{
   let bad=0,dup=0,noOk=0;

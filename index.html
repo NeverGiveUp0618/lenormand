@@ -290,6 +290,34 @@ textarea{min-height:80px;resize:vertical}
 textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .mut{color:var(--dim);font-size:13px}
 
+/* ─── 读盘练习 ─── */
+.qcase{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 4px 4px 0;padding:14px 16px;box-shadow:var(--shadow)}
+.qcase .qf{display:inline-block;font-family:var(--serif);font-size:11px;letter-spacing:.24em;
+  background:var(--accent);color:var(--panel);padding:2px 10px;border-radius:2px}
+.qcase p{margin:9px 0 0;font-size:16px;line-height:1.8;color:var(--head)}
+.chk,.ref{background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  box-shadow:var(--shadow);overflow:hidden;margin-top:12px}
+.chk .ch,.ref .rh{display:flex;align-items:baseline;gap:10px;padding:11px 15px;
+  background:var(--accent);color:var(--panel)}
+.ref .rh{background:var(--accent2)}
+.chk .ch b,.ref .rh b{font-family:var(--serif);font-size:14px;letter-spacing:.18em}
+.chk .ch span,.ref .rh span{font-size:11px;opacity:.9;margin-left:auto;letter-spacing:.04em}
+.ci{display:flex;gap:11px;padding:11px 15px;border-bottom:1px solid var(--line);align-items:flex-start}
+.ci:last-child{border-bottom:0}
+.cb{width:20px;height:20px;flex:none;border-radius:3px;background:var(--sand);color:var(--panel);
+  display:grid;place-items:center;font-size:12px;font-family:var(--serif)}
+.ci.ok .cb{background:var(--accent2)}
+.ct{flex:1;min-width:0;display:flex;flex-direction:column}
+.ct b{font-size:14px;font-weight:400;color:var(--ink)}
+.ct i{font-style:normal;font-size:12px;color:var(--dim);margin-top:3px;line-height:1.6}
+.rb{padding:4px 0}
+.rs{padding:12px 15px;border-bottom:1px solid var(--line)}
+.rs:last-child{border-bottom:0}
+.rs>i{font-style:normal;display:block;font-family:var(--serif);font-size:11px;letter-spacing:.22em;
+  color:var(--accent);margin-bottom:7px}
+.rs p{margin:0;font-size:14.5px;line-height:1.85;color:var(--ink)}
+
 /* ─── 盘面统计 ─── */
 .stats{background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);
   overflow:hidden;margin-top:12px}
