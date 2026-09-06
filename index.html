@@ -154,7 +154,8 @@ h2.sec>span.t{padding:0 12px;background:color-mix(in srgb,var(--accent) 10%,tran
   opacity:.10;pointer-events:none;letter-spacing:-.04em;
 }
 .tile:active{transform:translateY(1px)}
-.tile .face{width:100%;height:auto;display:block;margin:8px 0 0;
+.tile picture{display:block;margin:8px 0 0}
+.tile .face{width:100%;height:auto;display:block;
   border-radius:7.4%/4.9%}   /* 与卡面自身圆角对齐，切掉原图四角的黑区 */
 .tile .nm{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--head);
   letter-spacing:.08em;margin-top:9px;position:relative}
@@ -218,7 +219,8 @@ dl.f dd{margin:5px 0 0;color:var(--ink)}
 /* ─── 图位 / 示意图 ─── */
 .fig{margin:0 0 18px;background:var(--panel);border:1px solid var(--line);border-radius:4px;
   box-shadow:var(--shadow);padding:13px 13px 14px}
-.fig img{width:100%;height:auto;display:block;border-radius:3px;background:#fff}
+.fig picture{display:block}
+.fig img{width:100%;height:auto;display:block;border-radius:3px}
 .fig .cap.done-only{display:none}
 .fig.slot.done .cap.done-only{display:block}
 .fig .cap,.plate .cap{font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.75;text-align:center}
@@ -248,7 +250,8 @@ dl.f dd{margin:5px 0 0;color:var(--ink)}
 .slots{display:flex;flex-direction:column;gap:9px}
 .sl{display:flex;gap:13px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);
   border-radius:4px;padding:13px 15px;box-shadow:var(--shadow)}
-.sl img{width:52px;flex:none;border-radius:3px}
+.sl picture{flex:none}
+.sl img{width:52px;display:block;border-radius:7.4%/4.9%}
 .sl-b{flex:1;min-width:0}
 .sl-h{display:flex;align-items:center;gap:9px}
 .sl-h b{font-family:var(--serif);color:var(--head);letter-spacing:.12em}

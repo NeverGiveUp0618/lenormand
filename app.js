@@ -9,8 +9,11 @@ const hasOrig=id=>typeof ORIGINALS!=='undefined'&&ORIGINALS&&ORIGINALS[id];
    没有该文件时图元素自行移除，牌面退回纯文字排版 */
 const CARD_DIR='assets/cards/', FIG_DIR='assets/figs/';
 /* 牌图两档：网格用 260px 缩略，详情用 600px 大图 */
-const face=(n,big)=>`<img class="face" src="${CARD_DIR}${big?'':'t/'}${String(n).padStart(2,'0')}.jpg"
-  alt="" loading="lazy" onerror="this.remove()">`;
+const face=(n,big)=>{
+  const p=`${CARD_DIR}${big?'':'t/'}${String(n).padStart(2,'0')}`;
+  return `<picture><source srcset="${p}.webp" type="image/webp">
+    <img class="face" src="${p}.jpg" alt="" loading="lazy" onerror="this.remove()"></picture>`;
+};
 const orn=(k,cls)=>`<svg class="${cls||''}" viewBox="${ORN[k].vb}" fill="none" stroke="currentColor"
   stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${ORN[k].d}</svg>`;
 const SEC=t=>`<h2 class="sec">${orn('pisces','gl')}<span class="t">${t}</span></h2>`;
@@ -103,8 +106,9 @@ function vLesson(id){
     if(b[0]==='cards') return `<div class="grid">${b[1].map(n=>tile(byN(n))).join('')}</div>`;
     if(b[0]==='fig'){ // 图位：图做好了就显示，没做就显示标记框
       return `<figure class="fig slot" data-slot="${b[1]}">
-        <img src="${FIG_DIR}${b[1]}.jpg" alt="${b[2]}" loading="lazy"
-          onload="this.closest('.slot').classList.add('done')" onerror="this.remove()">
+        <picture><source srcset="${FIG_DIR}${b[1]}.webp" type="image/webp">
+          <img src="${FIG_DIR}${b[1]}.jpg" alt="${b[2]}" loading="lazy"
+            onload="this.closest('.slot').classList.add('done')" onerror="this.remove()"></picture>
         <div class="ph">
           <div class="ph-id">图位 ${b[1]}</div>
           <div class="ph-t">${b[2]}</div>
