@@ -247,7 +247,9 @@ sec('四之二、三套主题');
     ok(box.querySelectorAll('button.on').length===1,`${id} 主题下选中态应唯一`);
   });
   w.eval("applyTheme('nope')");
-  ok(w.document.documentElement.getAttribute('data-theme')==='pearl','非法主题名应回落到 pearl');
+  ok(w.document.documentElement.getAttribute('data-theme')==='dusk','非法主题名应回落到默认的 dusk');
+  ok(src('index.html').includes('data-theme="dusk"'),'首屏静态默认主题应为 dusk');
+  ok(!/S\.theme\|\|'pearl'/.test(src('app.js')),'启动默认不应再是 pearl');
   const marks=w.document.querySelectorAll('#mark svg');
   ok(marks.length===1,'背景应有一张双鱼水印');
 }

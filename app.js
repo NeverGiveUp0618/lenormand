@@ -84,7 +84,7 @@ const THEMES=[['pearl','月白','暖象牙纸，墨与旧金'],
               ['dusk','玫瑰金','胭脂纸，梅子色与霜绿'],
               ['sea','夜航','墨蓝纸，月光银与金'] ];
 function applyTheme(t){
-  if(!THEMES.some(x=>x[0]===t)) t='pearl';
+  if(!THEMES.some(x=>x[0]===t)) t='dusk';   // 默认玫瑰金
   S.theme=t; save();
   document.documentElement.setAttribute('data-theme',t);
   const tc=getComputedStyle(document.documentElement).getPropertyValue('--tc').trim();
@@ -407,18 +407,7 @@ function vTrain(){
     return r+w?Math.round(r*100/(r+w)):0})();
   const wk=weak().filter(c=>{const s=S.stat[c.n];return s&&s.w>s.r}).slice(0,8);
   const memd=memDone();
-  const pegTable=`<details class="pegtbl">
-      <summary>数字桩速查表 · 36 条</summary>
-      <div class="ptwrap"><table>
-        <thead><tr><th>号</th><th>桩</th><th>牌</th><th>逻辑画面</th></tr></thead>
-        <tbody>`+DECK.map(c=>{const m=MEM[c.n];
-          return `<tr data-card="${c.n}"><td class="tn">${String(c.n).padStart(2,'0')}</td>
-            <td class="tp">${m.peg}</td><td class="tc">${c.name}</td>
-            <td class="ts">${m.scene}<span class="tw">${m.why}</span></td></tr>`}).join('')+
-      `</tbody></table></div>
-      <div class="mut" style="padding:0 14px 13px">点任意一行看该牌牌义。</div>
-    </details>`;
-  return pegTable+`<button class="btn pri" data-go="#/mem" style="margin:12px 0">
+  return `<button class="btn pri" data-go="#/mem" style="margin-bottom:12px">
       数字桩记忆 · ${memd}/36</button>
     <div class="card pad">
       <div class="mut">累计答题 ${done} 题 · 正确率 ${rate}%</div>
@@ -607,7 +596,7 @@ document.addEventListener('keydown',e=>{
 });
 window.addEventListener('hashchange',()=>{closeZoom();route()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeZoom()});
-applyTheme(new URLSearchParams(location.search).get('t')||S.theme||'pearl');
+applyTheme(new URLSearchParams(location.search).get('t')||S.theme||'dusk');
 {const m=document.getElementById('mark'); if(m) m.innerHTML=orn('fishpair');}
 route();
 if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
