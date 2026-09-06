@@ -12,7 +12,7 @@ const face=n=>`<img class="face" src="${CARD_DIR}${String(n).padStart(2,'0')}.jp
   alt="" loading="lazy" onerror="this.remove()">`;
 const orn=(k,cls)=>`<svg class="${cls||''}" viewBox="${ORN[k].vb}" fill="none" stroke="currentColor"
   stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${ORN[k].d}</svg>`;
-const SEC=t=>`<h2 class="sec">${orn('pisces','gl')}${t}</h2>`;
+const SEC=t=>`<h2 class="sec">${orn('pisces','gl')}<span class="t">${t}</span></h2>`;
 const moonSvg=p=>`<svg class="moon" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor"
   stroke-width="1"><circle cx="12" cy="12" r="9" fill="none" opacity=".3"/><path d="${moonPath(p)}"/></svg>`;
 const polCls=p=>p>0?'pos':(p<0?'neg':'');
@@ -29,10 +29,13 @@ function pip(pk){
   const s=SUIT[pk.slice(0,2)]||['',''];
   return `<span class="pk ${s[1]}">${s[0]}${pk.slice(2)}</span>`;
 }
+const ROLE3=p=>p>0?'幸运':(p<0?'挑战':'中性');
 function tile(c,extra){
   return `<div class="tile ${polCls(c.pol)} ${extra||''}" data-card="${c.n}" data-no="${c.n}">
-    <span class="no">${String(c.n).padStart(2,'0')}</span>${pip(c.pk)}
-    ${face(c.n)}<div class="nm">${c.name}</div><div class="en">${c.en}</div></div>`;
+    <div class="bar"><span class="no">${String(c.n).padStart(2,'0')}</span>
+      <span class="rl">${ROLE3(c.pol)}</span></div>
+    ${face(c.n)}<div class="nm">${c.name}</div><div class="en">${c.en}</div>
+    ${pip(c.pk)}</div>`;
 }
 
 /* ---------- 主题 ---------- */

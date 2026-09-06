@@ -13,7 +13,7 @@
   --panel:#fffdfa; --panel-b:#fffcf7;
   --ink:#403a32; --head:#211d17; --dim:#8d8579;
   --accent:#a8763c; --accent2:#2f6059;
-  --suit-r:#b2452f; --suit-b:#2b3440;
+  --suit-r:#b2452f; --suit-b:#2b3440; --sand:#b9a27c;
   --line:rgba(63,52,36,.13); --line2:rgba(63,52,36,.26);
   --shadow:0 1px 2px rgba(90,72,44,.05),0 8px 24px rgba(90,72,44,.07);
   --grain:.030; --tc:#faf7f2;
@@ -23,7 +23,7 @@ html[data-theme="dusk"]{               /* 玫瑰金：胭脂纸，梅子色与�
   --panel:#fffbfa; --panel-b:#fff8f7;
   --ink:#4b3a3d; --head:#2c2024; --dim:#9c8589;
   --accent:#ac6570; --accent2:#6d8069;
-  --suit-r:#b8514e; --suit-b:#3b3340;
+  --suit-r:#b8514e; --suit-b:#3b3340; --sand:#c0a3a6;
   --line:rgba(80,50,55,.13); --line2:rgba(80,50,55,.26);
   --shadow:0 1px 2px rgba(120,80,85,.05),0 8px 24px rgba(120,80,85,.08);
   --grain:.032; --tc:#faf3f1;
@@ -33,7 +33,7 @@ html[data-theme="sea"]{                /* 夜航：墨蓝纸，月光银与金 *
   --panel:#16242a; --panel-b:#132026;
   --ink:#c8d6d8; --head:#f2f6f4; --dim:#84969c;
   --accent:#d2a75a; --accent2:#79bcae;
-  --suit-r:#dd8271; --suit-b:#9db2be;
+  --suit-r:#dd8271; --suit-b:#9db2be; --sand:#5d7078;
   --line:rgba(190,215,220,.15); --line2:rgba(190,215,220,.28);
   --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.34);
   --grain:.045; --tc:#0e1a1e;
@@ -94,43 +94,61 @@ header.top .sub{font-size:11.5px;color:var(--dim);letter-spacing:.10em;margin-to
 .themes button.on{box-shadow:0 0 0 1.5px var(--paper),0 0 0 3px var(--accent)}
 
 /* ─── 分节标题：小字号 + 长横线 ─── */
-h2.sec{font-family:var(--serif);font-size:12.5px;color:var(--dim);font-weight:600;
-  letter-spacing:.32em;margin:34px 0 14px;display:flex;align-items:center;gap:10px}
-h2.sec .gl{color:var(--accent);flex:none;display:block;width:13px;height:13px;opacity:.85}
-h2.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+h2.sec{font-family:var(--serif);font-size:12.5px;font-weight:600;color:var(--head);
+  letter-spacing:.28em;margin:34px 0 14px;display:flex;align-items:center;gap:0}
+h2.sec .gl{flex:none;display:block;width:13px;height:13px;color:var(--panel);
+  background:var(--accent);padding:6px 5px;border-radius:2px 0 0 2px;box-sizing:content-box}
+h2.sec::before{content:"";display:block;background:var(--accent);color:var(--panel);
+  width:0;height:25px}
+h2.sec::after{content:"";flex:1;height:25px;margin-left:12px;
+  background:repeating-linear-gradient(90deg,var(--line2) 0 2px,transparent 2px 9px) 0 50%/100% 1px no-repeat;
+  -webkit-mask-image:linear-gradient(90deg,#000,transparent 85%);
+  mask-image:linear-gradient(90deg,#000,transparent 85%)}
+h2.sec>span.t{padding:0 12px;background:color-mix(in srgb,var(--accent) 10%,transparent);
+  border-radius:0 2px 2px 0;height:25px;display:flex;align-items:center;color:var(--head)}
 
 .card{background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow)}
 .pad{padding:18px 20px}
 
-/* ─── 牌面：号码水印 + 花色点 + 衬线牌名 ─── */
+/* ─── 小装饰：四角括号、分节色块、节内方点 ─── */
+.brk{position:relative}
+.brk::before,.brk::after{content:"";position:absolute;width:11px;height:11px;pointer-events:none;
+  border-color:color-mix(in srgb,var(--accent) 55%,transparent);opacity:.9}
+.brk::before{top:7px;left:7px;border-top:1px solid;border-left:1px solid}
+.brk::after{bottom:7px;right:7px;border-bottom:1px solid;border-right:1px solid}
+
+/* ─── 牌面：作用色块 + 花色点 + 衬线牌名 ─── */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:11px}
 .tile{
+  --c:var(--sand);
   background:var(--panel);border:1px solid var(--line);border-radius:4px;
-  padding:13px 8px 11px;text-align:center;cursor:pointer;position:relative;overflow:hidden;
-  box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s,border-color .15s;
-  min-height:104px;display:flex;flex-direction:column;justify-content:center;
+  padding:0 8px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden;
+  box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s;
+  min-height:106px;display:flex;flex-direction:column;
 }
+.tile.pos{--c:var(--accent2)} .tile.neg{--c:var(--suit-r)}
+.tile .bar{ /* 顶部色块：号码 + 作用 */
+  margin:0 -8px 0;background:var(--c);color:var(--panel);
+  display:flex;justify-content:space-between;align-items:center;padding:4px 9px 5px;
+  font-family:var(--serif);font-size:10px;letter-spacing:.18em;
+}
+.tile .bar .rl{letter-spacing:.24em;opacity:.95}
 .tile::before{ /* 大号数字水印 */
-  content:attr(data-no);position:absolute;right:-6px;bottom:-16px;
-  font-family:var(--serif);font-size:56px;line-height:1;color:var(--head);
-  opacity:.055;pointer-events:none;letter-spacing:-.04em;
+  content:attr(data-no);position:absolute;right:-4px;bottom:-14px;
+  font-family:var(--serif);font-size:52px;line-height:1;color:var(--c);
+  opacity:.10;pointer-events:none;letter-spacing:-.04em;
 }
 .tile:active{transform:translateY(1px)}
-.tile .no{position:absolute;top:8px;left:10px;font-family:var(--serif);font-size:10.5px;
-  color:var(--dim);letter-spacing:.14em}
-.tile .pk{position:absolute;top:7px;right:9px;font-size:11.5px;font-weight:600;letter-spacing:.02em}
-.tile .pk.r{color:var(--suit-r)} .tile .pk.b{color:var(--suit-b)}
-.tile .face{width:100%;height:auto;display:block;border-radius:3px;margin:8px 0 9px}
-.tile .nm{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--head);
-  letter-spacing:.10em;margin-top:6px;position:relative}
+.tile .face{width:100%;height:auto;display:block;border-radius:3px;margin:9px 0 2px}
+.tile .nm{font-family:var(--serif);font-size:17.5px;font-weight:600;color:var(--head);
+  letter-spacing:.10em;margin-top:14px;position:relative}
 .tile .en{font-size:9.5px;color:var(--dim);letter-spacing:.16em;text-transform:uppercase;margin-top:3px}
-.tile.pos{box-shadow:var(--shadow),inset 3px 0 0 color-mix(in srgb,var(--accent2) 60%,transparent)}
-.tile.neg{box-shadow:var(--shadow),inset 3px 0 0 color-mix(in srgb,var(--suit-r) 55%,transparent)}
+.tile .pk{position:absolute;right:9px;bottom:8px;font-size:12px;font-weight:600;letter-spacing:.02em}
+.tile .pk.r{color:var(--suit-r)} .tile .pk.b{color:var(--suit-b)}
 .tile.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),var(--shadow)}
-.pol{display:inline-block;font-family:var(--serif);font-size:11px;padding:2px 10px;
-  border-radius:2px;border:1px solid var(--line2);letter-spacing:.14em;color:var(--dim)}
-.pol.p{color:var(--accent2);border-color:color-mix(in srgb,var(--accent2) 45%,transparent)}
-.pol.n{color:var(--suit-r);border-color:color-mix(in srgb,var(--suit-r) 45%,transparent)}
+.pol{display:inline-block;font-family:var(--serif);font-size:11px;padding:3px 11px;
+  border-radius:2px;letter-spacing:.16em;color:var(--panel);background:var(--sand)}
+.pol.p{background:var(--accent2)} .pol.n{background:var(--suit-r)}
 
 /* ─── 牌义详情 ─── */
 .hero{display:flex;gap:18px;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--line)}
@@ -156,32 +174,40 @@ dl.f dd{margin:5px 0 0;color:var(--ink)}
   border-bottom:1px solid var(--line);cursor:pointer;transition:background .15s}
 .lesson-li:last-child{border-bottom:0}
 .lesson-li:active{background:var(--panel-b)}
-.lesson-li .idx{font-family:var(--serif);font-size:19px;color:var(--accent);flex:none;
-  width:26px;text-align:center;letter-spacing:0;opacity:.85}
+.lesson-li .idx{font-family:var(--serif);font-size:14px;color:var(--panel);flex:none;
+  width:28px;height:28px;border-radius:2px;background:var(--accent);display:grid;
+  place-items:center;letter-spacing:0;align-self:center}
+.lesson-li:nth-child(even){background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.lesson-li:nth-child(even) .idx{background:var(--accent2)}
 .lesson-li .t{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--head);letter-spacing:.06em}
 .lesson-li .s{font-size:12.5px;color:var(--dim);margin-top:2px}
 .body{font-size:15.5px}
 .body p{margin:0 0 17px}
 .body p:first-of-type{font-size:16.5px;line-height:1.8;color:var(--head)}
 .body h3{font-family:var(--serif);font-size:17px;margin:32px 0 12px;color:var(--head);
-  letter-spacing:.08em;padding-left:13px;border-left:2px solid var(--accent)}
-.ex{background:var(--panel);border:1px solid var(--line);border-left:2px solid var(--accent2);
-  border-radius:0 3px 3px 0;padding:13px 16px;margin:0 0 16px}
-.ex b{display:block;font-family:var(--serif);font-size:15px;letter-spacing:.08em;color:var(--head)}
-.ex span{font-size:13.5px;color:var(--dim);display:block;margin-top:3px}
+  letter-spacing:.08em;display:flex;align-items:center;gap:9px}
+.body h3::before{content:"";width:9px;height:9px;flex:none;background:var(--accent);
+  transform:rotate(45deg)}
+.body h3::after{content:"";flex:1;height:1px;background:var(--line)}
+.ex{background:var(--panel);border:1px solid var(--line);border-radius:3px;
+  margin:0 0 16px;overflow:hidden}
+.ex b{display:block;font-family:var(--serif);font-size:14.5px;letter-spacing:.10em;
+  background:var(--accent2);color:var(--panel);padding:7px 16px}
+.ex span{font-size:13.5px;color:var(--ink);display:block;padding:11px 16px 12px}
 
 /* ─── 图位 / 示意图 ─── */
 .fig{margin:0 0 18px;background:var(--panel);border:1px solid var(--line);border-radius:4px;
   box-shadow:var(--shadow);padding:13px 13px 14px}
 .fig img{width:100%;height:auto;display:block;border-radius:3px;background:#fff}
 .fig .cap,.plate .cap{font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.75;text-align:center}
-.fig.slot .ph{border:1px dashed var(--line2);border-radius:3px;padding:22px 16px;text-align:center;
-  background:var(--panel-b)}
+.fig.slot .ph{position:relative;border:1px dashed var(--line2);border-radius:3px;padding:24px 16px;
+  text-align:center;background:var(--panel-b)}
+.ph-id{display:inline-block;background:var(--accent);color:var(--panel);padding:2px 10px;border-radius:2px}
 .fig.slot.done .ph{display:none}
-.ph-id{font-family:var(--serif);font-size:11px;letter-spacing:.3em;color:var(--accent)}
+.ph-id{font-family:var(--serif);font-size:11px;letter-spacing:.3em}
 .ph-t{font-family:var(--serif);font-size:15.5px;color:var(--head);margin-top:8px;letter-spacing:.06em}
 .ph-e{font-size:12.5px;color:var(--dim);margin-top:7px;line-height:1.75}
-.plate{background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);
+.plate{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);
   padding:20px 16px 15px;margin:0 0 18px;text-align:center}
 .lay{display:flex;flex-direction:column;gap:8px;align-items:center;width:100%}
 .lrow{display:grid;gap:8px;width:100%}
