@@ -127,11 +127,11 @@ function vLearn(){
   const task=`<div class="daily ${dn===DAILY.length?'alldone':''}">
       <div class="dh"><b>今日任务</b>
         <span>${dn===DAILY.length?'今天全部做完了':`约 ${mins} 分钟 · ${dn}/${DAILY.length}`}</span></div>
-      ${DAILY.map(x=>{const c=Math.min(s[x.k]||0,x.n), ok=c>=x.n;
+      ${DAILY.map((x,i)=>{const c=Math.min(s[x.k]||0,x.n), ok=c>=x.n;
         return `<div class="dt ${ok?'ok':''}" data-go="${x.go()}">
-          <span class="dbox">${ok?'✓':''}</span>
+          <span class="dbox">${ok?'✓':i+1}</span>
           <span class="dtx"><b>${x.t}</b><i>${x.d}</i></span>
-          <span class="dnum">${x.n>1?`${c}/${x.n}`:''}</span></div>`}).join('')}
+          <span class="dnum">${x.n>1?`${c}/${x.n}`:`${x.m} 分钟`}</span></div>`}).join('')}
     </div>`;
   return task+
    `<button class="btn pri big" data-go="#/lesson/${nx.id}">
@@ -142,10 +142,7 @@ function vLearn(){
       <div class="pr"><b>${known}/36</b><span>牌义已熟</span>
         <i class="bar"><s style="width:${known/36*100}%"></s></i></div>
     </div>
-    <div class="row" style="margin-top:10px">
-      <button class="btn" data-go="#/draw/d1">今日一张</button>
-      <button class="btn" data-go="#/train">做几道题</button></div>`+
-   SEC(`十二篇`)+`<div class="card">`+
+`+SEC(`十二篇`)+`<div class="card">`+
    LESSONS.map(l=>`<div class="lesson-li" data-go="#/lesson/${l.id}">
      <span class="idx">${l.id}</span><div style="flex:1"><div class="t">${l.title}</div>
      <div class="s">${l.sub}</div></div>
