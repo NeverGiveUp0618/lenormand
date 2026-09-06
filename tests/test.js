@@ -159,7 +159,7 @@ for(let n=1;n<=36;n++){
 go('#/cards/peg');
 {
   const rows=w.document.querySelectorAll('details.mrow');
-  ok(rows.length===36,`记忆法应完整列出 36 条，实为 ${rows.length}`);
+  ok(rows.length===36,`记忆应完整列出 36 条，实为 ${rows.length}`);
   ok([...rows].every(d=>!d.open),'默认应全部折叠');
   const MEMd=w.eval('MEM');
   ok([...rows].every(d=>{
@@ -209,6 +209,33 @@ SPREADS.forEach(s=>{go('#/draw/'+s.id);
   const ns=[...w.document.querySelectorAll('.tile')].map(t=>t.dataset.card);
   ok(new Set(ns).size===ns.length,`${s.name} 抽牌不应重复`);});
 
+sec('三之二、样式挂钩');
+{
+  // 防「改了 JS 忘了加 CSS」：渲染出来的关键 class 必须在样式表里有定义
+  const css=src('index.html');
+  ['.manual','.mgh','.mi','.daily','.dbox','.stats','.guide','.qcase','.chk','.ref',
+   '.memcard','.memgrid','.mopt','.mrow','.lst','.li','.keys','.lay','.tableau','.fig',
+   '.zoomer','.fbar','.pr','.tile','.spread','.nine'].forEach(sel=>
+     ok(css.includes(sel+'{')||css.includes(sel+' ')||css.includes(sel+','),
+        `样式表里找不到 ${sel} 的定义——很可能是 JS 加了组件但 CSS 没插进去`));
+}
+sec('四之零、使用手册');
+{
+  go('#/learn');
+  const man=w.document.querySelector('details.manual');
+  ok(man,'学页应有使用手册');
+  ok(!man.open,'手册默认应折叠，不挡住每日任务');
+  const daily=w.document.querySelector('.daily');
+  ok(man.compareDocumentPosition(daily)&w.Node.DOCUMENT_POSITION_FOLLOWING,
+    '手册应排在今日任务上方');
+  const MAN=w.eval('MANUAL');
+  ok(MAN.length>=3,'手册应至少分学/查/练三组');
+  const n=MAN.reduce((a,g)=>a+g.items.length,0);
+  ok(w.document.querySelectorAll('.manual .mi').length===n,`手册条目应全部渲染（${n} 条）`);
+  ok(MAN.every(g=>g.items.every(([t,x])=>t&&x&&x.length>=10&&x.length<=60)),
+    '每条应是一句话，不能太短也不能写成段落');
+  ok(MAN.some(g=>g.items.some(([t])=>t==='记忆')),'手册里应收录「记忆」这一档');
+}
 sec('四之一、每日任务');
 {
   go('#/learn');

@@ -141,6 +141,10 @@ function vLearn(){
   const known=DECK.filter(c=>{const s=S.stat[c.n];return s&&s.r>=3&&s.r>s.w*2}).length;
   const done=read===LESSONS.length;
   const s=daily(), dn=dailyDone(), mins=DAILY.reduce((n,x)=>n+x.m,0);
+  const man=`<details class="manual"><summary>使用手册 · 每个模块一句话</summary>`+
+    MANUAL.map(g=>`<div class="mg"><div class="mgh">${g.g}${g.d?`<i>${g.d}</i>`:''}</div>`+
+      g.items.map(([t,x])=>`<div class="mi"><b>${t}</b><p>${x}</p></div>`).join('')+`</div>`).join('')+
+    `</details>`;
   const task=`<div class="daily ${dn===DAILY.length?'alldone':''}">
       <div class="dh"><b>今日任务</b>
         <span>${dn===DAILY.length?'今天全部做完了':`约 ${mins} 分钟 · ${dn}/${DAILY.length}`}</span></div>
@@ -150,7 +154,7 @@ function vLearn(){
           <span class="dtx"><b>${x.t}</b><i>${x.d}</i></span>
           <span class="dnum">${x.n>1?`${c}/${x.n}`:`${x.m} 分钟`}</span></div>`}).join('')}
     </div>`;
-  return task+
+  return man+task+
    `<button class="btn pri big" data-go="#/lesson/${nx.id}">
       ${done?'重读':'继续学'} · 第 ${nx.id} 篇 ${nx.title}</button>
     <div class="prog">
@@ -271,7 +275,7 @@ function vCards(mode){
   head('36 张牌',filter==='list'?'一行一张，一屏扫完'
     :filter==='peg'?'数字桩 · 点标题展开画面':'点开看牌义');
   const TABS_F=[['all','全部'],['pos','幸运'],['neg','挑战'],['mid','中性'],
-                ['list','速查'],['peg','记忆法']];
+                ['list','速查'],['peg','记忆']];
   const bar=`<div class="fbar">`+
     TABS_F.map(([k,t])=>`<button class="btn ${filter===k?'on':''}" data-filter="${k}">${t}</button>`)
     .join('')+`</div>`;
