@@ -218,8 +218,29 @@ sec('四之四、原文入口只在本地版出现');
   go('#/lesson/1');
   ok(!view().includes('读这一篇的原文'),'撤掉本地原文后入口应消失');
 }
+sec('四之五、数字桩记忆');
+{
+  const MEM=w.eval('MEM');
+  ok(Object.keys(MEM).length===36,'数字桩应有 36 条');
+  DECK.forEach(c=>{
+    const m=MEM[c.n];
+    ok(m&&m.peg&&m.scene&&m.why,`${c.n} ${c.name} 记忆数据不全`);
+    ok(m.scene.length>=20,`${c.n} 的画面太短`);
+    ok(m.peg.length<=4,`${c.n} 的桩词过长：${m.peg}`);});
+  ok(new Set(Object.values(MEM).map(m=>m.peg)).size===36,'桩词不能重复');
+  go('#/mem');
+  ok(w.document.querySelector('.mpeg'),'记忆卡应显示桩词');
+  ok(!w.document.querySelector('.mflip'),'未翻开时不应露出答案');
+  w.document.getElementById('mshow').click();
+  ok(w.document.querySelector('.mflip .mname'),'翻开后应显示牌名与画面');
+  w.document.getElementById('mok').click();
+  ok(Object.keys(JSON.parse(w.localStorage.getItem('lenormand_v1')).mem).length===1,
+    '点「记住了」应写入进度');
+  go('#/card/14');
+  ok(view().includes('记忆钩子')&&view().includes(MEM[14].peg),'牌义页应显示记忆钩子');
+}
 sec('五、出题引擎（每型 400 题）');
-['num','key','combo','mix'].forEach(m=>{
+['num','key','combo','peg','mix'].forEach(m=>{
   let bad=0,dup=0,noOk=0;
   for(let i=0;i<400;i++){
     const q=w.eval(`makeQ(${JSON.stringify(m)})`);

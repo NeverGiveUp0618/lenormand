@@ -1,7 +1,7 @@
 /* 雷诺曼学习站 · 逻辑层 */
 const LS='lenormand_v1';
 const S=(()=>{try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}}})();
-S.stat=S.stat||{}; S.journal=S.journal||[]; S.read=S.read||{};
+S.stat=S.stat||{}; S.journal=S.journal||[]; S.read=S.read||{}; S.mem=S.mem||{};
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 const byN=n=>DECK.find(c=>c.n===+n);
 const hasOrig=id=>typeof ORIGINALS!=='undefined'&&ORIGINALS&&ORIGINALS[id];
@@ -74,7 +74,7 @@ function route(){
   const p=location.hash.replace(/^#\/?/,'').split('/');
   const v=document.getElementById('view');
   const r={learn:vLearn,lesson:vLesson,cards:vCards,card:vCard,combo:vCombo,
-           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal,orig:vOrig,slots:vSlots}[p[0]]||vLearn;
+           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal,orig:vOrig,slots:vSlots,mem:vMem}[p[0]]||vLearn;
   v.innerHTML=r(p[1],p[2])||''; v.scrollTop=0; window.scrollTo(0,0); nav();
 }
 
@@ -241,6 +241,8 @@ function vCard(n){
       <dt>关键词</dt><dd><div class="chips">${c.keys.map(k=>`<span class="chip k">${k}</span>`).join('')}</div></dd>
       ${F('名词',c.noun)}${F('形容词',c.adj)}${F('动词',c.verb)}${F('副词',c.adv)}
       ${F('人物',c.people)}${F('时间',c.time)}${F('雷诺曼宇宙',c.univ)}
+      ${MEM[c.n]?`<dt>记忆钩子</dt><dd><b class="peg">${c.n} · ${MEM[c.n].peg}</b>
+        <span class="scene">${MEM[c.n].scene}</span></dd>`:''}
     </dl></div>
     <div class="row" style="margin-top:12px">
       <button class="btn" data-go="#/combo/${c.n}">用它做组合</button>
@@ -279,12 +281,46 @@ function vCombo(pre){
     <div class="grid" id="cg">${DECK.map(c=>tile(c,(c.n===comboA||c.n===comboB)?'sel':'')).join('')}</div>`;
 }
 
+/* ---------- 记忆：数字桩翻卡 ---------- */
+let memI=null, memFlip=0;
+function memQueue(){                 // 没记住的排前面
+  const un=DECK.filter(c=>!S.mem[c.n]), ok=DECK.filter(c=>S.mem[c.n]);
+  return un.concat(ok);
+}
+function vMem(arg){
+  const q=memQueue();
+  if(memI===null||arg==='r') memI=0;
+  const c=q[Math.min(memI,q.length-1)], m=MEM[c.n], done=DECK.filter(x=>S.mem[x.n]).length;
+  head('数字桩记忆',`${done}/36 已记住`,'#/train');
+  const flip=memFlip;
+  return `<div class="pr" style="margin-bottom:14px"><b>${done}/36</b><span>已记住</span>
+      <i class="bar"><s style="width:${done/36*100}%"></s></i></div>
+    <div class="memcard">
+      <div class="mno">${String(c.n).padStart(2,'0')}</div>
+      <div class="mpeg">${m.peg}</div>
+      ${flip?`<div class="mflip">
+        <div class="mcard">${face(c.n)}</div>
+        <div class="mname">${c.name}</div>
+        <p class="mscene">${m.scene}</p>
+        <p class="mwhy">${m.why}</p></div>`
+       :`<p class="mhint">号码 ${c.n} 的桩是「${m.peg}」——想一想，它和哪张牌演了一出戏？</p>`}
+    </div>
+    ${flip?`<div class="row" style="margin-top:12px">
+        <button class="btn" id="magain">再看一次</button>
+        <button class="btn pri" id="mok">记住了</button></div>`
+      :`<button class="btn pri" id="mshow" style="margin-top:12px">翻开看画面</button>`}
+    <div class="row" style="margin-top:9px">
+      <button class="btn" data-go="#/card/${c.n}">看这张牌义</button>
+      <button class="btn" id="mskip">跳过 ›</button></div>`;
+}
+
 /* ---------- 练 ---------- */
 const MODES=[
  {id:'num',t:'牌号与扑克',d:'号 ↔ 牌名 ↔ 扑克牌，铺大牌阵的基本功'},
  {id:'key',t:'关键词认牌',d:'看关键词想是哪张牌'},
  {id:'combo',t:'组合造句',d:'把两张牌读成一句话'},
- {id:'mix',t:'混合练习',d:'三种题型打散来一轮'}
+ {id:'peg',t:'数字桩',d:'号码 ↔ 桩词 ↔ 牌，背牌序最快的路'},
+ {id:'mix',t:'混合练习',d:'四种题型打散来一轮'}
 ];
 function weak(){
   return DECK.map(c=>{const s=S.stat[c.n]||{r:0,w:0};return{c,score:s.w*2-s.r}})
@@ -296,7 +332,10 @@ function vTrain(){
   const rate=(()=>{let r=0,w=0;Object.values(S.stat).forEach(s=>{r+=s.r;w+=s.w});
     return r+w?Math.round(r*100/(r+w)):0})();
   const wk=weak().filter(c=>{const s=S.stat[c.n];return s&&s.w>s.r}).slice(0,8);
-  return `<div class="card pad">
+  const memd=DECK.filter(c=>S.mem[c.n]).length;
+  return `<button class="btn pri" data-go="#/mem" style="margin-bottom:12px">
+      数字桩记忆 · ${memd}/36</button>
+    <div class="card pad">
       <div class="mut">累计答题 ${done} 题 · 正确率 ${rate}%</div>
       <div class="bar"><i style="width:${rate}%"></i></div>
     </div>
@@ -313,7 +352,7 @@ function vTrain(){
 let quiz=null;
 function makeQ(mode){
   const pool=weak(), c=pick(pool.slice(0,12).concat(shuffle(DECK).slice(0,12)));
-  const m=mode==='mix'?pick(['num','key','combo']):mode;
+  const m=mode==='mix'?pick(['num','key','combo','peg']):mode;
   if(m==='num'){
     const ask=pick(['n2name','pk2name','name2n']);
     if(ask==='n2name'){
@@ -329,6 +368,17 @@ function makeQ(mode){
     const o=shuffle([c.n,...shuffle(DECK.filter(x=>x.n!==c.n)).slice(0,3).map(x=>x.n)]);
     return{q:`${c.name}是几号牌？`,opts:o.map(n=>({t:`${n} 号`,ok:n===c.n})),card:c,
       tip:`${c.name} = ${c.n} 号（${c.pk}）`};
+  }
+  if(m==='peg'){
+    const ask=pick(['peg2card','card2peg']);
+    if(ask==='peg2card'){
+      const o=shuffle([c,...shuffle(DECK.filter(x=>x.n!==c.n)).slice(0,3)]);
+      return{q:`桩词「${MEM[c.n].peg}」挂的是哪张牌？`,
+        opts:o.map(x=>({t:`${x.n} ${x.name}`,ok:x.n===c.n})),card:c,tip:MEM[c.n].scene};
+    }
+    const o=shuffle([c,...shuffle(DECK.filter(x=>x.n!==c.n)).slice(0,3)]);
+    return{q:`${c.n} 号 ${c.name} 的桩词是什么？`,
+      opts:o.map(x=>({t:MEM[x.n].peg,ok:x.n===c.n})),card:c,tip:MEM[c.n].scene};
   }
   if(m==='key'){
     const o=shuffle([c,...shuffle(DECK.filter(x=>x.n!==c.n&&x.pol!==c.pol)).slice(0,3)]);
@@ -430,6 +480,13 @@ document.addEventListener('click',e=>{
   if(f){filter=f.dataset.filter;location.hash='#/cards/'+filter;route();return}
   if(e.target.id==='creset'){comboA=comboB=null;route();return}
   if(e.target.id==='redraw'){drawn=null;route();return}
+  if(e.target.id==='mshow'){memFlip=1;route();return}
+  if(e.target.id==='mskip'){memFlip=0;memI++;route();return}
+  if(e.target.id==='magain'){memFlip=0;memI++;route();return}
+  if(e.target.id==='mok'){
+    const q=memQueue(), c=q[Math.min(memI,q.length-1)];
+    S.mem[c.n]=1; save(); memFlip=0; route(); return;
+  }
   if(e.target.id==='next'){quiz.i++;quiz.q=makeQ(quiz.mode);quiz.ans=null;route();return}
   if(e.target.id==='jsave'){
     const c=drawn.cards[0],txt=document.getElementById('jn').value.trim();
