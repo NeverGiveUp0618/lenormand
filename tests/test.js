@@ -156,9 +156,26 @@ for(let n=1;n<=36;n++){
   ok(big>mid*1.6,'放大档应显著大于显示档，否则等于没提清晰度');
   ok(big<900*1024,'放大档单张不应超过 900KB');
 }}
+go('#/cards/peg');
+{
+  const rows=w.document.querySelectorAll('details.mrow');
+  ok(rows.length===36,`记忆法应完整列出 36 条，实为 ${rows.length}`);
+  ok([...rows].every(d=>!d.open),'默认应全部折叠');
+  const MEMd=w.eval('MEM');
+  ok([...rows].every(d=>{
+    const n=+d.dataset.peg, txt=d.textContent;
+    return txt.includes(MEMd[n].peg)&&txt.includes(MEMd[n].scene)&&txt.includes(MEMd[n].why);
+  }),'每条应含桩词、逻辑画面与合理性三部分');
+  ok(w.document.querySelectorAll('.mrow .pthumb img').length===36,'每条应配该牌牌图');
+  w.document.getElementById('pgopen').click();
+  ok([...w.document.querySelectorAll('details.mrow')].every(d=>d.open),'全部展开应生效');
+  w.document.getElementById('pgclose').click();
+  ok([...w.document.querySelectorAll('details.mrow')].every(d=>!d.open),'全部收起应生效');
+  ok(w.document.querySelectorAll('.fbar .btn').length===6,'筛选条应有 6 个入口');
+}
 go('#/cards/list');
 ok(w.document.querySelectorAll('.lst .li').length===36,'速查应一行一张列出 36 张');
-ok(w.document.querySelectorAll('.fbar .btn').length===5,'筛选条应有 5 个按钮');
+ok(w.document.querySelectorAll('.fbar .btn').length===6,'筛选条应有 6 个按钮');
 go('#/cards/all');
 ok(w.document.querySelectorAll('#cg .tile').length===36,'切回牌面模式应仍是 36 张');
 go('#/slots');
@@ -192,6 +209,31 @@ SPREADS.forEach(s=>{go('#/draw/'+s.id);
   const ns=[...w.document.querySelectorAll('.tile')].map(t=>t.dataset.card);
   ok(new Set(ns).size===ns.length,`${s.name} 抽牌不应重复`);});
 
+sec('四之一、每日任务');
+{
+  go('#/learn');
+  const rows=w.document.querySelectorAll('.daily .dt');
+  ok(rows.length>=3&&rows.length<=5,`每日任务应为 3–5 项，实为 ${rows.length}`);
+  const mins=w.eval('DAILY.reduce((n,x)=>n+x.m,0)');
+  ok(mins>=5&&mins<=10,`预估总时长应在 5–10 分钟，实为 ${mins}`);
+  ok([...rows].every(r=>r.dataset.go),'每项都应可点击直达');
+  ok(view().includes('今日任务'),'首页顶部应有今日任务');
+  // 读一篇课程后，对应项自动打勾——不靠手动
+  const d0=w.eval('daily().read');
+  go('#/lesson/5'); go('#/learn');
+  ok(w.eval('daily().read')>d0,'读课程应自动计数');
+  ok(w.document.querySelector('.daily .dt.ok'),'完成的项应显示为已完成');
+  // 跨天自动清零
+  w.eval("S.daily.d='2000-01-01';S.daily.read=99;save()");
+  go('#/learn');
+  ok(w.eval('daily().read')===0,'跨天应自动重置');
+  ok(w.eval('daily().d')===w.eval('today()'),'重置后日期应为今天');
+  // 记忆题也计入当天
+  const m0=w.eval('daily().mem');
+  go('#/mem');
+  w.document.querySelector('[data-mem]').click();
+  ok(w.eval('daily().mem')===m0+1,'记忆题应计入当天任务');
+}
 sec('四之二、三套主题');
 {
   const th=w.eval('THEMES');
@@ -254,6 +296,13 @@ sec('四之五、数字桩记忆');
   go('#/mem');
   ok(w.document.querySelectorAll('[data-mem]').length===6,'记忆题应给 6 个选项');
   ok(!w.document.querySelector('.memsc'),'未作答前不应显示画面答案');
+  // 答过的题离开再回来应换新题，不该停在旧答案上
+  {
+    const el=w.document.querySelector('[data-mem]'); el.click();
+    ok(w.document.querySelector('.memsc'),'作答后应显示结果');
+    go('#/learn'); go('#/mem');
+    ok(!w.document.querySelector('.memsc'),'重进记忆页应是一道新题');
+  }
   // 故意答错：掌握度清零，并当场亮出画面
   {
     const right=w.eval('memQ.c.n');
@@ -279,6 +328,7 @@ sec('四之五、数字桩记忆');
   ok(!/记住了|再看一次/.test(view()),'不应再出现自评按钮');
   go('#/card/14');
   ok(view().includes('记忆钩子')&&view().includes(MEM[14].peg),'牌义页应显示记忆钩子');
+  ok(view().includes(MEM[14].why),'牌义页记忆钩子应含合理性');
 }
 sec('五、出题引擎（每型 400 题）');
 ['num','key','combo','peg','mix'].forEach(m=>{
@@ -322,9 +372,11 @@ sec('七、答题统计入库');
 go('#/quiz/num');
 w.eval('quiz.ans=null');
 const n0=w.eval('quiz.q.card.n');
+const before=(()=>{const s=JSON.parse(w.localStorage.getItem('lenormand_v1')).stat[n0];
+  return s?s.r+s.w:0})();          // 记忆题也写同一份统计，取增量才不受测试顺序影响
 w.document.querySelector('[data-opt]').click();
 const st=JSON.parse(w.localStorage.getItem('lenormand_v1')).stat;
-ok(st&&st[n0]&&(st[n0].r+st[n0].w)===1,'答题后应写入该牌的统计');
+ok(st&&st[n0]&&(st[n0].r+st[n0].w)===before+1,'答题后该牌统计应恰好 +1');
 
 console.log(`\n${fail?'✗':'✓'} 通过 ${pass} 项${fail?`，失败 ${fail} 项`:''}`);
 process.exit(fail?1:0);

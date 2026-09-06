@@ -60,6 +60,25 @@ function tile(c,extra){
     <div class="en">${c.en}${pip(c.pk)}</div></div>`;
 }
 
+/* ---------- 每日任务 ---------- */
+/* 全部按当天真实行为计数，不靠手动打勾；跨天自动清零 */
+const DAILY=[
+ {k:'read', n:1, t:'读一篇课程',   d:'或回看一篇要点',  m:3, go:()=>{
+    const nx=LESSONS.find(l=>!S.read[l.id]); return '#/lesson/'+(nx?nx.id:1)}},
+ {k:'mem',  n:6, t:'数字桩 6 题',  d:'把号码和牌钉在一起', m:2, go:()=>'#/mem'},
+ {k:'quiz', n:10,t:'牌义 10 题',   d:'牌义、组合、扑克混着来', m:3, go:()=>'#/quiz/mix'},
+ {k:'draw', n:1, t:'抽今日一张',   d:'写一句解读，晚上补实际', m:1, go:()=>'#/draw/d1'},
+];
+function daily(){
+  const t=today();
+  if(!S.daily||S.daily.d!==t){S.daily={d:t,read:0,mem:0,quiz:0,draw:0};save()}
+  return S.daily;
+}
+function bump(k,by){
+  const s=daily(); s[k]=(s[k]||0)+(by||1); save();
+}
+function dailyDone(){const s=daily(); return DAILY.filter(x=>s[x.k]>=x.n).length}
+
 /* ---------- 主题 ---------- */
 const THEMES=[['pearl','月白','暖象牙纸，墨与旧金'],
               ['dusk','玫瑰金','胭脂纸，梅子色与霜绿'],
@@ -104,7 +123,17 @@ function vLearn(){
   const st=Object.values(S.stat); let r=0,w=0; st.forEach(s=>{r+=s.r;w+=s.w});
   const known=DECK.filter(c=>{const s=S.stat[c.n];return s&&s.r>=3&&s.r>s.w*2}).length;
   const done=read===LESSONS.length;
-  return orn('constel','constel')+
+  const s=daily(), dn=dailyDone(), mins=DAILY.reduce((n,x)=>n+x.m,0);
+  const task=`<div class="daily ${dn===DAILY.length?'alldone':''}">
+      <div class="dh"><b>今日任务</b>
+        <span>${dn===DAILY.length?'今天全部做完了':`约 ${mins} 分钟 · ${dn}/${DAILY.length}`}</span></div>
+      ${DAILY.map(x=>{const c=Math.min(s[x.k]||0,x.n), ok=c>=x.n;
+        return `<div class="dt ${ok?'ok':''}" data-go="${x.go()}">
+          <span class="dbox">${ok?'✓':''}</span>
+          <span class="dtx"><b>${x.t}</b><i>${x.d}</i></span>
+          <span class="dnum">${x.n>1?`${c}/${x.n}`:''}</span></div>`}).join('')}
+    </div>`;
+  return task+
    `<button class="btn pri big" data-go="#/lesson/${nx.id}">
       ${done?'重读':'继续学'} · 第 ${nx.id} 篇 ${nx.title}</button>
     <div class="prog">
@@ -124,7 +153,7 @@ function vLearn(){
 }
 function vLesson(id){
   const l=LESSONS.find(x=>x.id===+id)||LESSONS[0];
-  S.read[l.id]=1; save();
+  S.read[l.id]=1; bump('read'); save();
   head(`第 ${l.id} 篇 · ${l.title}`,l.sub,'#/learn');
   const keys=(l.key||[]).length?`<div class="keys"><div class="kh">本篇要点</div><ol>`+
     l.key.map(k=>`<li>${k}</li>`).join('')+`</ol></div>`:'';
@@ -224,12 +253,30 @@ function vOrig(id){
 /* ---------- 查 ---------- */
 let filter='all';
 function vCards(mode){
-  if(mode&&['all','pos','neg','mid','list'].includes(mode)) filter=mode;
-  head('36 张牌',filter==='list'?'一行一张，一屏扫完':'点开看牌义');
-  const TABS_F=[['all','全部'],['pos','幸运'],['neg','挑战'],['mid','中性'],['list','速查']];
+  if(mode&&['all','pos','neg','mid','list','peg'].includes(mode)) filter=mode;
+  head('36 张牌',filter==='list'?'一行一张，一屏扫完'
+    :filter==='peg'?'数字桩 · 点标题展开画面':'点开看牌义');
+  const TABS_F=[['all','全部'],['pos','幸运'],['neg','挑战'],['mid','中性'],
+                ['list','速查'],['peg','记忆法']];
   const bar=`<div class="fbar">`+
     TABS_F.map(([k,t])=>`<button class="btn ${filter===k?'on':''}" data-filter="${k}">${t}</button>`)
     .join('')+`</div>`;
+  if(filter==='peg'){    // 记忆法全文，默认折叠
+    return bar+`<div class="row" style="margin-bottom:11px">
+        <button class="btn" id="pgopen">全部展开</button>
+        <button class="btn" id="pgclose">全部收起</button></div>`+
+      DECK.map(c=>{const m=MEM[c.n]; return `<details class="mrow" data-peg="${c.n}">
+        <summary><span class="pn">${String(c.n).padStart(2,'0')}</span>
+          <span class="pg">${m.peg}</span><span class="pl">＋</span>
+          <span class="pc">${c.name}</span><span class="pk ${SUIT[c.pk.slice(0,2)][1]}">${SUIT[c.pk.slice(0,2)][0]}${c.pk.slice(2)}</span>
+        </summary>
+        <div class="pbody">
+          <div class="pthumb">${face(c.n,1,1)}</div>
+          <div class="ptxt"><div class="plab">逻辑画面</div><p>${m.scene}</p>
+            <div class="plab">合理性</div><p class="pwhy">${m.why}</p>
+            <button class="btn" data-go="#/card/${c.n}" style="margin-top:12px">看这张牌义 ›</button>
+          </div></div></details>`}).join('');
+  }
   if(filter==='list'){   // 速查：一行一张，一屏扫完
     return bar+`<div class="card lst">`+DECK.map(c=>`<div class="li" data-card="${c.n}">
       <span class="n">${String(c.n).padStart(2,'0')}</span>
@@ -260,7 +307,8 @@ function vCard(n){
       ${F('名词',c.noun)}${F('形容词',c.adj)}${F('动词',c.verb)}${F('副词',c.adv)}
       ${F('人物',c.people)}${F('时间',c.time)}${F('雷诺曼宇宙',c.univ)}
       ${MEM[c.n]?`<dt>记忆钩子</dt><dd><b class="peg">${c.n} · ${MEM[c.n].peg}</b>
-        <span class="scene">${MEM[c.n].scene}</span></dd>`:''}
+        <span class="scene">${MEM[c.n].scene}</span>
+        <span class="scene why">${MEM[c.n].why}</span></dd>`:''}
     </dl></div>
     <div class="row" style="margin-top:12px">
       <button class="btn" data-go="#/combo/${c.n}">用它做组合</button>
@@ -313,8 +361,10 @@ function nextMem(){
   return {c,dir,opts:shuffle([c,...others]),ans:null};
 }
 function vMem(arg){
-  if(!memQ||arg==='r') memQ=nextMem();
+  // 已经看过结果的题不再重复出现：离开再回来给新题
+  if(!memQ||arg==='r'||(memQ.ans!==null&&memQ.seen)) memQ=nextMem();
   const {c,dir,opts,ans}=memQ, m=MEM[c.n], done=memDone();
+  if(ans!==null) memQ.seen=true;
   head('数字桩记忆',`已掌握 ${done}/36`,'#/train');
   const ok=ans!==null&&ans===c.n;
   const grid=dir==='peg2card'
@@ -357,7 +407,18 @@ function vTrain(){
     return r+w?Math.round(r*100/(r+w)):0})();
   const wk=weak().filter(c=>{const s=S.stat[c.n];return s&&s.w>s.r}).slice(0,8);
   const memd=memDone();
-  return `<button class="btn pri" data-go="#/mem" style="margin-bottom:12px">
+  const pegTable=`<details class="pegtbl">
+      <summary>数字桩速查表 · 36 条</summary>
+      <div class="ptwrap"><table>
+        <thead><tr><th>号</th><th>桩</th><th>牌</th><th>逻辑画面</th></tr></thead>
+        <tbody>`+DECK.map(c=>{const m=MEM[c.n];
+          return `<tr data-card="${c.n}"><td class="tn">${String(c.n).padStart(2,'0')}</td>
+            <td class="tp">${m.peg}</td><td class="tc">${c.name}</td>
+            <td class="ts">${m.scene}<span class="tw">${m.why}</span></td></tr>`}).join('')+
+      `</tbody></table></div>
+      <div class="mut" style="padding:0 14px 13px">点任意一行看该牌牌义。</div>
+    </details>`;
+  return pegTable+`<button class="btn pri" data-go="#/mem" style="margin:12px 0">
       数字桩记忆 · ${memd}/36</button>
     <div class="card pad">
       <div class="mut">累计答题 ${done} 题 · 正确率 ${rate}%</div>
@@ -506,6 +567,11 @@ document.addEventListener('click',e=>{
   const f=e.target.closest('[data-filter]');
   if(f){filter=f.dataset.filter;location.hash='#/cards/'+filter;route();return}
   if(e.target.id==='creset'){comboA=comboB=null;route();return}
+  if(e.target.id==='pgopen'||e.target.id==='pgclose'){
+    const on=e.target.id==='pgopen';
+    document.querySelectorAll('details.mrow').forEach(d=>{d.open=on});
+    return;
+  }
   if(e.target.id==='redraw'){drawn=null;route();return}
   if(e.target.id==='mnext'){memQ=nextMem();route();return}
   const mo=e.target.closest('[data-mem]');
@@ -513,17 +579,17 @@ document.addEventListener('click',e=>{
     const pickN=+mo.dataset.mem, right=pickN===memQ.c.n, n=memQ.c.n;
     S.mem[n]=right?Math.min(3,box(n)+1):0;      // 连对累加，答错清零
     S.stat[n]=S.stat[n]||{r:0,w:0}; S.stat[n][right?'r':'w']++;
-    save(); memQ.ans=pickN; route(); return;
+    bump('mem'); save(); memQ.ans=pickN; route(); return;
   }
   if(e.target.id==='next'){quiz.i++;quiz.q=makeQ(quiz.mode);quiz.ans=null;route();return}
   if(e.target.id==='jsave'){
     const c=drawn.cards[0],txt=document.getElementById('jn').value.trim();
-    S.journal.unshift({d:today(),n:c.n,txt});save();location.hash='#/journal';return;
+    S.journal.unshift({d:today(),n:c.n,txt});bump('draw');save();location.hash='#/journal';return;
   }
   const o=e.target.closest('[data-opt]');
   if(o&&quiz&&quiz.ans===null){
     const i=+o.dataset.opt,ok=quiz.q.opts[i].ok,n=quiz.q.card.n;
-    S.stat[n]=S.stat[n]||{r:0,w:0}; S.stat[n][ok?'r':'w']++; save();
+    S.stat[n]=S.stat[n]||{r:0,w:0}; S.stat[n][ok?'r':'w']++; bump('quiz'); save();
     quiz.ans=i; if(ok)quiz.r++; route();
   }
 });

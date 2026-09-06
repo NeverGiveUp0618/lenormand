@@ -302,6 +302,28 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .moon{width:14px;height:14px;vertical-align:-2px;margin-right:6px;color:var(--accent)}
 
 
+/* ─── 每日任务 ─── */
+.daily{background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);
+  overflow:hidden;margin-bottom:12px}
+.daily .dh{display:flex;align-items:baseline;gap:10px;padding:14px 16px 12px;
+  border-bottom:1px solid var(--line);background:var(--panel-b)}
+.daily .dh b{font-family:var(--serif);font-size:15px;letter-spacing:.14em;color:var(--head)}
+.daily .dh span{font-size:11.5px;color:var(--dim);letter-spacing:.06em;margin-left:auto}
+.daily.alldone .dh{background:color-mix(in srgb,var(--accent2) 12%,transparent)}
+.daily.alldone .dh span{color:var(--accent2)}
+.dt{display:flex;align-items:center;gap:11px;padding:12px 16px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:background .15s}
+.dt:last-child{border-bottom:0}
+.dt:active{background:var(--panel-b)}
+.dbox{width:19px;height:19px;flex:none;border:1px solid var(--line2);border-radius:3px;
+  display:grid;place-items:center;font-size:12px;color:var(--panel)}
+.dt.ok .dbox{background:var(--accent2);border-color:var(--accent2)}
+.dtx{flex:1;min-width:0;display:flex;flex-direction:column}
+.dtx b{font-size:14.5px;font-weight:400;color:var(--ink)}
+.dtx i{font-style:normal;font-size:11.5px;color:var(--dim);margin-top:2px}
+.dt.ok .dtx b{color:var(--dim);text-decoration:line-through;text-decoration-color:var(--line2)}
+.dnum{font-family:var(--serif);font-size:12px;color:var(--dim);flex:none;letter-spacing:.06em}
+
 /* ─── 首页：一个主入口 + 两条进度 ─── */
 .btn.pri.big{padding:20px 16px;font-size:16px;letter-spacing:.14em;border-radius:4px}
 .prog{display:flex;gap:11px;margin-top:11px}
@@ -345,6 +367,61 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .li .kw{flex:1;min-width:0;color:var(--dim);font-size:12.5px;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis;text-align:right}
 
+
+/* ─── 数字桩速查表（练习页顶部，默认折叠） ─── */
+.pegtbl{background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  box-shadow:var(--shadow);overflow:hidden}
+.pegtbl>summary{list-style:none;cursor:pointer;padding:15px 16px;font-family:var(--serif);
+  font-size:15px;letter-spacing:.1em;color:var(--head);display:flex;align-items:center}
+.pegtbl>summary::-webkit-details-marker{display:none}
+.pegtbl>summary::after{content:"＋";margin-left:auto;color:var(--dim)}
+.pegtbl[open]>summary{border-bottom:1px solid var(--line);background:var(--panel-b)}
+.pegtbl[open]>summary::after{content:"−"}
+.ptwrap{overflow-x:auto}
+.pegtbl table{width:100%;border-collapse:collapse;font-size:13.5px}
+.pegtbl th{font-family:var(--serif);font-size:10.5px;letter-spacing:.24em;color:var(--dim);
+  font-weight:600;text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);
+  background:var(--panel-b);white-space:nowrap}
+.pegtbl td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.7}
+.pegtbl tr:last-child td{border-bottom:0}
+.pegtbl tbody tr{cursor:pointer}
+.pegtbl tbody tr:active{background:var(--panel-b)}
+.pegtbl td.tn{font-family:var(--serif);font-size:11px;color:var(--dim);width:2.2em;
+  white-space:nowrap;letter-spacing:.06em}
+.pegtbl td.tp{font-family:var(--serif);font-size:15px;color:var(--head);white-space:nowrap;
+  letter-spacing:.06em;width:3.6em}
+.pegtbl td.tc{font-family:var(--serif);font-size:15px;color:var(--accent);white-space:nowrap;
+  letter-spacing:.06em;width:3.6em}
+.pegtbl td.ts{color:var(--ink)}
+.pegtbl td.ts .tw{display:block;margin-top:6px;font-size:12px;color:var(--dim);line-height:1.65;
+  padding-left:9px;border-left:2px solid var(--line2)}
+
+/* ─── 记忆法全文（可折叠） ─── */
+.mrow{background:var(--panel);border:1px solid var(--line);border-radius:4px;margin-bottom:8px;
+  box-shadow:var(--shadow);overflow:hidden}
+.mrow>summary{list-style:none;cursor:pointer;padding:13px 15px;display:flex;align-items:center;gap:9px}
+.mrow>summary::-webkit-details-marker{display:none}
+.mrow>summary::after{content:"＋";margin-left:auto;color:var(--dim);font-size:14px;flex:none}
+.mrow[open]>summary::after{content:"−"}
+.mrow[open]>summary{border-bottom:1px solid var(--line);background:var(--panel-b)}
+.mrow .pn{font-family:var(--serif);font-size:11px;color:var(--dim);letter-spacing:.1em;flex:none}
+.mrow .pg{font-family:var(--serif);font-size:17px;color:var(--head);letter-spacing:.1em;flex:none}
+.mrow .pl{color:var(--dim);font-size:12px;flex:none}
+.mrow .pc{font-family:var(--serif);font-size:17px;color:var(--accent);letter-spacing:.1em;flex:none}
+.mrow .pk{font-size:11.5px;font-weight:600;margin-left:4px;flex:none}
+.mrow .pk.r{color:var(--suit-r)} .mrow .pk.b{color:var(--suit-b)}
+.pbody{display:flex;gap:14px;padding:15px}
+.pthumb{width:96px;flex:none}
+.pthumb picture{display:block}
+.pthumb img{width:100%;height:auto;display:block;border-radius:7.4%/4.9%}
+.ptxt{flex:1;min-width:0}
+.plab{font-family:var(--serif);font-size:10.5px;letter-spacing:.28em;color:var(--accent);margin-bottom:5px}
+.ptxt p{margin:0 0 12px;font-size:14.5px;line-height:1.85;color:var(--ink)}
+.ptxt p.pwhy{font-size:12.5px;color:var(--dim);line-height:1.75;margin-bottom:0;
+  padding-left:11px;border-left:2px solid var(--line2)}
+dl.f dd .scene.why{font-size:12.5px;color:var(--dim);margin-top:7px;padding-left:11px;
+  border-left:2px solid var(--line2)}
+@media(max-width:400px){.pbody{flex-direction:column}.pthumb{width:132px;margin:0 auto}}
 
 /* ─── 全屏看细节 ─── */
 .zoomer{position:fixed;inset:0;z-index:60;background:rgba(12,10,8,.93);display:flex;
