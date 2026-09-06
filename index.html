@@ -80,11 +80,24 @@ header.top{
   padding:13px 18px 12px;background:color-mix(in srgb,var(--paper) 92%,transparent);
   backdrop-filter:saturate(1.2) blur(12px);border-bottom:1px solid var(--line);
 }
+header.top .hd{flex:1;min-width:0}   /* 允许收缩，标题才能省略而不是折行 */
 header.top h1{margin:0;font-family:var(--serif);font-size:18px;font-weight:600;
-  letter-spacing:.10em;color:var(--head);line-height:1.35}
-header.top .sub{font-size:11.5px;color:var(--dim);letter-spacing:.10em;margin-top:1px}
-.back{border:0;background:none;color:var(--accent);font-size:14px;padding:2px 4px 2px 0;
-  cursor:pointer;font-family:var(--serif);letter-spacing:.06em}
+  letter-spacing:.10em;color:var(--head);line-height:1.35;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.top .sub{font-size:11.5px;color:var(--dim);letter-spacing:.10em;margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.back{flex:none;white-space:nowrap;border:0;background:none;color:var(--accent);font-size:14px;
+  padding:2px 4px 2px 0;cursor:pointer;font-family:var(--serif);letter-spacing:.06em}
+/* 窄屏：收紧间距、缩小标题与主题点，保证顶栏永远一行 */
+@media(max-width:380px){
+  header.top{gap:8px;padding:11px 13px 10px}
+  header.top h1{font-size:16px;letter-spacing:.05em}
+  header.top .sub{font-size:11px;letter-spacing:.05em}
+  .back{font-size:13.5px}
+  .themes{gap:6px}
+  .themes button{width:16px;height:16px}
+  .wrap{padding:16px 14px 8px}
+}
 .themes{margin-left:auto;display:flex;gap:8px;flex:none}
 .themes button{width:20px;height:20px;border-radius:50%;cursor:pointer;padding:0;
   border:1px solid var(--line2);transition:.2s;position:relative}
@@ -299,7 +312,7 @@ try{var _q=new URLSearchParams(location.search).get('t'),
 <div class="sea" aria-hidden="true"><div class="mark" id="mark"></div></div>
 <header class="top">
   <button class="back" id="back" hidden>‹ 返回</button>
-  <div><h1 id="ttl">雷诺曼 · 三十六牌</h1><div class="sub" id="stl">学 · 查 · 练</div></div>
+  <div class="hd"><h1 id="ttl">雷诺曼 · 三十六牌</h1><div class="sub" id="stl">学 · 查 · 练</div></div>
   <div class="themes" id="themes"></div>
 </header>
 <main id="view" class="wrap"></main>
