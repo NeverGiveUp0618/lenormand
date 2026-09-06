@@ -101,7 +101,12 @@ w.scrollTo=()=>{};
   const s=w.document.createElement('script');s.textContent=src(f);w.document.body.appendChild(s);});
 const view=()=>w.document.getElementById('view').innerHTML;
 ok(view().includes('课程'),'首页应渲染课程列表');
-ok(w.document.querySelectorAll('nav.tab button').length===4,'底栏应有 4 格');
+ok(w.document.querySelectorAll('nav.tab button').length===3,'底栏应精简到 3 格');
+LESSONS.forEach(l=>{
+  ok(Array.isArray(l.key)&&l.key.length>=3,`第 ${l.id} 篇要点不足 3 条`);
+  l.key.forEach(k=>ok(k.length>=8&&k.length<=40,`第 ${l.id} 篇要点长度失当：${k}`));});
+ok(view().includes('继续学')||view().includes('重读'),'首页应有一个明确的继续入口');
+ok(w.document.querySelectorAll('.pr').length===2,'首页应有两条进度');
 const go=h=>{w.location.hash=h;w.eval('route()')};
 go('#/cards');
 ok(w.document.querySelectorAll('#cg .tile').length===36,'查牌页应铺出 36 张牌，实为 '+w.document.querySelectorAll('#cg .tile').length);
@@ -111,6 +116,8 @@ ok(view().includes('雷诺曼宇宙')&&view().includes(DECK.find(c=>c.n===24).un
   '牌详情应显示「雷诺曼宇宙」称号');
 go('#/lesson/2');
 ok(w.document.querySelectorAll('.fig.slot').length===2,'第 2 篇应有 2 个图位');
+ok(w.document.querySelectorAll('.keys li').length===LESSONS.find(l=>l.id===2).key.length,
+  '课文顶部应列出本篇要点');
 ok([...w.document.querySelectorAll('.fig.slot')].every(f=>f.querySelector('.ph-id')&&
    f.querySelector('.ph-t')&&f.querySelector('.ph-e')),'图位标记应含编号/该配什么/元素三行');
 ok([...w.document.querySelectorAll('.fig.slot img')].every(i=>i.getAttribute('loading')==='lazy'),
@@ -126,6 +133,11 @@ ok(w.document.querySelectorAll('#cg .tile svg').length===0,'牌面不应再有�
  ok(t0.querySelector('img.face')&&t0.querySelector('img.face').getAttribute('src')==='assets/cards/t/01.jpg',
    '网格应使用缩略牌图 assets/cards/t/01.jpg');
  ok(fs.existsSync(path.join(ROOT,'assets','cards','t','01.jpg')),'缩略牌图文件应存在');}
+go('#/cards/list');
+ok(w.document.querySelectorAll('.lst .li').length===36,'速查应一行一张列出 36 张');
+ok(w.document.querySelectorAll('.fbar .btn').length===5,'筛选条应有 5 个按钮');
+go('#/cards/all');
+ok(w.document.querySelectorAll('#cg .tile').length===36,'切回牌面模式应仍是 36 张');
 go('#/slots');
 {const sl=w.document.querySelectorAll('.sl');
  ok(sl.length===5+36,`图位清单应列 41 条（5 插图 + 36 牌面），实为 ${sl.length}`);

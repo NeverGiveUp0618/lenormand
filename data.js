@@ -54,7 +54,7 @@ const SPREADS = [
 
 /* 课程：十二篇，自行撰写 */
 const LESSONS = [
- {id:1,title:"这套牌怎么说话",sub:"36 张，一张牌只是一个词",src:["https://mp.weixin.qq.com/s/Ztj3vBJUfKJE4LL1eBjQUw", "https://mp.weixin.qq.com/s/b4JTBg-BsvV0RzuPtydE4g"],body:[
+ {id:1,key:["36 张，没有逆位，不需要占星或神秘学", "一张牌只是一个词，意思从组合里长出来", "两张起读：第一张出名词，第二张修饰它", "每天抽一张，晚上补一句实际发生了什么", "牌号要背熟，后面铺盘全靠它"],title:"这套牌怎么说话",sub:"36 张，一张牌只是一个词",src:["https://mp.weixin.qq.com/s/Ztj3vBJUfKJE4LL1eBjQUw", "https://mp.weixin.qq.com/s/b4JTBg-BsvV0RzuPtydE4g"],body:[
   ["p", "雷诺曼只有 36 张牌，画的全是日常东西：狗、船、房子、钥匙。它不要求你先学占星、卡巴拉或任何神秘学，也没有逆位——每张牌永远按正位读。"],
   ["p", "它和塔罗最要紧的区别在这里：塔罗一张牌能讲一段故事，雷诺曼一张牌往往只是一个词。意思不在单张牌里，而是从牌与牌的挨着里长出来的。"],
   ["h", "第一条规矩：两张起读"],
@@ -72,7 +72,7 @@ const LESSONS = [
   ["p", "36 张的编号是固定的，后面铺大牌阵要按号找位置，背不熟就读不动。本站「练」里有专门的号↔名↔扑克对应题。"],
   ["p", "一副牌固定自己用，用完收好，别和别的牌混放。这不是玄学要求，是让你对这副牌的手感保持一致。"]
  ]},
- {id:2,title:"谁是主角",sub:"指示牌与宫廷牌",src:["https://mp.weixin.qq.com/s/18Je06Z17OyGsrcxQCl6dg", "https://mp.weixin.qq.com/s/3ez4pPJ035iQwAyxXvvJiA"],body:[
+ {id:2,key:["男人 28、女人 29 代表当事人", "另有十二张宫廷牌可以代表具体的人", "一张牌是人还是物，由问题的领域决定", "指示牌没出现，只说明重心不在当事人身上"],title:"谁是主角",sub:"指示牌与宫廷牌",src:["https://mp.weixin.qq.com/s/18Je06Z17OyGsrcxQCl6dg", "https://mp.weixin.qq.com/s/3ez4pPJ035iQwAyxXvvJiA"],body:[
   ["p", "读盘先找主角。男人牌（28）和女人牌（29）代表问卦的人本人，或问题里的那个他/她。找到它，先看它周围压着什么——离得越近，关系越紧。"],
   ["p", "指示牌没出现也不要紧，那只说明这件事的重心不在当事人自己身上。"],
   ["fig", "L2-01", "男人牌与女人牌", "左：28 男人（红桃 A）。右：29 女人（黑桃 A）"],
@@ -86,7 +86,7 @@ const LESSONS = [
   ["p", "鱼在财务问题里是钱，在性格问题里是独立。先定问题属于哪个领域，再挑这张牌在该领域的那一面——别把所有义项一起堆上去。"],
   ["fig", "L2-02", "人物牌夹在中间的三张组", "三张横排，中间是人物牌，左右各一张。用来练习向左右各读一句"]
  ]},
- {id:3,title:"三十六张牌义",sub:"怎么背，背什么",src:["https://mp.weixin.qq.com/s/LNFC49MHrlsP1gzpnIjFbA", "https://mp.weixin.qq.com/s/7dU5qcEHK7BMJwaDPWv9Zg", "https://mp.weixin.qq.com/s/dG1uRHbtKsQDgRI11A9rEQ", "https://mp.weixin.qq.com/s/osQ9JDITOqEjzP6opL8LoQ"],body:[
+ {id:3,key:["先记作用三档：幸运 9、挑战 9、中性 18", "挑战牌不等于坏事，要看它跟谁在一起", "从塔罗过来要拆掉四个惯性：星星、塔、太阳、月亮"],title:"三十六张牌义",sub:"怎么背，背什么",src:["https://mp.weixin.qq.com/s/LNFC49MHrlsP1gzpnIjFbA", "https://mp.weixin.qq.com/s/7dU5qcEHK7BMJwaDPWv9Zg", "https://mp.weixin.qq.com/s/dG1uRHbtKsQDgRI11A9rEQ", "https://mp.weixin.qq.com/s/osQ9JDITOqEjzP6opL8LoQ"],body:[
   ["p", "这一篇是查阅用的。每张牌固定几栏：概括、作用、名词/形容词/动词/副词、人物、时间。点开任意一张就能看全。"],
   ["h", "先记「作用」这一栏"],
   ["p", "36 张按作用分成三档，这是读盘时最先用上的信息：九张幸运牌、九张挑战牌，其余十八张中性。"],
@@ -104,7 +104,7 @@ const LESSONS = [
   ["cards", [19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]],
   ["p", "别指望一次背完。先把九张幸运牌和九张挑战牌认熟，中性牌在实际组合里慢慢长。"]
  ]},
- {id:4,title:"组合语法",sub:"两张、三张，怎么读成一句话",src:["https://mp.weixin.qq.com/s/C1BBUFrXWKneUWbd8WWBHg"],body:[
+ {id:4,key:["牌 1 出名词或动词，牌 2 出形容词或副词", "顺序一换，意思就变", "三张顺着读；也可指定其中任一张为主题", "说出来时加连接词，别读成电报稿"],title:"组合语法",sub:"两张、三张，怎么读成一句话",src:["https://mp.weixin.qq.com/s/C1BBUFrXWKneUWbd8WWBHg"],body:[
   ["h", "两张：名词 + 修饰"],
   ["p", "牌 1 出名词或动词，牌 2 出形容词或副词。"],
   ["ex", "花束 + 骑士", "礼物 / 惊喜 + 到达 / 送达 → 惊喜的到来；礼物送到；得奖的消息"],
@@ -128,7 +128,7 @@ const LESSONS = [
   ["p", "有些组合会固定成一个词，见得多了就成了你自己的词汇表："],
   ["p", "信件 + 树 = 处方 · 狗 + 锚 = 看门狗 · 书籍 + 钥匙 = 字典 · 月亮 + 棺材 = 午夜 · 十字架 + 星星 + 狗 = 灵性上的盟友"]
  ]},
- {id:5,title:"挑战牌与无声牌",sub:"九张难牌各自怎么难，读不动时怎么办",src:["https://mp.weixin.qq.com/s/XA4TibcdZQdIpVfynmgObg", "https://mp.weixin.qq.com/s/pex3QcEqdES8aF2t8mqGZw"],body:[
+ {id:5,key:["云和镰刀带方向：暗侧、刃口指向谁就影响谁", "轻重由问题定，别一律往最坏里读", "读不动时按六条自问，最后把牌重排一次"],title:"挑战牌与无声牌",sub:"九张难牌各自怎么难，读不动时怎么办",src:["https://mp.weixin.qq.com/s/XA4TibcdZQdIpVfynmgObg", "https://mp.weixin.qq.com/s/pex3QcEqdES8aF2t8mqGZw"],body:[
   ["p", "九张挑战牌各有各的机制。搞清机制，比记住「这是坏牌」有用得多。"],
   ["h", "两张带方向的牌"],
   ["p", "云和镰刀要看朝向，这是雷诺曼里少数「牌面画法直接影响读法」的地方。"],
@@ -151,7 +151,7 @@ const LESSONS = [
   ["p", "一、我真正需要先知道的是什么？二、问题问得好不好——问得含糊，答得就含糊。三、把每张牌的关键词大声念出来。四、它会不会就是字面意思？雷诺曼经常很直白。五、哪几张牌在给我力量或提醒？六、我在担心什么——就在那几张担心的牌下面各补一张，看修饰它的是什么。"],
   ["p", "最后一招：把牌重新排一次，换个顺序再看。还是不行，那就是这几张牌的基本义你还没吃透，回去补牌义。"]
  ]},
- {id:6,title:"单牌与主题牌",sub:"最小的两个实战法",src:["https://mp.weixin.qq.com/s/PQgUskkMVs-TgWBWJVEgMg", "https://mp.weixin.qq.com/s/vByPwsw7B0TAC8MsNUTF2Q"],body:[
+ {id:6,key:["单张速答不查书，练的是脱口而出", "上下牌阵：横读两行，再竖读三组", "主题牌可以自选：钱＝鱼、工作＝月亮、决定＝十字路口", "十字牌阵把「我以为」和「其实」分开摆"],title:"单牌与主题牌",sub:"最小的两个实战法",src:["https://mp.weixin.qq.com/s/PQgUskkMVs-TgWBWJVEgMg", "https://mp.weixin.qq.com/s/vByPwsw7B0TAC8MsNUTF2Q"],body:[
   ["h", "单牌速答"],
   ["p", "前面说过雷诺曼很少单张读，但作为练习，单张最练手感：想一个问题，抽一张，不查书，脱口而出。"],
   ["ex", "这个项目值得做吗？→ 船", "会让你长不少见识"],
@@ -170,7 +170,7 @@ const LESSONS = [
   ["layout", [["", "上：想法 / 担心", ""], ["后：过去", "中：主题", "前：结果"], ["", "下：根基 / 潜意识", ""]], "横竖各读一次三张，再读 中+上、中+下、中+后、中+前 四组两张。"],
   ["p", "这个牌阵的好处是把「我以为」和「其实」分开摆：上面那张是你正在想的，下面那张是你没意识到但在起作用的。"]
  ]},
- {id:7,title:"故事板与五张牌阵",sub:"把牌串成一条故事线",src:["https://mp.weixin.qq.com/s/lTto_9JMRgDqzqRQzjxDwQ", "https://mp.weixin.qq.com/s/w4qYd4aqToR6Sst0QbzQAA"],body:[
+ {id:7,key:["五张牌阵：中间是焦点，两侧是两翼", "三种变体：先定主题牌 / 两两叠读 / 上下扩充", "小牌阵只管几周到几个月，不是永久预言", "每周给自己的准确度打一次分"],title:"故事板与五张牌阵",sub:"把牌串成一条故事线",src:["https://mp.weixin.qq.com/s/lTto_9JMRgDqzqRQzjxDwQ", "https://mp.weixin.qq.com/s/w4qYd4aqToR6Sst0QbzQAA"],body:[
   ["p", "三张读顺之后，就该学着把更多牌串起来。这一步叫故事板——像分镜一样，一格接一格把事情讲完。"],
   ["h", "五张牌阵：所有单行牌阵的母版"],
   ["layout", [["1", "2", "3", "4", "5"]], "中间那张是焦点，两侧是两翼。5 张、7 张、9 张都是这个道理。"],
@@ -186,7 +186,7 @@ const LESSONS = [
   ["h", "给自己打分"],
   ["p", "回看一周的每日抽牌，从 0 到 10 给自己的准确度打分。这不是跟别人比，是让你看见自己在哪一类问题上偏。"]
  ]},
- {id:8,title:"九宫格",sub:"第一个真正的大牌阵",src:["https://mp.weixin.qq.com/s/Gv9B05Hn-TPMk9hBOWCfiw", "https://mp.weixin.qq.com/s/ol66E8RHe_nr406rZBpRHw"],body:[
+ {id:8,key:["中心牌 5 定主题；三列是过去、现在、未来", "四角是基本盘，菱形是没摆上台面的内情", "骑士读法按马的走法配对，镜像看谁和谁在拉扯", "挑牌简化：从中心每隔一张取，得到五张结论"],title:"九宫格",sub:"第一个真正的大牌阵",src:["https://mp.weixin.qq.com/s/Gv9B05Hn-TPMk9hBOWCfiw", "https://mp.weixin.qq.com/s/ol66E8RHe_nr406rZBpRHw"],body:[
   ["p", "九宫格是雷诺曼的主力小盘。九张牌同时给你过去、现在、未来，还能当一个「小大蓝图」来练所有高级读法。"],
   ["layout", [["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"]], "牌 5 是问题的重点。1+4+7 是过去，2+5+8 是现在，3+6+9 是未来。"],
   ["p", "读的顺序：先看中心牌 5 定主题，再读三列（过去 / 现在 / 未来），再读三行。然后看四角 1+9+3+7——它们描述问题的基本盘；再看菱形 2+4+6+8——它们是内部动态和没摆到台面上的东西。最后用箭头 1+8+3、7+2+3 交叉验证。"],
@@ -201,7 +201,7 @@ const LESSONS = [
   ["layout", [["5", "7", "9", "2", "4"]], "九宫格挑出来的五张，重新读一遍，就是给问卦人的最终那句话。"],
   ["p", "更大的牌阵就换更大的间隔——3、7、9 或 13，永远取奇数。九张以下的盘不用这招。"]
  ]},
- {id:9,title:"宫位",sub:"牌是常数，位置是变量",src:["https://mp.weixin.qq.com/s/prAoFKKQQKjkkWNjnumyZw"],body:[
+ {id:9,key:["牌是常数，宫位是变量", "牌落在自己的宫位上，本义加强", "随机宫位只用六张牌，是通向大牌阵的台阶", "自创牌阵唯一规矩：每个位置至少两张牌"],title:"宫位",sub:"牌是常数，位置是变量",src:["https://mp.weixin.qq.com/s/prAoFKKQQKjkkWNjnumyZw"],body:[
   ["p", "把 36 张牌按 1 到 36 的原始顺序铺开，每个位置就叫一个宫位。以后说「树落在狐狸宫」，意思就是树这张牌落在了第 14 个位置上。"],
   ["tableau", 9, 0, "大牌阵的一种排法：4 行 × 9 张，正好铺满 36 个宫位。"],
   ["tableau", 8, 4, "另一种排法：4 行 × 8 张，余下 4 张摆在底部居中。两种都在用，选一种固定下来。"],
@@ -219,7 +219,7 @@ const LESSONS = [
   ["h", "自创牌阵的唯一规矩"],
   ["p", "雷诺曼传统上牌阵不多，你完全可以自己设计。只有一条不能破：每个位置至少要有两张牌参与解读。单张一个位置那是塔罗的玩法，在这里读不出东西。"]
  ]},
- {id:10,title:"三个经典牌阵",sub:"串珠、艾特拉七对、宫廷牌朝向",src:["https://mp.weixin.qq.com/s/wa-FINN34Xuwf0uGOmDQzw", "https://mp.weixin.qq.com/s/Skf9ZXSDKarTaLmT-B0guQ", "https://mp.weixin.qq.com/s/J_ddP1jCPriYbgzU4as_cg"],body:[
+ {id:10,key:["串珠：切三堆找指示牌，再按 7 挑牌换序", "艾特拉七对：12 张摆 V 形，另加 2 张惊喜牌", "宫廷牌朝向盘外时补一张，看他在看什么"],title:"三个经典牌阵",sub:"串珠、艾特拉七对、宫廷牌朝向",src:["https://mp.weixin.qq.com/s/wa-FINN34Xuwf0uGOmDQzw", "https://mp.weixin.qq.com/s/Skf9ZXSDKarTaLmT-B0guQ", "https://mp.weixin.qq.com/s/J_ddP1jCPriYbgzU4as_cg"],body:[
   ["h", "串珠牌阵"],
   ["p", "像串项链一样把牌连起来，主要手段是「挑牌换序」。"],
   ["p", "一、带着问题洗牌，切成三堆，每堆 12 张。二、翻开三堆的顶牌先读一遍，这是整体印象。三、逐堆翻找指示牌 / 主题牌，它在哪一堆就用哪一堆，摊成一行 11 张。四、从指示牌起，按 7 张一跳重新排序。五、排好后两两读（1+2、2+3……），最后整行连起来讲一遍。"],
@@ -234,7 +234,7 @@ const LESSONS = [
   ["fig", "L10-01", "宫廷牌的朝向", "两三张宫廷牌并排，人物目光分别朝左、朝右，能一眼看出朝向差别"],
   ["p", "补牌之后，再顺手看两张牌的花色搭配：红桃配黑桃常是互相买账的关系，梅花配黑桃是压抑受限，红桃配梅花是情绪上的沉重。"]
  ]},
- {id:11,title:"扑克那一层",sub:"花色、点数与九重结构",src:["https://mp.weixin.qq.com/s/2_CLlbteZpzw2cTaIiIZkw", "https://mp.weixin.qq.com/s/LgsRqeJAs5Vdi4ShRx4OGA", "https://mp.weixin.qq.com/s/WMEhQgHi8bdFOa6tIDLlhg", "https://mp.weixin.qq.com/s/byFzHRf81gyMQdg4v0JFWg", "https://mp.weixin.qq.com/s/ccVEs1bW_TF_bBjUr7Joiw", "https://mp.weixin.qq.com/s/_GtSpO-3wf5cSI4Sk0hMDw"],body:[
+ {id:11,key:["四花色：黑桃事务、红桃人情、梅花难处、方块动能", "雷诺曼的吉凶跟普通扑克占卜是错开的", "点数按扑克算：A=1、J=11、Q=12、K=13", "同点数四张一组，构成九重结构"],title:"扑克那一层",sub:"花色、点数与九重结构",src:["https://mp.weixin.qq.com/s/2_CLlbteZpzw2cTaIiIZkw", "https://mp.weixin.qq.com/s/LgsRqeJAs5Vdi4ShRx4OGA", "https://mp.weixin.qq.com/s/WMEhQgHi8bdFOa6tIDLlhg", "https://mp.weixin.qq.com/s/byFzHRf81gyMQdg4v0JFWg", "https://mp.weixin.qq.com/s/ccVEs1bW_TF_bBjUr7Joiw", "https://mp.weixin.qq.com/s/_GtSpO-3wf5cSI4Sk0hMDw"],body:[
   ["p", "每张雷诺曼牌都印着一张扑克牌。它不是装饰——1799 年这套牌问世时扑克元素就在，只是很多人跳过了它。"],
   ["h", "四个花色管四件事"],
   ["p", "黑桃：事务与服务。工作、贸易、权威、公共事务。可靠、把事情结构化。"],
@@ -256,7 +256,7 @@ const LESSONS = [
   ["p", "四张 6：四条路（十字架宿命、星星命运、三叶草财运、塔服务）"],
   ["p", "知道这层结构，你会发现同点数的牌成组出现时特别有话说——比如盘里同时出现两张 K，那是两个成年男人在角力。"]
  ]},
- {id:12,title:"收尾",sub:"隐藏动态与一句祝福",src:["https://mp.weixin.qq.com/s/DvwmMr_wHPhjqT8C3dSd5Q", "https://mp.weixin.qq.com/s/HMtSIXDvmKAoRMpT274vRw"],body:[
+ {id:12,key:["五张牌：外两张相加、内两张相加，找暗线", "九张以内可算点数总和，从对应牌提一句祝福", "挑战牌也能送祝福，从它的反面去说", "别把自己占空，一天两三次为限"],title:"收尾",sub:"隐藏动态与一句祝福",src:["https://mp.weixin.qq.com/s/DvwmMr_wHPhjqT8C3dSd5Q", "https://mp.weixin.qq.com/s/HMtSIXDvmKAoRMpT274vRw"],body:[
   ["h", "五张牌的隐藏动态"],
   ["p", "这招只用在五张牌阵上，可以放在常规解读之后、祝福之前。"],
   ["p", "把外面两张（1 和 5）的扑克点数相加，把里面两张（2 和 4）的点数相加，各得一个数，再去找这两个数对应的雷诺曼牌号。这两张牌就是这盘的暗线——是什么在制造张力，或者哪里藏着解法。"],

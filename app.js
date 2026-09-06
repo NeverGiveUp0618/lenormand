@@ -58,7 +58,7 @@ function applyTheme(t){
 }
 
 /* ---------- 路由 ---------- */
-const TABS=[['learn','学','学'],['cards','查','查'],['train','练','练'],['journal','记','记']];
+const TABS=[['learn','学','学'],['cards','查','查'],['train','练','练']];
 function nav(){
   const o=document.getElementById('orn'); if(o&&!o.innerHTML) o.innerHTML=orn('constel');
   const cur=(location.hash.split('/')[1]||'learn');
@@ -81,24 +81,35 @@ function route(){
 /* ---------- 学 ---------- */
 function vLearn(){
   head('雷诺曼 · 三十六牌','从零到能读盘，十二篇');
-  return orn('constel','constel')+`${SEC(`课程`)}<div class="card">`+
+  const read=LESSONS.filter(l=>S.read[l.id]).length;
+  const nx=LESSONS.find(l=>!S.read[l.id])||LESSONS[LESSONS.length-1];
+  const st=Object.values(S.stat); let r=0,w=0; st.forEach(s=>{r+=s.r;w+=s.w});
+  const known=DECK.filter(c=>{const s=S.stat[c.n];return s&&s.r>=3&&s.r>s.w*2}).length;
+  const done=read===LESSONS.length;
+  return orn('constel','constel')+
+   `<button class="btn pri big" data-go="#/lesson/${nx.id}">
+      ${done?'重读':'继续学'} · 第 ${nx.id} 篇 ${nx.title}</button>
+    <div class="prog">
+      <div class="pr"><b>${read}/${LESSONS.length}</b><span>课程读完</span>
+        <i class="bar"><s style="width:${read/LESSONS.length*100}%"></s></i></div>
+      <div class="pr"><b>${known}/36</b><span>牌义已熟</span>
+        <i class="bar"><s style="width:${known/36*100}%"></s></i></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" data-go="#/draw/d1">今日一张</button>
+      <button class="btn" data-go="#/train">做几道题</button></div>`+
+   SEC(`十二篇`)+`<div class="card">`+
    LESSONS.map(l=>`<div class="lesson-li" data-go="#/lesson/${l.id}">
-     <span class="idx">${l.id}</span><div><div class="t">${l.title}</div><div class="s">${l.sub}</div></div>
-     </div>`).join('')+
-   `</div>
-   ${SEC(`快速入口`)}<div class="row">
-     <button class="btn" data-go="#/cards">36 张牌义</button>
-     <button class="btn" data-go="#/combo">两张牌组合器</button></div>
-   <div class="row" style="margin-top:8px">
-     <button class="btn" data-go="#/train">开始练习</button>
-     <button class="btn" data-go="#/draw/d1">今日一张</button></div>
-   <div class="row" style="margin-top:8px">
-     <button class="btn" data-go="#/slots">图位清单 · 等补图</button></div>`;
+     <span class="idx">${l.id}</span><div style="flex:1"><div class="t">${l.title}</div>
+     <div class="s">${l.sub}</div></div>
+     ${S.read[l.id]?'<span class="tick">✓</span>':''}</div>`).join('')+`</div>`;
 }
 function vLesson(id){
   const l=LESSONS.find(x=>x.id===+id)||LESSONS[0];
   S.read[l.id]=1; save();
   head(`第 ${l.id} 篇 · ${l.title}`,l.sub,'#/learn');
+  const keys=(l.key||[]).length?`<div class="keys"><div class="kh">本篇要点</div><ol>`+
+    l.key.map(k=>`<li>${k}</li>`).join('')+`</ol></div>`:'';
   const html=l.body.map(b=>{
     if(b[0]==='p') return `<p>${b[1]}</p>`;
     if(b[0]==='h') return `<h3>${b[1]}</h3>`;
@@ -151,7 +162,7 @@ function vLesson(id){
       <b>原文 ${i+1} ›</b></a>`).join('')+`</div>`:'';
   const og=hasOrig(l.id)?`<button class="btn" data-go="#/orig/${l.id}" style="margin-bottom:9px">
     <b>读这一篇的原文</b><br><span class="mut">公众号原稿，图文按原序（本地版才有）</span></button>`:'';
-  return `<div class="body rd">${html}</div>`+link+og+
+  return keys+`<div class="body rd">${html}</div>`+link+og+
     (nx?`<button class="btn pri" data-go="#/lesson/${nx.id}">下一篇 · ${nx.title}</button>`
        :`<button class="btn pri" data-go="#/train">十二篇读完了，去练一练</button>`);
 }
@@ -194,16 +205,27 @@ function vOrig(id){
 
 /* ---------- 查 ---------- */
 let filter='all';
-function vCards(){
-  head('36 张牌','点开看牌义');
+function vCards(mode){
+  if(mode&&['all','pos','neg','mid','list'].includes(mode)) filter=mode;
+  head('36 张牌',filter==='list'?'一行一张，一屏扫完':'点开看牌义');
+  const TABS_F=[['all','全部'],['pos','幸运'],['neg','挑战'],['mid','中性'],['list','速查']];
+  const bar=`<div class="fbar">`+
+    TABS_F.map(([k,t])=>`<button class="btn ${filter===k?'on':''}" data-filter="${k}">${t}</button>`)
+    .join('')+`</div>`;
+  if(filter==='list'){   // 速查：一行一张，一屏扫完
+    return bar+`<div class="card lst">`+DECK.map(c=>`<div class="li" data-card="${c.n}">
+      <span class="n">${String(c.n).padStart(2,'0')}</span>
+      <span class="nm">${c.name}</span>${pip(c.pk)}
+      <span class="rl ${polCls(c.pol)}">${ROLE3(c.pol)}</span>
+      <span class="kw">${c.keys.join(' · ')}</span></div>`).join('')+`</div>`;
+  }
   const f={all:()=>1,pos:c=>c.pol>0,neg:c=>c.pol<0,mid:c=>c.pol===0};
-  const list=DECK.filter(f[filter]);
-  return `<div class="row" style="margin-bottom:12px">`+
-    [['all','全部'],['pos','正面'],['neg','负面'],['mid','中性']].map(([k,t])=>
-      `<button class="btn ${filter===k?'on':''}" data-filter="${k}" style="text-align:center">${t}</button>`).join('')+
-    `</div><input type="text" id="q" placeholder="搜牌名 / 英文 / 扑克 / 关键词" style="margin-bottom:12px">
+  const list=DECK.filter(f[filter]||f.all);
+  return bar+`<input type="text" id="q" placeholder="搜牌名 / 英文 / 扑克 / 关键词"
+      style="margin-bottom:12px">
     <div class="grid" id="cg">${list.map(c=>tile(c)).join('')}</div>`;
 }
+
 function vCard(n){
   const c=byN(n); if(!c) return vCards();
   head(`${String(c.n).padStart(2,'0')} ${c.name}`,c.en+' · '+c.pk,'#/cards');
@@ -282,7 +304,9 @@ function vTrain(){
     MODES.map(m=>`<button class="btn" data-go="#/quiz/${m.id}"><b>${m.t}</b><br>
       <span class="mut">${m.d}</span></button>`).join('')+`</div>`+
     (wk.length?`${SEC(`薄弱的牌`)}<div class="grid">${wk.map(c=>tile(c)).join('')}</div>`:'')+
-    `${SEC(`抽牌`)}<div class="opts">`+
+    `${SEC(`抽牌与日记`)}<div class="opts">
+      <button class="btn" data-go="#/journal"><b>抽牌日记</b><br>
+        <span class="mut">回看比抽牌更重要：记下解读，事后补实际发生了什么</span></button>`+
     SPREADS.map(s=>`<button class="btn" data-go="#/draw/${s.id}"><b>${s.name}</b><br>
       <span class="mut">${s.tip}</span></button>`).join('')+`</div>`;
 }
@@ -403,7 +427,7 @@ document.addEventListener('click',e=>{
   }
   if(t){location.hash='#/card/'+t.dataset.card;return}
   const f=e.target.closest('[data-filter]');
-  if(f){filter=f.dataset.filter;route();return}
+  if(f){filter=f.dataset.filter;location.hash='#/cards/'+filter;route();return}
   if(e.target.id==='creset'){comboA=comboB=null;route();return}
   if(e.target.id==='redraw'){drawn=null;route();return}
   if(e.target.id==='next'){quiz.i++;quiz.q=makeQ(quiz.mode);quiz.ans=null;route();return}

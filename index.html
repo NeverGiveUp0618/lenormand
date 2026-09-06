@@ -301,6 +301,50 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .constel{display:block;margin:6px auto 16px;width:132px;height:auto;color:var(--accent);opacity:.5}
 .moon{width:14px;height:14px;vertical-align:-2px;margin-right:6px;color:var(--accent)}
 
+
+/* ─── 首页：一个主入口 + 两条进度 ─── */
+.btn.pri.big{padding:20px 16px;font-size:16px;letter-spacing:.14em;border-radius:4px}
+.prog{display:flex;gap:11px;margin-top:11px}
+.pr{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:4px;
+  padding:12px 14px 13px;box-shadow:var(--shadow)}
+.pr b{font-family:var(--serif);font-size:19px;color:var(--head);letter-spacing:.04em}
+.pr span{font-size:11.5px;color:var(--dim);margin-left:7px;letter-spacing:.1em}
+.pr i.bar{display:block;height:3px;background:var(--line);border-radius:3px;margin-top:9px;overflow:hidden}
+.pr i.bar s{display:block;height:100%;background:var(--accent);text-decoration:none}
+.lesson-li .tick{font-size:13px;color:var(--accent2);flex:none;margin-left:8px}
+
+/* ─── 课文顶部：本篇要点 ─── */
+.keys{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 4px 4px 0;padding:15px 18px 16px;margin:0 0 22px;box-shadow:var(--shadow)}
+.keys .kh{font-family:var(--serif);font-size:11.5px;letter-spacing:.3em;color:var(--accent);
+  margin-bottom:9px}
+.keys ol{margin:0;padding-left:19px}
+.keys li{margin:5px 0;font-size:14.5px;line-height:1.75;color:var(--ink)}
+.keys li::marker{font-family:var(--serif);color:var(--dim);font-size:12px}
+
+/* 筛选条：一行放得下，放不下就横滑，绝不折行 */
+.fbar{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;padding-bottom:2px}
+.fbar::-webkit-scrollbar{display:none}
+.fbar .btn{flex:1 0 auto;width:auto;padding:9px 13px;font-size:13.5px;text-align:center;
+  white-space:nowrap;letter-spacing:.08em}
+
+/* ─── 速查：一行一张，一屏扫完 ─── */
+.lst{overflow:hidden}
+.li{display:flex;align-items:center;gap:9px;padding:10px 13px;border-bottom:1px solid var(--line);
+  cursor:pointer;font-size:13.5px}
+.li:last-child{border-bottom:0}
+.li:active{background:var(--panel-b)}
+.li .n{font-family:var(--serif);font-size:11px;color:var(--dim);width:20px;flex:none;letter-spacing:.06em}
+.li .nm{font-family:var(--serif);font-size:15px;color:var(--head);width:4.4em;flex:none;letter-spacing:.06em}
+.li .pk{width:2.6em;flex:none;font-size:12px;font-weight:600}
+.li .pk.r{color:var(--suit-r)} .li .pk.b{color:var(--suit-b)}
+.li .rl{flex:none;font-size:10.5px;padding:1px 7px;border-radius:2px;letter-spacing:.1em;
+  color:var(--panel);background:var(--sand)}
+.li .rl.pos{background:var(--accent2)} .li .rl.neg{background:var(--suit-r)}
+.li .kw{flex:1;min-width:0;color:var(--dim);font-size:12.5px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;text-align:right}
+
 /* ─── 底栏 ─── */
 nav.tab{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;
   background:color-mix(in srgb,var(--paper) 95%,transparent);border-top:1px solid var(--line);
