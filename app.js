@@ -281,37 +281,42 @@ function vCombo(pre){
     <div class="grid" id="cg">${DECK.map(c=>tile(c,(c.n===comboA||c.n===comboB)?'sel':'')).join('')}</div>`;
 }
 
-/* ---------- 记忆：数字桩翻卡 ---------- */
-let memI=null, memFlip=0;
-function memQueue(){                 // 没记住的排前面
-  const un=DECK.filter(c=>!S.mem[c.n]), ok=DECK.filter(c=>S.mem[c.n]);
-  return un.concat(ok);
+/* ---------- 记忆：数字桩测验（不靠自评，按答题结果判定） ---------- */
+/* S.mem[n] = 连对次数 box：0 没记住 / 1 对过一次 / 2 以上算掌握 */
+const MEM_OK=2;
+const box=n=>{const v=S.mem[n]; return typeof v==='number'?v:(v?1:0);};
+const memDone=()=>DECK.filter(c=>box(c.n)>=MEM_OK).length;
+let memQ=null;   // 当前题
+function nextMem(){
+  const pool=shuffle(DECK).sort((x,y)=>box(x.n)-box(y.n));   // 生的排前面
+  const c=pool[Math.random()<0.75?0:Math.floor(Math.random()*Math.min(6,pool.length))];
+  const dir=Math.random()<0.65?'peg2card':'card2peg';
+  const others=shuffle(DECK.filter(x=>x.n!==c.n)).slice(0,5);
+  return {c,dir,opts:shuffle([c,...others]),ans:null};
 }
 function vMem(arg){
-  const q=memQueue();
-  if(memI===null||arg==='r') memI=0;
-  const c=q[Math.min(memI,q.length-1)], m=MEM[c.n], done=DECK.filter(x=>S.mem[x.n]).length;
-  head('数字桩记忆',`${done}/36 已记住`,'#/train');
-  const flip=memFlip;
-  return `<div class="pr" style="margin-bottom:14px"><b>${done}/36</b><span>已记住</span>
+  if(!memQ||arg==='r') memQ=nextMem();
+  const {c,dir,opts,ans}=memQ, m=MEM[c.n], done=memDone();
+  head('数字桩记忆',`已掌握 ${done}/36`,'#/train');
+  const ok=ans!==null&&ans===c.n;
+  const grid=dir==='peg2card'
+    ? `<div class="memgrid">`+opts.map(x=>`<div class="mopt ${ans===null?'':(x.n===c.n?'right':(x.n===ans?'wrong':'dim'))}"
+        data-mem="${x.n}">${face(x.n)}<span>${x.name}</span></div>`).join('')+`</div>`
+    : `<div class="opts">`+opts.map(x=>`<button class="btn ${ans===null?'':(x.n===c.n?'ok':(x.n===ans?'bad':''))}"
+        data-mem="${x.n}" style="text-align:center">${MEM[x.n].peg}</button>`).join('')+`</div>`;
+  const q=dir==='peg2card'
+    ? `<span class="mno">${String(c.n).padStart(2,'0')}</span><span class="mpeg">${m.peg}</span>
+       <p class="mhint">这个桩挂的是哪张牌？</p>`
+    : `<div class="mcard">${face(c.n)}</div><div class="mname">${c.name}</div>
+       <p class="mhint">它的桩词是哪个？</p>`;
+  return `<div class="pr" style="margin-bottom:14px"><b>${done}/36</b><span>已掌握（连对两次算）</span>
       <i class="bar"><s style="width:${done/36*100}%"></s></i></div>
-    <div class="memcard">
-      <div class="mno">${String(c.n).padStart(2,'0')}</div>
-      <div class="mpeg">${m.peg}</div>
-      ${flip?`<div class="mflip">
-        <div class="mcard">${face(c.n)}</div>
-        <div class="mname">${c.name}</div>
-        <p class="mscene">${m.scene}</p>
-        <p class="mwhy">${m.why}</p></div>`
-       :`<p class="mhint">号码 ${c.n} 的桩是「${m.peg}」——想一想，它和哪张牌演了一出戏？</p>`}
-    </div>
-    ${flip?`<div class="row" style="margin-top:12px">
-        <button class="btn" id="magain">再看一次</button>
-        <button class="btn pri" id="mok">记住了</button></div>`
-      :`<button class="btn pri" id="mshow" style="margin-top:12px">翻开看画面</button>`}
-    <div class="row" style="margin-top:9px">
-      <button class="btn" data-go="#/card/${c.n}">看这张牌义</button>
-      <button class="btn" id="mskip">跳过 ›</button></div>`;
+    <div class="memcard">${q}</div>${grid}
+    ${ans===null?'':`<div class="fb ${ok?'ok':'bad'}" style="margin-top:14px">
+        ${ok?'对了。':`不对，是 <b>${c.n} ${c.name}</b>。`}</div>
+      <div class="memsc"><b>${c.n} · ${m.peg} · ${c.name}</b>
+        <p>${m.scene}</p><p class="mwhy">${m.why}</p></div>
+      <button class="btn pri" id="mnext" style="margin-top:12px">下一题</button>`}`;
 }
 
 /* ---------- 练 ---------- */
@@ -332,7 +337,7 @@ function vTrain(){
   const rate=(()=>{let r=0,w=0;Object.values(S.stat).forEach(s=>{r+=s.r;w+=s.w});
     return r+w?Math.round(r*100/(r+w)):0})();
   const wk=weak().filter(c=>{const s=S.stat[c.n];return s&&s.w>s.r}).slice(0,8);
-  const memd=DECK.filter(c=>S.mem[c.n]).length;
+  const memd=memDone();
   return `<button class="btn pri" data-go="#/mem" style="margin-bottom:12px">
       数字桩记忆 · ${memd}/36</button>
     <div class="card pad">
@@ -480,12 +485,13 @@ document.addEventListener('click',e=>{
   if(f){filter=f.dataset.filter;location.hash='#/cards/'+filter;route();return}
   if(e.target.id==='creset'){comboA=comboB=null;route();return}
   if(e.target.id==='redraw'){drawn=null;route();return}
-  if(e.target.id==='mshow'){memFlip=1;route();return}
-  if(e.target.id==='mskip'){memFlip=0;memI++;route();return}
-  if(e.target.id==='magain'){memFlip=0;memI++;route();return}
-  if(e.target.id==='mok'){
-    const q=memQueue(), c=q[Math.min(memI,q.length-1)];
-    S.mem[c.n]=1; save(); memFlip=0; route(); return;
+  if(e.target.id==='mnext'){memQ=nextMem();route();return}
+  const mo=e.target.closest('[data-mem]');
+  if(mo&&memQ&&memQ.ans===null){
+    const pickN=+mo.dataset.mem, right=pickN===memQ.c.n, n=memQ.c.n;
+    S.mem[n]=right?Math.min(3,box(n)+1):0;      // 连对累加，答错清零
+    S.stat[n]=S.stat[n]||{r:0,w:0}; S.stat[n][right?'r':'w']++;
+    save(); memQ.ans=pickN; route(); return;
   }
   if(e.target.id==='next'){quiz.i++;quiz.q=makeQ(quiz.mode);quiz.ans=null;route();return}
   if(e.target.id==='jsave'){

@@ -229,13 +229,31 @@ sec('四之五、数字桩记忆');
     ok(m.peg.length<=4,`${c.n} 的桩词过长：${m.peg}`);});
   ok(new Set(Object.values(MEM).map(m=>m.peg)).size===36,'桩词不能重复');
   go('#/mem');
-  ok(w.document.querySelector('.mpeg'),'记忆卡应显示桩词');
-  ok(!w.document.querySelector('.mflip'),'未翻开时不应露出答案');
-  w.document.getElementById('mshow').click();
-  ok(w.document.querySelector('.mflip .mname'),'翻开后应显示牌名与画面');
-  w.document.getElementById('mok').click();
-  ok(Object.keys(JSON.parse(w.localStorage.getItem('lenormand_v1')).mem).length===1,
-    '点「记住了」应写入进度');
+  ok(w.document.querySelectorAll('[data-mem]').length===6,'记忆题应给 6 个选项');
+  ok(!w.document.querySelector('.memsc'),'未作答前不应显示画面答案');
+  // 故意答错：掌握度清零，并当场亮出画面
+  {
+    const right=w.eval('memQ.c.n');
+    const wrongEl=[...w.document.querySelectorAll('[data-mem]')].find(e=>+e.dataset.mem!==right);
+    wrongEl.click();
+    ok(w.document.querySelector('.memsc'),'答错后应把画面与合理性摆出来');
+    ok(JSON.parse(w.localStorage.getItem('lenormand_v1')).mem[right]===0,'答错应把掌握度清零');
+  }
+  // 连对两次才算掌握
+  {
+    let n0=null;
+    for(let k=0;k<2;k++){
+      w.document.getElementById('mnext').click();
+      const rn=w.eval('memQ.c.n');
+      if(k===0)n0=rn;
+      if(rn!==n0){ w.eval(`memQ.c=DECK.find(c=>c.n===${n0});memQ.opts=[memQ.c].concat(memQ.opts.slice(1));`); w.eval('route()'); }
+      [...w.document.querySelectorAll('[data-mem]')].find(e=>+e.dataset.mem===n0).click();
+    }
+    const m=JSON.parse(w.localStorage.getItem('lenormand_v1')).mem;
+    ok(m[n0]>=2,`连对两次后掌握度应 ≥2，实为 ${m[n0]}`);
+    ok(view().includes('已掌握'),'页面应显示客观掌握进度');
+  }
+  ok(!/记住了|再看一次/.test(view()),'不应再出现自评按钮');
   go('#/card/14');
   ok(view().includes('记忆钩子')&&view().includes(MEM[14].peg),'牌义页应显示记忆钩子');
 }
