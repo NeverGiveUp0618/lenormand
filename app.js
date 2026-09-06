@@ -23,16 +23,22 @@ const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random(
 const pick=a=>a[Math.random()*a.length|0];
 const today=()=>new Date().toLocaleDateString('sv');
 
+/* 扑克花色：中文 → 符号 + 点数，红黑分色 */
+const SUIT={'红桃':['♥','r'],'方块':['♦','r'],'黑桃':['♠','b'],'梅花':['♣','b']};
+function pip(pk){
+  const s=SUIT[pk.slice(0,2)]||['',''];
+  return `<span class="pk ${s[1]}">${s[0]}${pk.slice(2)}</span>`;
+}
 function tile(c,extra){
-  return `<div class="tile ${polCls(c.pol)} ${extra||''}" data-card="${c.n}">
-    <span class="no">${String(c.n).padStart(2,'0')}</span><span class="pk">${c.pk}</span>
+  return `<div class="tile ${polCls(c.pol)} ${extra||''}" data-card="${c.n}" data-no="${c.n}">
+    <span class="no">${String(c.n).padStart(2,'0')}</span>${pip(c.pk)}
     ${face(c.n)}<div class="nm">${c.name}</div><div class="en">${c.en}</div></div>`;
 }
 
 /* ---------- 主题 ---------- */
-const THEMES=[['pearl','珠贝','奶白贝壳，海沫青与藕荷紫'],
-              ['dusk','暮汐','黄昏的海面，藕紫蜜桃'],
-              ['sea','深海','午夜潮汐，星与水'] ];
+const THEMES=[['pearl','月白','暖象牙纸，墨与旧金'],
+              ['dusk','玫瑰金','胭脂纸，梅子色与霜绿'],
+              ['sea','夜航','墨蓝纸，月光银与金'] ];
 function applyTheme(t){
   if(!THEMES.some(x=>x[0]===t)) t='pearl';
   S.theme=t; save();
@@ -203,7 +209,7 @@ function vCard(n){
       ${F('概括',c.gist)}${F('作用',c.role)}
       <dt>关键词</dt><dd><div class="chips">${c.keys.map(k=>`<span class="chip k">${k}</span>`).join('')}</div></dd>
       ${F('名词',c.noun)}${F('形容词',c.adj)}${F('动词',c.verb)}${F('副词',c.adv)}
-      ${F('人物',c.people)}${F('时间',c.time)}
+      ${F('人物',c.people)}${F('时间',c.time)}${F('雷诺曼宇宙',c.univ)}
     </dl></div>
     <div class="row" style="margin-top:12px">
       <button class="btn" data-go="#/combo/${c.n}">用它做组合</button>
