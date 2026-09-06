@@ -108,6 +108,7 @@ function head(t,s,back){
   const b=document.getElementById('back'); b.hidden=!back; b.dataset.go=back||'';
 }
 function route(){
+  document.body.classList.remove('guiding');
   const p=location.hash.replace(/^#\/?/,'').split('/');
   const v=document.getElementById('view');
   const r={learn:vLearn,lesson:vLesson,cards:vCards,card:vCard,combo:vCombo,
@@ -492,22 +493,109 @@ function vQuiz(mode){
     </div>`;
 }
 
+/* ---------- 盘面统计（第十一、十二篇的机械步骤，自动算好） ---------- */
+const RANKV={A:1,J:11,Q:12,K:13};
+const pkVal=pk=>{const r=pk.slice(2); return RANKV[r]||+r};
+const isCourt=pk=>['J','Q','K'].includes(pk.slice(2));
+function stats(cards){
+  const suits={红桃:0,方块:0,黑桃:0,梅花:0};
+  cards.forEach(c=>suits[c.pk.slice(0,2)]++);
+  const sum=cards.reduce((n,c)=>n+pkVal(c.pk),0);
+  const digit=n=>{while(n>36)n=String(n).split('').reduce((a,b)=>a+ +b,0); return n};
+  const minus=n=>{while(n>36)n-=36; return n};
+  const a=digit(sum), b=minus(sum);
+  const ranks={};
+  cards.forEach(c=>{const r=c.pk.slice(2); ranks[r]=(ranks[r]||0)+1});
+  return {suits,sum,
+    sumCards:[...new Set([a,b])].filter(n=>n>=1&&n<=36),
+    pol:{p:cards.filter(c=>c.pol>0).length,z:cards.filter(c=>c.pol===0).length,
+         n:cards.filter(c=>c.pol<0).length},
+    courts:cards.filter(c=>isCourt(c.pk)),
+    pairs:Object.entries(ranks).filter(([,v])=>v>=2)};
+}
+function vStats(cards){
+  if(cards.length<3) return '';
+  const s=stats(cards), tot=cards.length;
+  const SU={红桃:['♥','r','人情'],方块:['♦','r','动能'],黑桃:['♠','b','事务'],梅花:['♣','b','难处']};
+  const top=Object.entries(s.suits).sort((a,b)=>b[1]-a[1]);
+  return `<div class="stats">
+    <div class="sh"><b>盘面统计</b><span>点数总和 ${s.sum}</span></div>
+    <div class="sb">
+      <div class="srow"><i>花色</i><span>`+
+        Object.entries(s.suits).map(([k,v])=>`<em class="su ${SU[k][1]} ${v===0?'z':''}">
+          ${SU[k][0]}${v}</em>`).join('')+
+        `<u>${top[0][1]>=Math.ceil(tot/2)?`${SU[top[0][0]][0]} 占多数 · 这盘的底色是${SU[top[0][0]][2]}`:'没有明显的主导花色'}</u></span></div>
+      <div class="srow"><i>吉凶</i><span>
+        <em class="pp">幸运 ${s.pol.p}</em><em class="pz">中性 ${s.pol.z}</em><em class="pn">挑战 ${s.pol.n}</em></span></div>
+      <div class="srow"><i>总和</i><span>`+
+        s.sumCards.map(n=>`<em class="sc" data-card="${n}">${n} ${byN(n).name}</em>`).join('')+
+        `<u>${s.sum>36?'超过 36，两种化简都列出来了':''}从这张提一句祝福收尾</u></span></div>
+      ${s.courts.length?`<div class="srow"><i>宫廷牌</i><span>`+
+        s.courts.map(c=>`<em class="sq" data-card="${c.n}">${c.name}</em>`).join('')+
+        `<u>可能代表具体的人</u></span></div>`:''}
+      ${s.pairs.length?`<div class="srow"><i>同点数</i><span>`+
+        s.pairs.map(([r,v])=>`<em class="sr">${v} 张 ${r}</em>`).join('')+
+        `<u>同点数成组出现，特别有话说</u></span></div>`:''}
+    </div></div>`;
+}
+
+/* ---------- 牌阵分步引导 ---------- */
+const GUIDE={
+ box9:[
+  {t:'中心',i:[4],h:'先看正中这张：这盘到底在讲什么。它是主题，其余八张都围着它转。'},
+  {t:'过去',i:[0,3,6],h:'左边一列从上往下读成一句：事情是怎么来的。牌 1 常常就是起因或触发点。'},
+  {t:'现在',i:[1,4,7],h:'中间一列：眼下的状况。它穿过中心牌，是全盘最要紧的一条线。'},
+  {t:'未来',i:[2,5,8],h:'右边一列：照这样下去会怎样。这是结果，不是判决——行动会改它。'},
+  {t:'四角',i:[0,2,6,8],h:'四个角合起来读：这件事的基本盘、大环境。'},
+  {t:'菱形',i:[1,3,5,7],h:'上下左右四张：没摆到台面上的内部动态，往往是真正的推手。'},
+  {t:'挑牌简化',i:[4,6,8,1,3],h:'从中心每隔一张取一张，得到五张：把它们连起来读，就是给对方的最后一句话。'}],
+ s5:[
+  {t:'焦点',i:[2],h:'中间这张是事情本身，先把它读准。'},
+  {t:'两翼',i:[1,3],h:'紧挨着的两张：它们描述这件事的性质。'},
+  {t:'来去',i:[0,4],h:'最外两张：左边是来路，右边是去处。'},
+  {t:'镜像',i:[0,4],h:'把最外两张配对读一次，看首尾有没有呼应或矛盾。'},
+  {t:'连读',i:[0,1,2,3,4],h:'最后整行连起来说一句人话，加上连接词，别读成电报稿。'}]
+};
+let gStep=null;
+
 /* ---------- 抽牌 ---------- */
 let drawn=null;
 function vDraw(id){
   const sp=SPREADS.find(s=>s.id===id)||SPREADS[0];
   head(sp.name,sp.tip,'#/train');
-  if(!drawn||drawn.id!==sp.id) drawn={id:sp.id,cards:shuffle(DECK).slice(0,sp.size)};
+  if(!drawn||drawn.id!==sp.id){drawn={id:sp.id,cards:shuffle(DECK).slice(0,sp.size)}; gStep=null;}
+  const g=GUIDE[sp.id], on=g&&gStep!==null?g[gStep]:null;
   const cls=sp.size===9?'nine':'spread';
-  const body=drawn.cards.map((c,i)=>`<div>${tile(c)}${sp.slots[i]?`<span class="slot">${sp.slots[i]}</span>`:''}</div>`).join('');
+  document.body.classList.toggle('guiding',gStep!==null);
+  const body=drawn.cards.map((c,i)=>{
+    const hl=on?(on.i.includes(i)?' hl':' dim'):'';
+    return `<div class="dslot${hl}">${tile(c)}${sp.slots[i]?`<span class="slot">${sp.slots[i]}</span>`:''}</div>`;
+  }).join('');
+  // 分步引导
+  let guide='';
+  if(g){
+    guide=gStep===null
+      ? `<button class="btn pri" id="gstart" style="margin-top:12px">带我一步步读这盘</button>`
+      : `<div class="guide">
+          <div class="gh"><b>第 ${gStep+1}/${g.length} 步 · ${on.t}</b>
+            <span>${on.i.map(k=>drawn.cards[k].name).join(' + ')}</span></div>
+          <p>${on.h}</p>
+          <div class="row">
+            <button class="btn" id="gprev" ${gStep===0?'disabled':''}>‹ 上一步</button>
+            ${gStep===g.length-1
+              ? `<button class="btn pri" id="gend">读完了</button>`
+              : `<button class="btn pri" id="gnext">下一步 ›</button>`}
+          </div></div>`;
+  }
+  // 前两张的组合读法
   let read='';
-  if(sp.size>1){
-    const [a,b]=drawn.cards;
+  if(sp.size>1&&gStep===null){
+    const [x,y]=drawn.cards;
     read=`<div class="card pad" style="margin-top:12px"><div class="mut">前两张先连起来读：</div>
-      <div class="chips" style="margin-top:8px">${phrases(a,b).map(p=>`<span class="chip k">${p}</span>`).join('')}</div></div>`;
+      <div class="chips" style="margin-top:8px">${phrases(x,y).map(p=>`<span class="chip k">${p}</span>`).join('')}</div></div>`;
   }
   const j=sp.id==='d1';
-  return `<div class="${cls}">${body}</div>${read}
+  return `<div class="${cls}" style="--n:${sp.size}">${body}</div>${guide}${vStats(drawn.cards)}${read}
     ${j?`<div class="card pad" style="margin-top:12px">
       <div class="mut">${moonSvg(moonOf(today()).p)}${today()} · ${moonOf(today()).name}</div>
       <div class="mut" style="margin-top:6px">今天你怎么解？晚上回来补一句实际发生了什么。</div>
@@ -558,7 +646,11 @@ document.addEventListener('click',e=>{
     document.querySelectorAll('details.mrow').forEach(d=>{d.open=on});
     return;
   }
-  if(e.target.id==='redraw'){drawn=null;route();return}
+  if(e.target.id==='redraw'){drawn=null;gStep=null;route();return}
+  if(e.target.id==='gstart'){gStep=0;route();return}
+  if(e.target.id==='gnext'){gStep++;route();return}
+  if(e.target.id==='gprev'){gStep--;route();return}
+  if(e.target.id==='gend'){gStep=null;route();return}
   if(e.target.id==='mnext'){memQ=nextMem();route();return}
   const mo=e.target.closest('[data-mem]');
   if(mo&&memQ&&memQ.ans===null){

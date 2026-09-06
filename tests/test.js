@@ -332,6 +332,48 @@ sec('四之五、数字桩记忆');
   ok(view().includes('记忆钩子')&&view().includes(MEM[14].peg),'牌义页应显示记忆钩子');
   ok(view().includes(MEM[14].why),'牌义页记忆钩子应含合理性');
 }
+sec('四之六、盘面统计');
+{
+  // 骑士(红桃9=9) + 心(红桃J=11) + 钥匙(方块8=8) = 28
+  const s=w.eval('stats([byN(1),byN(24),byN(33)])');
+  ok(s.sum===28,`点数总和应为 28，实为 ${s.sum}`);
+  ok(s.suits['红桃']===2&&s.suits['方块']===1&&s.suits['黑桃']===0,'花色统计应正确');
+  ok(s.pol.p===3&&s.pol.n===0,'三张全是幸运牌');
+  ok(s.courts.length===1&&s.courts[0].n===24,'宫廷牌应只认出心(J)');
+  ok(s.sumCards.length===1&&s.sumCards[0]===28,'总和 28 应直接对应 28 号');
+  // 超过 36 时两种化简都要给：A(1)+K(13)+K(13)+Q(12)+J(11)=50 → 5 与 14
+  const s2=w.eval('stats([byN(28),byN(4),byN(30),byN(17),byN(11)])');
+  ok(s2.sum===50,`总和应为 50，实为 ${s2.sum}`);
+  ok(s2.sumCards.includes(5)&&s2.sumCards.includes(14),'超过 36 应同时给出两种化简结果');
+  // 同点数成组
+  const s3=w.eval('stats([byN(4),byN(30),byN(34),byN(1)])');   // 三张 K + 一张 9
+  ok(s3.pairs.some(p=>p[0]==='K'&&p[1]===3),'应认出三张 K');
+  go('#/draw/s5');
+  ok(w.document.querySelector('.stats'),'五张牌阵应显示盘面统计');
+  go('#/draw/d1');
+  ok(!w.document.querySelector('.stats'),'单张不必统计');
+}
+sec('四之七、分步引导');
+{
+  go('#/draw/box9');
+  ok(w.document.getElementById('gstart'),'九宫格应有引导入口');
+  ok(!w.document.querySelector('.dslot.hl'),'未开始时不该有高亮');
+  w.document.getElementById('gstart').click();
+  const steps=w.eval('GUIDE.box9.length');
+  ok(w.document.querySelectorAll('.dslot.hl').length===1,'第一步应只高亮中心一张');
+  ok(w.document.querySelectorAll('.dslot.dim').length===8,'其余八张应淡出');
+  ok(w.document.getElementById('gprev').hasAttribute('disabled'),'第一步的上一步应禁用');
+  w.document.getElementById('gnext').click();
+  ok(w.document.querySelectorAll('.dslot.hl').length===3,'第二步应高亮一列三张');
+  for(let k=2;k<steps;k++) w.document.getElementById('gnext').click();
+  ok(w.document.getElementById('gend'),'最后一步应出现「读完了」');
+  ok(w.document.querySelectorAll('.dslot.hl').length===5,'挑牌简化应高亮五张');
+  w.document.getElementById('gend').click();
+  ok(!w.document.querySelector('.dslot.hl'),'结束后应恢复全盘');
+  // 步骤索引不能越界
+  ok(w.eval('GUIDE.box9.every(s=>s.i.every(i=>i>=0&&i<9))'),'九宫格步骤索引须在 0–8');
+  ok(w.eval('GUIDE.s5.every(s=>s.i.every(i=>i>=0&&i<5))'),'五张步骤索引须在 0–4');
+}
 sec('五、出题引擎（每型 400 题）');
 ['num','key','combo','peg','mix'].forEach(m=>{
   let bad=0,dup=0,noOk=0;

@@ -290,9 +290,57 @@ textarea{min-height:80px;resize:vertical}
 textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .mut{color:var(--dim);font-size:13px}
 
+/* ─── 盘面统计 ─── */
+.stats{background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);
+  overflow:hidden;margin-top:12px}
+.stats .sh{display:flex;align-items:center;padding:11px 15px;background:var(--accent);color:var(--panel)}
+.stats .sh b{font-family:var(--serif);font-size:14px;letter-spacing:.18em}
+.stats .sh span{margin-left:auto;font-size:11.5px;letter-spacing:.06em;opacity:.92}
+.stats .srow{display:flex;gap:11px;padding:11px 15px;border-bottom:1px solid var(--line);
+  align-items:baseline}
+.stats .srow:last-child{border-bottom:0}
+.stats .srow>i{font-style:normal;font-family:var(--serif);font-size:11px;letter-spacing:.2em;
+  color:var(--dim);width:3.6em;flex:none}
+.stats .srow>span{flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.stats em{font-style:normal;font-size:12px;padding:2px 9px;border-radius:2px;letter-spacing:.06em;
+  background:var(--panel-b);border:1px solid var(--line);color:var(--ink)}
+.stats em.r{color:var(--suit-r)} .stats em.b{color:var(--suit-b)}
+.stats em.z{opacity:.4}
+.stats em.pp{background:var(--accent2);color:var(--panel);border-color:transparent}
+.stats em.pn{background:var(--suit-r);color:var(--panel);border-color:transparent}
+.stats em.pz{background:var(--sand);color:var(--panel);border-color:transparent}
+.stats em.sc,.stats em.sq{background:var(--accent);color:var(--panel);border-color:transparent;cursor:pointer}
+.stats u{text-decoration:none;font-size:11.5px;color:var(--dim);flex-basis:100%;line-height:1.6}
+
+/* ─── 分步引导 ─── */
+.guide{background:var(--panel);border:1px solid var(--line2);border-radius:4px;
+  overflow:hidden;margin-top:12px;
+  position:sticky;bottom:calc(72px + env(safe-area-inset-bottom));z-index:15;
+  box-shadow:0 -6px 24px rgba(0,0,0,.10),var(--shadow)}
+.guide .gh{display:flex;flex-direction:column;gap:3px;padding:12px 15px;background:var(--accent2);
+  color:var(--panel)}
+.guide .gh b{font-family:var(--serif);font-size:14px;letter-spacing:.14em}
+.guide .gh span{font-size:12px;opacity:.92;letter-spacing:.04em}
+.guide p{margin:0;padding:14px 15px;font-size:14.5px;line-height:1.85;color:var(--ink)}
+.guide .row{padding:0 15px 14px}
+.guide .btn[disabled]{opacity:.4;pointer-events:none}
+.dslot{transition:opacity .2s,transform .2s}
+.guiding .nine{max-width:300px;gap:7px}
+.guiding .nine .tile{min-height:0;padding-bottom:8px}
+.guiding .nine .tile .nm{font-size:14px;margin-top:6px}
+.guiding .nine .tile .en{display:none}
+.dslot.dim{opacity:.28}
+.dslot.hl .tile{border-color:var(--accent2);box-shadow:0 0 0 2px var(--accent2),var(--shadow)}
+
 /* ─── 抽牌 ─── */
-.spread{display:flex;gap:11px;justify-content:center;flex-wrap:wrap;margin:18px 0}
-.spread .tile{width:112px;flex:none}
+/* 单行牌阵：一行放下，顺序即读法，不折行 */
+.spread{display:grid;grid-template-columns:repeat(var(--n,3),1fr);gap:8px;margin:18px 0;
+  max-width:calc(var(--n,3) * 124px)}
+.spread .tile{width:auto;min-height:0;padding-bottom:9px}
+.spread[style*="--n:5"] .tile .nm,.spread[style*="--n:4"] .tile .nm{font-size:13.5px;letter-spacing:.04em}
+.spread[style*="--n:5"] .tile .en,.spread[style*="--n:4"] .tile .en{display:none}
+.spread[style*="--n:5"] .tile .bar,.spread[style*="--n:4"] .tile .bar{font-size:9px;height:20px;padding:0 6px}
+.spread[style*="--n:5"] .tile .bar .rl{letter-spacing:.06em}
 .spread .slot{font-family:var(--serif);font-size:11px;color:var(--accent);margin-top:8px;display:block;
   text-align:center;letter-spacing:.22em}
 .nine{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:360px;margin:18px auto}
