@@ -123,8 +123,9 @@ ok(w.document.querySelectorAll('#cg .tile svg').length===0,'牌面不应再有�
  ok(t0.querySelector('.pk.r'),'红花色应标红');
  ok(w.document.querySelector('[data-card="3"] .pk.b'),'黑花色应标黑');
  ok(t0.getAttribute('data-no')==='1','牌面应带号码水印属性');
- ok(t0.querySelector('img.face')&&t0.querySelector('img.face').getAttribute('src')==='assets/cards/01.jpg',
-   '牌面应留出牌图位 assets/cards/01.jpg');}
+ ok(t0.querySelector('img.face')&&t0.querySelector('img.face').getAttribute('src')==='assets/cards/t/01.jpg',
+   '网格应使用缩略牌图 assets/cards/t/01.jpg');
+ ok(fs.existsSync(path.join(ROOT,'assets','cards','t','01.jpg')),'缩略牌图文件应存在');}
 go('#/slots');
 {const sl=w.document.querySelectorAll('.sl');
  ok(sl.length===5+36,`图位清单应列 41 条（5 插图 + 36 牌面），实为 ${sl.length}`);

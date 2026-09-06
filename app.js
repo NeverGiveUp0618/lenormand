@@ -7,8 +7,9 @@ const byN=n=>DECK.find(c=>c.n===+n);
 const hasOrig=id=>typeof ORIGINALS!=='undefined'&&ORIGINALS&&ORIGINALS[id];
 /* 牌图位：用户把自己设计的牌存成 assets/cards/01.jpg…36.jpg，放进去就自动显示；
    没有该文件时图元素自行移除，牌面退回纯文字排版 */
-const CARD_DIR='assets/cards/';
-const face=n=>`<img class="face" src="${CARD_DIR}${String(n).padStart(2,'0')}.jpg"
+const CARD_DIR='assets/cards/', FIG_DIR='assets/figs/';
+/* 牌图两档：网格用 260px 缩略，详情用 600px 大图 */
+const face=(n,big)=>`<img class="face" src="${CARD_DIR}${big?'':'t/'}${String(n).padStart(2,'0')}.jpg"
   alt="" loading="lazy" onerror="this.remove()">`;
 const orn=(k,cls)=>`<svg class="${cls||''}" viewBox="${ORN[k].vb}" fill="none" stroke="currentColor"
   stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${ORN[k].d}</svg>`;
@@ -34,8 +35,8 @@ function tile(c,extra){
   return `<div class="tile ${polCls(c.pol)} ${extra||''}" data-card="${c.n}" data-no="${c.n}">
     <div class="bar"><span class="no">${String(c.n).padStart(2,'0')}</span>
       <span class="rl">${ROLE3(c.pol)}</span></div>
-    ${face(c.n)}<div class="nm">${c.name}</div><div class="en">${c.en}</div>
-    ${pip(c.pk)}</div>`;
+    ${face(c.n)}<div class="nm">${c.name}</div>
+    <div class="en">${c.en}${pip(c.pk)}</div></div>`;
 }
 
 /* ---------- 主题 ---------- */
@@ -102,13 +103,14 @@ function vLesson(id){
     if(b[0]==='cards') return `<div class="grid">${b[1].map(n=>tile(byN(n))).join('')}</div>`;
     if(b[0]==='fig'){ // 图位：图做好了就显示，没做就显示标记框
       return `<figure class="fig slot" data-slot="${b[1]}">
-        <img src="${CARD_DIR}../figs/${b[1]}.jpg" alt="${b[2]}" loading="lazy"
+        <img src="${FIG_DIR}${b[1]}.jpg" alt="${b[2]}" loading="lazy"
           onload="this.closest('.slot').classList.add('done')" onerror="this.remove()">
         <div class="ph">
           <div class="ph-id">图位 ${b[1]}</div>
           <div class="ph-t">${b[2]}</div>
           <div class="ph-e">${b[3]}</div>
-        </div></figure>`;
+        </div>
+        <figcaption class="cap done-only">${b[2]}</figcaption></figure>`;
     }
     if(b[0]==='img') return `<figure class="fig"><img src="${b[1]}" alt="${b[2]}" loading="lazy">
       <figcaption class="cap">${b[2]}</figcaption></figure>`;
@@ -204,7 +206,7 @@ function vCard(n){
   const F=(t,v)=>v&&v.length?`<dt>${t}</dt><dd>${Array.isArray(v)
     ?`<div class="chips">${v.map(x=>`<span class="chip">${x}</span>`).join('')}</div>`:v}</dd>`:'';
   return `<div class="card pad rd">
-    <div class="hero"><div class="facebox">${face(c.n)}<span>${String(c.n).padStart(2,'0')}</span></div><div>
+    <div class="hero"><div class="facebox">${face(c.n,1)}<span>${String(c.n).padStart(2,'0')}</span></div><div>
       <div class="nm">${c.name}</div>
       <div class="meta">${c.en} · ${c.pk} · ${String(c.n).padStart(2,'0')} 号</div>
       <div style="margin-top:6px">${polTag(c.pol)}</div></div></div>
