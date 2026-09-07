@@ -112,6 +112,25 @@ go('#/cards');
 ok(w.document.querySelectorAll('#cg .tile').length===36,'查牌页应铺出 36 张牌，实为 '+w.document.querySelectorAll('#cg .tile').length);
 go('#/card/24');
 {
+  // 上一张 / 下一张 应首尾相接，36→1、1→36
+  const nav=[...w.document.querySelectorAll('.nav3 .btn')];
+  ok(nav.length===3,'牌义页底部应有三个按钮');
+  ok(/上一张/.test(nav[0].textContent),'最左应是上一张');
+  ok(/下一张/.test(nav[2].textContent),'最右应是下一张');
+  ok(nav[0].dataset.go==='#/card/23'&&nav[2].dataset.go==='#/card/25','24 号的前后应为 23 与 25');
+  go('#/card/1');
+  ok(w.document.querySelector('.nav3 .btn').dataset.go==='#/card/36','1 号的上一张应绕回 36');
+  go('#/card/36');
+  const n36=[...w.document.querySelectorAll('.nav3 .btn')];
+  ok(n36[2].dataset.go==='#/card/1','36 号的下一张应绕回 1');
+  // 逐张走一圈，号码必须连续不跳
+  let cur=1, seen=new Set();
+  for(let i=0;i<36;i++){
+    go('#/card/'+cur); seen.add(cur);
+    cur=+w.document.querySelectorAll('.nav3 .btn')[2].dataset.go.split('/').pop();
+  }
+  ok(seen.size===36&&cur===1,'沿下一张走一圈应恰好覆盖 36 张并回到起点');
+  go('#/card/24');
   const z=w.document.querySelector('[data-zoom]');
   ok(z,'牌义页大图应可点开放大');
   z.click();

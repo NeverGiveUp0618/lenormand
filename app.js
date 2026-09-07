@@ -328,7 +328,8 @@ function vCard(n){
         <span class="scene">${MEM[c.n].scene}</span>
         <span class="scene why">${MEM[c.n].why}</span></dd>`:''}
     </dl></div>
-    <div class="row" style="margin-top:12px">
+    <div class="row nav3" style="margin-top:12px">
+      <button class="btn" data-go="#/card/${(c.n+34)%36+1}">‹ 上一张</button>
       <button class="btn" data-go="#/combo/${c.n}">用它做组合</button>
       <button class="btn" data-go="#/card/${c.n%36+1}">下一张 ›</button></div>`;
 }
