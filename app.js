@@ -1,7 +1,7 @@
 /* 雷诺曼学习站 · 逻辑层 */
 const LS='lenormand_v1';
 const S=(()=>{try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}}})();
-S.stat=S.stat||{}; S.journal=S.journal||[]; S.read=S.read||{}; S.mem=S.mem||{};
+S.stat=S.stat||{}; S.journal=S.journal||[]; S.read=S.read||{}; S.mem=S.mem||{}; S.notes=S.notes||[];
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 const byN=n=>DECK.find(c=>c.n===+n);
 const hasOrig=id=>typeof ORIGINALS!=='undefined'&&ORIGINALS&&ORIGINALS[id];
@@ -125,10 +125,15 @@ function head(t,s,back){
 function route(){
   document.body.classList.remove('guiding');
   trackNav();
+  const pf=pendingFind; pendingFind=null;
+  if(pf) setTimeout(()=>{
+    const ctx=noteCtx();
+    findAndMark(ctx&&ctx.root||document.getElementById('view'),pf.text,pf.occ);
+  },60);
   const p=location.hash.replace(/^#\/?/,'').split('/');
   const v=document.getElementById('view');
   const r={learn:vLearn,lesson:vLesson,cards:vCards,card:vCard,combo:vCombo,
-           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal,orig:vOrig,slots:vSlots,mem:vMem,read:vRead}[p[0]]||vLearn;
+           train:vTrain,quiz:vQuiz,draw:vDraw,journal:vJournal,orig:vOrig,slots:vSlots,mem:vMem,read:vRead,notes:vNotes}[p[0]]||vLearn;
   v.innerHTML=r(p[1],p[2])||''; v.scrollTop=0; window.scrollTo(0,0); nav();
 }
 
@@ -167,7 +172,9 @@ function vLearn(){
    LESSONS.map(l=>`<div class="lesson-li" data-go="#/lesson/${l.id}">
      <span class="idx">${l.id}</span><div style="flex:1"><div class="t">${l.title}</div>
      <div class="s">${l.sub}</div></div>
-     ${S.read[l.id]?'<span class="tick">✓</span>':''}</div>`).join('')+`</div>`;
+     ${S.read[l.id]?'<span class="tick">✓</span>':''}</div>`).join('')+`</div>
+   <button class="btn" data-go="#/notes" style="margin-top:12px">
+     <b>我的笔记</b> <span class="mut">共 ${S.notes.length} 条 · 读的时候长按选中一句就能存</span></button>`;
 }
 function vLesson(id){
   const l=LESSONS.find(x=>x.id===+id)||LESSONS[0];
@@ -703,6 +710,124 @@ function vRead(){
     <button class="btn pri" id="rnext" style="margin-top:12px">再来一题</button>`;
 }
 
+/* ==================== 我的笔记 ====================
+ * 划中正文任意一句 → 浮出「存进笔记」→ 存下原文、出处、以及它在本页中是第几处出现。
+ * 回跳时按「第几处」精确定位并高亮，避免同一句话出现多次时跳错地方。
+ */
+function noteCtx(){
+  const h=location.hash||'';
+  let m;
+  if((m=h.match(/^#\/lesson\/(\d+)/))){
+    const l=LESSONS.find(x=>x.id===+m[1]);
+    return {root:document.querySelector('.body'), from:`第 ${m[1]} 篇 · ${l?l.title:''}`, hash:`#/lesson/${m[1]}`};
+  }
+  if((m=h.match(/^#\/card\/(\d+)/))){
+    const c=byN(m[1]);
+    return {root:document.querySelector('dl.f'), from:`牌义 · ${c?c.name:''}`, hash:`#/card/${m[1]}`};
+  }
+  if(/^#\/cards\/peg/.test(h)) return {root:document.getElementById('view'), from:'记忆', hash:'#/cards/peg'};
+  if((m=h.match(/^#\/orig\/(\d+)/))) return {root:document.querySelector('.body'), from:`原文 · 第 ${m[1]} 篇`, hash:`#/orig/${m[1]}`};
+  return null;
+}
+/* 选中的这句在本页纯文本里是第几次出现（0 起） */
+function occOf(root,text){
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount) return 0;
+  try{
+    const r=sel.getRangeAt(0).cloneRange();
+    r.setStart(root,0);
+    return r.toString().split(text).length-2;
+  }catch(e){return 0}
+}
+let selTimer=null;
+function onSelChange(){
+  clearTimeout(selTimer);
+  selTimer=setTimeout(()=>{
+    const btn=document.getElementById('selBtn'); if(!btn) return;
+    const sel=window.getSelection();
+    const text=sel?String(sel).trim():'';
+    const ctx=noteCtx();
+    // 太短没意义、太长存不住重点；必须落在正文里
+    if(!ctx||!ctx.root||text.length<4||text.length>300||!sel.rangeCount||
+       !ctx.root.contains(sel.getRangeAt(0).commonAncestorContainer)){
+      btn.classList.remove('on'); return;
+    }
+    let rect; try{rect=sel.getRangeAt(0).getBoundingClientRect()}catch(e){return}
+    if(!rect||!rect.width){btn.classList.remove('on'); return}
+    let top=rect.top-44; if(top<58) top=rect.bottom+8;
+    btn.style.top=top+'px';
+    btn.style.left=Math.max(10,Math.min(rect.left,window.innerWidth-136))+'px';
+    btn.classList.add('on');
+    btn._p={text,ctx,occ:Math.max(0,occOf(ctx.root,text))};
+  },120);
+}
+function addNote(){
+  const btn=document.getElementById('selBtn'), p=btn&&btn._p;
+  if(!p) return;
+  const dup=S.notes.some(n=>n.text===p.text&&n.hash===p.ctx.hash);
+  if(!dup){
+    S.notes.unshift({t:Date.now(),text:p.text,from:p.ctx.from,hash:p.ctx.hash,occ:p.occ,memo:''});
+    save();
+  }
+  btn.classList.remove('on');
+  const sel=window.getSelection(); if(sel&&sel.removeAllRanges) sel.removeAllRanges();
+  toast(dup?'这句已经在笔记里了':`已存进笔记（共 ${S.notes.length} 条）`);
+}
+function toast(msg){
+  let el=document.getElementById('toast');
+  if(!el){el=document.createElement('div');el.id='toast';document.body.appendChild(el)}
+  el.textContent=msg; el.classList.add('on');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('on'),2200);
+}
+/* 回跳：找到第 occ 处并高亮滚动 */
+let pendingFind=null;
+function findAndMark(root,text,occ){
+  if(!root) return false;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  const nodes=[]; let full='';
+  while(w.nextNode()){nodes.push([w.currentNode,full.length]); full+=w.currentNode.nodeValue}
+  let idx=-1,from=0;
+  for(let k=0;k<=occ;k++){const i=full.indexOf(text,from); if(i<0)break; idx=i; from=i+1}
+  if(idx<0) idx=full.indexOf(text);
+  if(idx<0) return false;
+  const hit=nodes.filter(([n,s])=>s<=idx&&idx<s+n.nodeValue.length).pop();
+  if(!hit) return false;
+  const [node,start]=hit, off=idx-start;
+  const len=Math.min(text.length,node.nodeValue.length-off);
+  try{
+    const r=document.createRange();
+    r.setStart(node,off); r.setEnd(node,off+len);
+    const mk=document.createElement('mark'); mk.className='nmark';
+    r.surroundContents(mk);
+    // 高亮已经成功；滚动只是锦上添花，失败不能让整个定位算作没找到
+    if(mk.scrollIntoView){try{mk.scrollIntoView({block:'center'})}catch(e){}}
+    setTimeout(()=>mk.classList.add('fade'),1800);
+    return true;
+  }catch(e){return false}
+}
+function vNotes(){
+  head('我的笔记',`共 ${S.notes.length} 条`,'#/learn');
+  if(!S.notes.length)
+    return `<div class="card pad mut">还没有笔记。<br><br>读课文、看牌义或翻记忆法时，
+      <b>长按选中一句话</b>，会浮出「存进笔记」。存下来的句子可以随时跳回原处。</div>`;
+  const froms=[...new Set(S.notes.map(n=>n.from.split(' · ')[0]))];
+  return `<div class="fbar">`+
+    [['all',`全部 ${S.notes.length}`],...froms.map(f=>[f,`${f} ${S.notes.filter(n=>n.from.startsWith(f)).length}`])]
+      .map(([k,t])=>`<button class="btn ${noteFilter===k?'on':''}" data-nf="${k}">${t}</button>`).join('')+
+    `</div>`+
+    S.notes.map((n,i)=>({n,i})).filter(({n})=>noteFilter==='all'||n.from.startsWith(noteFilter))
+      .map(({n,i})=>`<div class="ncard">
+        <div class="nfrom">${esc(n.from)}<span>${new Date(n.t).toLocaleDateString('sv')}</span></div>
+        <div class="ntext" data-ngo="${i}">${esc(n.text)}</div>
+        ${n.memo?`<div class="nmemo">${esc(n.memo)}</div>`:''}
+        <div class="nact">
+          <button data-ngo="${i}">跳到原文 ›</button>
+          <button data-nmemo="${i}">${n.memo?'改批注':'加批注'}</button>
+          <button data-ndel="${i}" class="del">删除</button>
+        </div></div>`).join('');
+}
+let noteFilter='all';
+
 /* ---------- 记 ---------- */
 function vJournal(){
   head('抽牌日记','回看比抽牌更重要','#/train');
@@ -721,8 +846,32 @@ function vJournal(){
 }
 
 /* ---------- 事件 ---------- */
+document.addEventListener('selectionchange',onSelChange);
 document.addEventListener('click',e=>{
   if(e.target.closest('#zoomer')){closeZoom();return}
+  if(e.target.closest('#selBtn')){addNote();return}
+  const nf=e.target.closest('[data-nf]');
+  if(nf){noteFilter=nf.dataset.nf;route();return}
+  const ngo=e.target.closest('[data-ngo]');
+  if(ngo){
+    const n=S.notes[+ngo.dataset.ngo]; if(!n)return;
+    pendingFind={text:n.text,occ:n.occ};
+    if(location.hash===n.hash){route()} else location.hash=n.hash;
+    return;
+  }
+  const nm=e.target.closest('[data-nmemo]');
+  if(nm){
+    const i=+nm.dataset.nmemo, n=S.notes[i]; if(!n)return;
+    const v=prompt('给这条笔记加一句批注：',n.memo||'');
+    if(v!==null){n.memo=v.trim();save();route()}
+    return;
+  }
+  const nd=e.target.closest('[data-ndel]');
+  if(nd){
+    const i=+nd.dataset.ndel;
+    if(confirm('删掉这条笔记？')){S.notes.splice(i,1);save();route()}
+    return;
+  }
   const bk=e.target.closest('#back');
   if(bk){goBack(bk.dataset.go);return}
   const z=e.target.closest('[data-zoom]');

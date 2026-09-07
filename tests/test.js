@@ -234,7 +234,8 @@ sec('三之二、样式挂钩');
   const css=src('index.html');
   ['.manual','.mgh','.mi','.daily','.dbox','.stats','.guide','.qcase','.chk','.ref',
    '.memcard','.memgrid','.mopt','.mrow','.lst','.li','.keys','.lay','.tableau','.fig',
-   '.zoomer','.fbar','.pr','.tile','.spread','.nine'].forEach(sel=>
+   '.zoomer','.fbar','.pr','.tile','.spread','.nine',
+   '.selbtn','.ncard','.nfrom','.ntext','.nmemo','.nact','mark.nmark','#toast'].forEach(sel=>
      ok(css.includes(sel+'{')||css.includes(sel+' ')||css.includes(sel+','),
         `样式表里找不到 ${sel} 的定义——很可能是 JS 加了组件但 CSS 没插进去`));
 }
@@ -254,6 +255,54 @@ sec('四之零、使用手册');
   ok(MAN.every(g=>g.items.every(([t,x])=>t&&x&&x.length>=10&&x.length<=60)),
     '每条应是一句话，不能太短也不能写成段落');
   ok(MAN.some(g=>g.items.some(([t])=>t==='记忆')),'手册里应收录「记忆」这一档');
+}
+sec('四之零之二、我的笔记');
+{
+  // 出处判定
+  go('#/lesson/4');
+  let c=w.eval('noteCtx()');
+  ok(c&&c.hash==='#/lesson/4'&&/第 4 篇/.test(c.from),'课文页应认出出处');
+  go('#/card/18');
+  c=w.eval('noteCtx()');
+  ok(c&&c.hash==='#/card/18'&&/狗/.test(c.from),'牌义页应认出出处');
+  go('#/cards/peg');
+  c=w.eval('noteCtx()');
+  ok(c&&c.hash==='#/cards/peg','记忆页应认出出处');
+  go('#/train');
+  ok(w.eval('noteCtx()')===null,'练习页不支持划句，应返回 null');
+
+  // 定位到「第几处」——同一句话出现三次时不能跳错
+  w.eval(`window.__box=document.createElement('div');
+    __box.innerHTML='<p>甲 山 乙</p><p>丙 山 丁</p><p>戊 山 己</p>';
+    document.body.appendChild(__box);`);
+  ok(w.eval("findAndMark(__box,'山',1)")===true,'应能定位第 2 处');
+  const marked=w.eval(`(()=>{const m=__box.querySelector('mark.nmark');
+    return m?m.parentNode.textContent:''})()`);
+  ok(marked==='丙 山 丁',`应标中第 2 处所在段落，实为「${marked}」`);
+  ok(w.eval("findAndMark(__box,'不存在的句子',0)")===false,'找不到时应返回 false 而不是抛错');
+  w.eval("__box.remove()");
+
+  // 列表、批注、删除
+  w.eval(`S.notes=[{t:Date.now(),text:'牌 1 出名词或动词',from:'第 4 篇 · 组合语法',
+    hash:'#/lesson/4',occ:0,memo:''}];save()`);
+  go('#/notes');
+  ok(w.document.querySelectorAll('.ncard').length===1,'笔记列表应列出已存的笔记');
+  ok(w.document.querySelector('.ntext').textContent.includes('牌 1 出名词'),'应显示原句');
+  ok(w.document.querySelector('[data-ngo]'),'应有跳到原文的入口');
+  // 跳回：应带着待查找的句子导航到出处
+  w.document.querySelector('.nact [data-ngo]').click();
+  ok(w.location.hash==='#/lesson/4',`跳到原文应回到出处，实为 ${w.location.hash}`);
+  // 删除
+  go('#/notes');
+  w.window.confirm=()=>true;
+  w.document.querySelector('[data-ndel]').click();
+  ok(JSON.parse(w.localStorage.getItem('lenormand_v1')).notes.length===0,'删除应写回存储');
+  go('#/notes');
+  ok(view().includes('还没有笔记'),'空态应有引导文案');
+  // 首页入口
+  go('#/learn');
+  ok(w.document.querySelector('[data-go="#/notes"]'),'学页应有我的笔记入口');
+  ok(w.document.getElementById('selBtn'),'页面应常驻划句按钮（默认隐藏）');
 }
 sec('四之一、每日任务');
 {

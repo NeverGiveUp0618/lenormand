@@ -379,6 +379,35 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .moon{width:14px;height:14px;vertical-align:-2px;margin-right:6px;color:var(--accent)}
 
 
+/* ─── 我的笔记 ─── */
+.selbtn{position:fixed;z-index:50;display:none;border:0;border-radius:3px;cursor:pointer;
+  background:var(--accent);color:var(--panel);font:inherit;font-family:var(--serif);
+  font-size:13px;letter-spacing:.14em;padding:8px 14px;box-shadow:0 6px 18px rgba(0,0,0,.22)}
+.selbtn.on{display:block}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  z-index:55;background:var(--head);color:var(--paper);font-size:13.5px;letter-spacing:.04em;
+  padding:10px 18px;border-radius:3px;opacity:0;pointer-events:none;transition:opacity .25s;
+  max-width:86vw;text-align:center}
+#toast.on{opacity:.94}
+mark.nmark{background:color-mix(in srgb,var(--accent) 34%,transparent);color:inherit;
+  border-radius:2px;padding:1px 2px;transition:background 1.2s}
+mark.nmark.fade{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.ncard{background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);
+  overflow:hidden;margin-bottom:9px}
+.nfrom{display:flex;align-items:baseline;gap:9px;padding:9px 14px;background:var(--panel-b);
+  border-bottom:1px solid var(--line);font-family:var(--serif);font-size:12px;letter-spacing:.12em;
+  color:var(--accent)}
+.nfrom span{margin-left:auto;font-family:var(--sans);font-size:11px;color:var(--dim);letter-spacing:0}
+.ntext{padding:12px 14px;font-size:14.5px;line-height:1.85;color:var(--ink);cursor:pointer}
+.nmemo{margin:0 14px 12px;padding:9px 12px;background:color-mix(in srgb,var(--accent2) 9%,transparent);
+  border-left:2px solid var(--accent2);border-radius:0 3px 3px 0;font-size:13px;line-height:1.75;
+  color:var(--ink)}
+.nact{display:flex;border-top:1px solid var(--line)}
+.nact button{flex:1;border:0;border-right:1px solid var(--line);background:none;color:var(--dim);
+  font:inherit;font-size:12.5px;padding:10px 4px;cursor:pointer;letter-spacing:.04em}
+.nact button:last-child{border-right:0}
+.nact button.del{color:var(--suit-r)}
+
 /* ─── 使用手册（学页顶部，默认折叠） ─── */
 .manual{background:var(--panel);border:1px solid var(--line);border-radius:4px;
   box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px}
@@ -572,6 +601,7 @@ try{var _q=new URLSearchParams(location.search).get('t'),
   <div class="hd"><h1 id="ttl">雷诺曼 · 三十六牌</h1><div class="sub" id="stl">学 · 查 · 练</div></div>
   <div class="themes" id="themes"></div>
 </header>
+<button class="selbtn" id="selBtn">存进笔记</button>
 <main id="view" class="wrap"></main>
 <nav class="tab" id="nav"></nav>
 <script src="content-local.js" onerror="window.__noLocal=1"></script>
