@@ -235,9 +235,31 @@ sec('三之二、样式挂钩');
   ['.manual','.mgh','.mi','.daily','.dbox','.stats','.guide','.qcase','.chk','.ref',
    '.memcard','.memgrid','.mopt','.mrow','.lst','.li','.keys','.lay','.tableau','.fig',
    '.zoomer','.fbar','.pr','.tile','.spread','.nine',
-   '.selbtn','.ncard','.nfrom','.ntext','.nmemo','.nact','mark.nmark','#toast'].forEach(sel=>
+   '.selbtn','.ncard','.nfrom','.ntext','.nmemo','.nact','mark.nmark','#toast',
+   '.drv','.dv'].forEach(sel=>
      ok(css.includes(sel+'{')||css.includes(sel+' ')||css.includes(sel+','),
         `样式表里找不到 ${sel} 的定义——很可能是 JS 加了组件但 CSS 没插进去`));
+}
+sec('三之三、牌义推导');
+{
+  DECK.forEach(c=>{
+    ok(c.derive&&c.derive.img&&c.derive.pk&&c.derive.vs,`${c.n} ${c.name} 缺推导`);
+    ok(c.derive.pk.length>=25,`${c.n} 的扑克推导太简略`);
+    // 扑克那段必须点到它自己的花色与点数，否则就成了空话
+    const suit=c.pk.slice(0,2), rank=c.pk.slice(2);
+    ok(c.derive.pk.includes(suit),`${c.n} ${c.name} 的推导没提到花色「${suit}」`);
+    ok(c.derive.pk.includes(rank),`${c.n} ${c.name} 的推导没提到点数「${rank}」`);
+  });
+  ok(new Set(DECK.map(c=>c.derive.img)).size===36,'图面描述不应互相抄');
+  // 这里是直接插 HTML、不过 markdown，写 ** 会原样显示出来
+  ok(!/\*\*/.test(src('data.js')),'内容里不应残留 markdown 的 ** 加粗标记');
+  ok(new Set(DECK.map(c=>c.derive.vs)).size===36,'对照说明不应互相抄');
+  go('#/card/4');
+  ok(view().includes('为什么是这个意思'),'牌义页应有推导栏');
+  ok(w.document.querySelectorAll('.drv .dv').length===3,'推导应分图面/扑克/对照三段');
+  ok(view().includes('一家之主'),'房屋应解释出「家 × 成年男人」的来路');
+  go('#/card/7');
+  ok(view().includes('梅花 Q')&&/第三者|难缠/.test(view()),'蛇应解释出「复杂 × 成年女人」');
 }
 sec('四之零、使用手册');
 {

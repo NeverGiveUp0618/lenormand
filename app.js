@@ -328,6 +328,11 @@ function vCard(n){
       <div style="margin-top:6px">${polTag(c.pol)}</div></div></div>
     <dl class="f">
       ${F('概括',c.gist)}${F('作用',c.role)}
+      ${c.derive?`<dt>为什么是这个意思</dt><dd><div class="drv">
+        <div class="dv"><i>图面</i><p>${c.derive.img}</p></div>
+        <div class="dv"><i>扑克</i><p>${c.derive.pk}</p></div>
+        <div class="dv"><i>对照</i><p>${c.derive.vs}</p></div>
+      </div></dd>`:''}
       <dt>关键词</dt><dd><div class="chips">${c.keys.map(k=>`<span class="chip k">${k}</span>`).join('')}</div></dd>
       ${F('名词',c.noun)}${F('形容词',c.adj)}${F('动词',c.verb)}${F('副词',c.adv)}
       ${F('人物',c.people)}${F('时间',c.time)}${F('雷诺曼宇宙',c.univ)}

@@ -379,6 +379,18 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent)}
 .moon{width:14px;height:14px;vertical-align:-2px;margin-right:6px;color:var(--accent)}
 
 
+/* ─── 牌义推导：为什么是这个意思 ─── */
+.drv{border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-top:2px}
+.dv{display:flex;gap:11px;padding:11px 13px;border-bottom:1px solid var(--line);align-items:flex-start;
+  background:var(--panel-b)}
+.dv:last-child{border-bottom:0}
+.dv>i{font-style:normal;font-family:var(--serif);font-size:10.5px;letter-spacing:.2em;
+  color:var(--panel);background:var(--accent);padding:3px 8px;border-radius:2px;flex:none;margin-top:2px}
+.dv:nth-child(2)>i{background:var(--accent2)}
+.dv:nth-child(3)>i{background:var(--sand)}
+.dv>p{margin:0;flex:1;min-width:0;font-size:14px;line-height:1.85;color:var(--ink)}
+.dv>p b{color:var(--head);font-weight:600}
+
 /* ─── 我的笔记 ─── */
 .selbtn{position:fixed;z-index:50;display:none;border:0;border-radius:3px;cursor:pointer;
   background:var(--accent);color:var(--panel);font:inherit;font-family:var(--serif);
