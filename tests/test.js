@@ -236,7 +236,7 @@ sec('三之二、样式挂钩');
    '.memcard','.memgrid','.mopt','.mrow','.lst','.li','.keys','.lay','.tableau','.fig',
    '.zoomer','.fbar','.pr','.tile','.spread','.nine',
    '.selbtn','.ncard','.nfrom','.ntext','.nmemo','.nact','mark.nmark','#toast',
-   '.drv','.dv','.ex .how'].forEach(sel=>
+   '.drv','.dv','.ex .how','.row.lnav'].forEach(sel=>
      ok(css.includes(sel+'{')||css.includes(sel+' ')||css.includes(sel+','),
         `样式表里找不到 ${sel} 的定义——很可能是 JS 加了组件但 CSS 没插进去`));
 }
@@ -260,6 +260,26 @@ sec('三之三、牌义推导');
   ok(view().includes('一家之主'),'房屋应解释出「家 × 成年男人」的来路');
   go('#/card/7');
   ok(view().includes('梅花 Q')&&/第三者|难缠/.test(view()),'蛇应解释出「复杂 × 成年女人」');
+}
+sec('三之三之二、课程翻页');
+{
+  go('#/lesson/1');
+  ok(!w.document.querySelector('.lnav .lprev'),'第 1 篇不应有上一篇');
+  ok(w.document.querySelector('.lnav .btn.pri').dataset.go==='#/lesson/2','第 1 篇的下一篇应是第 2 篇');
+  go('#/lesson/6');
+  ok(w.document.querySelector('.lnav .lprev').dataset.go==='#/lesson/5','中间篇的上一篇应是前一篇');
+  ok(w.document.querySelector('.lnav .btn.pri').dataset.go==='#/lesson/7','中间篇的下一篇应是后一篇');
+  go('#/lesson/12');
+  ok(w.document.querySelector('.lnav .lprev').dataset.go==='#/lesson/11','末篇应有上一篇');
+  ok(w.document.querySelector('.lnav .btn.pri').dataset.go==='#/train','末篇的主按钮应转去练习');
+  // 逐篇往回走，必须能从末篇退回首篇
+  let cur=12,steps=0;
+  while(cur>1&&steps<20){
+    go('#/lesson/'+cur);
+    cur=+w.document.querySelector('.lnav .lprev').dataset.go.split('/').pop();
+    steps++;
+  }
+  ok(cur===1&&steps===11,`沿上一篇应能退回第 1 篇，实走 ${steps} 步到第 ${cur} 篇`);
 }
 sec('三之四、推法与中文理解');
 {

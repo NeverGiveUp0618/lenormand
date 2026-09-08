@@ -295,6 +295,10 @@ a.btn.src{display:block;text-decoration:none;text-align:center;color:var(--accen
   border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
 a.btn.src b{color:var(--accent)}
 .row.nav3 .btn{padding:12px 6px;text-align:center;font-size:13.5px;letter-spacing:.02em}
+.row.lnav{margin-top:12px;flex-wrap:nowrap}
+.row.lnav .lprev{flex:0 0 auto;width:auto;text-align:center;padding:14px 14px;
+  white-space:nowrap;letter-spacing:.04em}   /* 必须写 width:auto —— .btn 基础样式是 width:100% */
+.row.lnav .btn.pri{flex:1 1 0;width:auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .opts{display:grid;gap:10px;margin-top:16px}
 .q{font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.7;color:var(--head);letter-spacing:.06em}
 .bar{height:2px;background:var(--line);border-radius:2px;overflow:hidden;margin:12px 0 2px}

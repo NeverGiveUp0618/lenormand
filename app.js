@@ -229,6 +229,7 @@ function vLesson(id){
     return '';
   }).join('');
   const nx=LESSONS.find(x=>x.id===l.id+1);
+  const pv=LESSONS.find(x=>x.id===l.id-1);
   const srcs=[].concat(l.src||[]);
   const link=srcs.length?`${SEC(`这一篇的原文`)}
     <div class="mut" style="margin:-4px 0 10px">本篇由我通读全部课程后重写。对应的作者原稿共 ${srcs.length} 篇，在微信里打开：</div>
@@ -237,8 +238,11 @@ function vLesson(id){
   const og=hasOrig(l.id)?`<button class="btn" data-go="#/orig/${l.id}" style="margin-bottom:9px">
     <b>读这一篇的原文</b><br><span class="mut">公众号原稿，图文按原序（本地版才有）</span></button>`:'';
   return keys+`<div class="body rd">${html}</div>`+link+og+
-    (nx?`<button class="btn pri" data-go="#/lesson/${nx.id}">下一篇 · ${nx.title}</button>`
-       :`<button class="btn pri" data-go="#/train">十二篇读完了，去练一练</button>`);
+    `<div class="row lnav">`+
+      (pv?`<button class="btn lprev" data-go="#/lesson/${pv.id}">‹ 上一篇</button>`:'')+
+      (nx?`<button class="btn pri" data-go="#/lesson/${nx.id}">下一篇 · ${nx.title}</button>`
+         :`<button class="btn pri" data-go="#/train">十二篇读完了，去练一练</button>`)+
+    `</div>`;
 }
 
 /* ---------- 图位清单 ---------- */
