@@ -354,9 +354,18 @@ sec('四之一、每日任务');
 sec('四之二、三套主题');
 {
   const th=w.eval('THEMES');
-  ok(th.length===3,'应有 3 套主题');
+  ok(th.length===4,`应有 4 套主题，实为 ${th.length}`);
   const box=w.document.getElementById('themes');
-  ok(box.querySelectorAll('button').length===3,'顶栏应有 3 个主题按钮');
+  ok(box.querySelectorAll('button').length===4,'顶栏应有 4 个主题按钮');
+  // 每套主题都必须在样式表里有完整的 token 定义，漏一个就会继承上一套的颜色
+  th.forEach(([id])=>{
+    ok(src('index.html').includes(`data-theme="${id}"`),`样式表缺 ${id} 主题`);
+    ['--paper','--panel','--ink','--head','--dim','--accent','--accent2',
+     '--suit-r','--suit-b','--sand','--line','--tc'].forEach(v=>{
+      const block=src('index.html').split(`data-theme="${id}"`)[1].split('}')[0];
+      ok(block.includes(v),`${id} 主题缺 token ${v}`);});
+    ok(src('index.html').includes(`data-t="${id}"`),`顶栏缺 ${id} 的色点样式`);
+  });
   th.forEach(([id])=>{
     w.eval(`applyTheme(${JSON.stringify(id)})`);
     ok(w.document.documentElement.getAttribute('data-theme')===id,`切到 ${id} 主题失败`);

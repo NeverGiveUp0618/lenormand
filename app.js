@@ -82,6 +82,7 @@ function dailyDone(){const s=daily(); return DAILY.filter(x=>s[x.k]>=x.n).length
 /* ---------- 主题 ---------- */
 const THEMES=[['pearl','月白','暖象牙纸，墨与旧金'],
               ['dusk','玫瑰金','胭脂纸，梅子色与霜绿'],
+              ['plum','暮汐','黄昏的海面，藕紫蜜桃'],
               ['sea','夜航','墨蓝纸，月光银与金'] ];
 function applyTheme(t){
   if(!THEMES.some(x=>x[0]===t)) t='dusk';   // 默认玫瑰金

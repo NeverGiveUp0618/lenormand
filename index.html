@@ -28,6 +28,16 @@ html[data-theme="dusk"]{               /* 玫瑰金：胭脂纸，梅子色与�
   --shadow:0 1px 2px rgba(120,80,85,.05),0 8px 24px rgba(120,80,85,.08);
   --grain:.032; --tc:#faf3f1;
 }
+html[data-theme="plum"]{               /* 暮汐：黄昏的海面，藕紫蜜桃（沿用旧版配色） */
+  --paper:#3e3252; --paper2:#2a2440;
+  --panel:#483b5c; --panel-b:#413556;
+  --ink:#eadff2; --head:#fdf6ff; --dim:#b6a7c8;
+  --accent:#d3b3ff; --accent2:#86dfd0;
+  --suit-r:#ffa8c3; --suit-b:#c3cbe8; --sand:#7b6b9c;
+  --line:rgba(233,214,255,.18); --line2:rgba(233,214,255,.32);
+  --shadow:0 1px 2px rgba(0,0,0,.26),0 10px 28px rgba(20,12,36,.42);
+  --grain:.045; --tc:#3a2f4e;
+}
 html[data-theme="sea"]{                /* 夜航：墨蓝纸，月光银与金 */
   --paper:#0e1a1e; --paper2:#0a1418;
   --panel:#16242a; --panel-b:#132026;
@@ -103,6 +113,7 @@ header.top .sub{font-size:11.5px;color:var(--dim);letter-spacing:.10em;margin-to
   border:1px solid var(--line2);transition:.2s;position:relative}
 .themes button[data-t="pearl"]{background:linear-gradient(140deg,#fffdfa 40%,#a8763c)}
 .themes button[data-t="dusk"]{background:linear-gradient(140deg,#fffbfa 40%,#ac6570)}
+.themes button[data-t="plum"]{background:linear-gradient(140deg,#d3b3ff,#4a3a5c 58%,#2b2540)}
 .themes button[data-t="sea"]{background:linear-gradient(140deg,#79bcae 10%,#12222a 70%)}
 .themes button.on{box-shadow:0 0 0 1.5px var(--paper),0 0 0 3px var(--accent)}
 
@@ -598,7 +609,13 @@ nav.tab .blk{width:30px;height:30px;border-radius:3px;border:1px solid var(--lin
   color:var(--dim);transition:.2s}
 nav.tab button.on .blk{background:var(--accent);border-color:var(--accent);color:var(--paper)}
 nav.tab button.on{color:var(--accent)}
-@media(min-width:780px){.wrap{padding:26px 34px 10px}}
+@media(min-width:780px){
+  .wrap{padding:26px 34px 10px}
+  .rd{max-width:none}          /* 电脑端拉满，不把正文锁在左边一栏 */
+  .nine{max-width:520px}
+  .spread{max-width:calc(var(--n,3) * 168px)}
+  .mflip .mcard,.memcard .mcard{width:min(46%,300px)}
+}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <script>/* 首屏前套用主题，避免打开时闪一下 */
