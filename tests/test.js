@@ -236,7 +236,7 @@ sec('三之二、样式挂钩');
    '.memcard','.memgrid','.mopt','.mrow','.lst','.li','.keys','.lay','.tableau','.fig',
    '.zoomer','.fbar','.pr','.tile','.spread','.nine',
    '.selbtn','.ncard','.nfrom','.ntext','.nmemo','.nact','mark.nmark','#toast',
-   '.drv','.dv'].forEach(sel=>
+   '.drv','.dv','.ex .how'].forEach(sel=>
      ok(css.includes(sel+'{')||css.includes(sel+' ')||css.includes(sel+','),
         `样式表里找不到 ${sel} 的定义——很可能是 JS 加了组件但 CSS 没插进去`));
 }
@@ -260,6 +260,32 @@ sec('三之三、牌义推导');
   ok(view().includes('一家之主'),'房屋应解释出「家 × 成年男人」的来路');
   go('#/card/7');
   ok(view().includes('梅花 Q')&&/第三者|难缠/.test(view()),'蛇应解释出「复杂 × 成年女人」');
+}
+sec('三之四、推法与中文理解');
+{
+  // 每个组合例子都要写清「怎么推出来的」，否则只能死记结论
+  const exs=LESSONS.flatMap(l=>l.body.filter(b=>b[0]==='ex').map(b=>({l:l.id,b})));
+  ok(exs.length>=14,`例子太少：${exs.length}`);
+  exs.forEach(({l,b})=>{
+    ok(b[3]&&b[3].length>=30,`第 ${l} 篇「${b[1]}」缺推法或过于简略`);
+    ok(/[「」＝+]|取|退成|给出|合起来/.test(b[3]),`第 ${l} 篇「${b[1]}」的推法没写出推导过程`);
+  });
+  ok(new Set(exs.map(e=>e.b[3])).size===exs.length,'推法不应互相复制');
+  go('#/lesson/4');
+  ok(w.document.querySelectorAll('.ex .how').length>=6,'课文里的例子应显示推法');
+  // 推法里的 <b> 只是行内加粗，不能继承标题条的整块底色
+  ok(src('index.html').includes('.ex>b{'),'例子标题条的样式必须限定为直接子元素');
+  ok(src('index.html').includes('.ex .how b'),'推法里的行内加粗应有单独样式');
+  // 文化差异大的牌要有中文理解
+  const cn=DECK.filter(c=>c.derive.cn);
+  ok(cn.length>=8,`带中文理解的牌太少：${cn.length}`);
+  [1,17,19,29,30,36].forEach(n=>
+    ok(DECK.find(c=>c.n===n).derive.cn,`${n} 号是文化差异大的牌，应有中文理解`));
+  go('#/card/36');
+  ok(w.document.querySelector('.dv.cn'),'十字架应显示中文理解');
+  ok(view().includes('躲不过'),'十字架的中文理解应给出中文语境的说法');
+  go('#/card/18');
+  ok(!w.document.querySelector('.dv.cn'),'中西一致的牌不必加中文理解');
 }
 sec('四之零、使用手册');
 {

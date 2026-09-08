@@ -186,7 +186,8 @@ function vLesson(id){
   const html=l.body.map(b=>{
     if(b[0]==='p') return `<p>${b[1]}</p>`;
     if(b[0]==='h') return `<h3>${b[1]}</h3>`;
-    if(b[0]==='ex') return `<div class="ex"><b>${b[1]}</b><span>${b[2]}</span></div>`;
+    if(b[0]==='ex') return `<div class="ex"><b>${b[1]}</b><span>${b[2]}</span>`+
+      (b[3]?`<div class="how"><i>怎么推出来的</i><p>${b[3]}</p></div>`:'')+`</div>`;
     if(b[0]==='cards') return `<div class="grid">${b[1].map(n=>tile(byN(n))).join('')}</div>`;
     if(b[0]==='fig'){ // 图位：图做好了就显示，没做就显示标记框
       return `<figure class="fig slot" data-slot="${b[1]}">
@@ -333,6 +334,7 @@ function vCard(n){
         <div class="dv"><i>图面</i><p>${c.derive.img}</p></div>
         <div class="dv"><i>扑克</i><p>${c.derive.pk}</p></div>
         <div class="dv"><i>对照</i><p>${c.derive.vs}</p></div>
+        ${c.derive.cn?`<div class="dv cn"><i>中文理解</i><p>${c.derive.cn}</p></div>`:''}
       </div></dd>`:''}
       <dt>关键词</dt><dd><div class="chips">${c.keys.map(k=>`<span class="chip k">${k}</span>`).join('')}</div></dd>
       ${F('名词',c.noun)}${F('形容词',c.adj)}${F('动词',c.verb)}${F('副词',c.adv)}
