@@ -284,14 +284,22 @@ function vOrig(id){
 /* ---------- 查 ---------- */
 let filter='all';
 function vCards(mode){
-  if(mode&&['all','pos','neg','mid','list','peg'].includes(mode)) filter=mode;
+  if(mode&&['all','pos','neg','mid','list','peg','comb'].includes(mode)) filter=mode;
   head('36 张牌',filter==='list'?'一行一张，一屏扫完'
-    :filter==='peg'?'数字桩 · 点标题展开画面':'点开看牌义');
+    :filter==='peg'?'数字桩 · 点标题展开画面'
+    :filter==='comb'?`${COMBOS.length} 组常见说法 · 点一行去组合器`:'点开看牌义');
   const TABS_F=[['all','全部'],['pos','幸运'],['neg','挑战'],['mid','中性'],
-                ['list','速查'],['peg','记忆']];
+                ['list','速查'],['peg','记忆'],['comb','组合']];
   const bar=`<div class="fbar">`+
     TABS_F.map(([k,t])=>`<button class="btn ${filter===k?'on':''}" data-filter="${k}">${t}</button>`)
     .join('')+`</div>`;
+  if(filter==='comb'){   // 组合词典：机械拼接给不出的固定说法
+    const fs=[...new Set(COMBOS.map(c=>c.f))];
+    return bar+fs.map(f=>`${SEC(f)}<div class="card cblist">`+
+      COMBOS.filter(c=>c.f===f).map(c=>`<div class="cbrow" data-cb="${c.a}-${c.b}">
+        <span class="cbp">${byN(c.a).name} <em>+</em> ${byN(c.b).name}</span>
+        <span class="cbt">${c.t}</span></div>`).join('')+`</div>`).join('');
+  }
   if(filter==='peg'){    // 记忆法全文，默认折叠
     return bar+`<div class="row" style="margin-bottom:11px">
         <button class="btn" id="pgopen">全部展开</button>
@@ -334,6 +342,11 @@ function vCard(n){
       <div style="margin-top:6px">${polTag(c.pol)}</div></div></div>
     <dl class="f">
       ${F('概括',c.gist)}${F('作用',c.role)}
+      ${c.dom?`<dt>三个领域里怎么落</dt><dd><div class="dom">
+        <div class="dm"><i>感情</i><p>${c.dom.love}</p></div>
+        <div class="dm"><i>工作</i><p>${c.dom.work}</p></div>
+        <div class="dm"><i>钱</i><p>${c.dom.money}</p></div>
+      </div></dd>`:''}
       ${c.derive?`<dt>为什么是这个意思</dt><dd><div class="drv">
         <div class="dv"><i>图面</i><p>${c.derive.img}</p></div>
         <div class="dv"><i>扑克</i><p>${c.derive.pk}</p></div>
@@ -365,9 +378,17 @@ function vCombo(pre){
   if(pre){comboA=+pre;comboB=null}
   head('组合器','第一张是主语，第二张修饰它','#/cards');
   const a=comboA&&byN(comboA), b=comboB&&byN(comboB);
+  const lookup=(x,y)=>COMBOS.find(k=>k.a===x&&k.b===y);
   let res='';
   if(a&&b){
-    res=`<div class="card pad" style="margin:12px 0">
+    const hit=lookup(a.n,b.n), rev=lookup(b.n,a.n);
+    if(hit) res+=`<div class="cbhit"><div class="ch"><b>常见说法</b><span>${hit.f}</span></div>
+      <p>${hit.t}</p></div>`;
+    if(rev) res+=`<div class="cbhit rev"><div class="ch"><b>反过来也有固定说法</b>
+      <span>${rev.t}</span></div></div>`;
+  }
+  if(a&&b){
+    res+=`<div class="card pad" style="margin:12px 0">
       <div class="mut">${a.name} + ${b.name}</div>
       <div class="chips" style="margin-top:8px">${phrases(a,b).map(p=>`<span class="chip k">${p}</span>`).join('')}</div>
       <div class="mut" style="margin-top:10px">反过来读（${b.name} + ${a.name}）：</div>
@@ -903,6 +924,9 @@ document.addEventListener('click',e=>{
   if(t){keepDraft();location.hash='#/card/'+t.dataset.card;return}
   const f=e.target.closest('[data-filter]');
   if(f){filter=f.dataset.filter;location.hash='#/cards/'+filter;route();return}
+  const cb=e.target.closest('[data-cb]');
+  if(cb){const [x,y]=cb.dataset.cb.split('-').map(Number);
+    comboA=x; comboB=y; location.hash='#/combo'; route(); return}
   if(e.target.id==='creset'){comboA=comboB=null;route();return}
   if(e.target.id==='pgopen'||e.target.id==='pgclose'){
     const on=e.target.id==='pgopen';

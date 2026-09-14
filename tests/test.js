@@ -190,11 +190,11 @@ go('#/cards/peg');
   ok([...w.document.querySelectorAll('details.mrow')].every(d=>d.open),'全部展开应生效');
   w.document.getElementById('pgclose').click();
   ok([...w.document.querySelectorAll('details.mrow')].every(d=>!d.open),'全部收起应生效');
-  ok(w.document.querySelectorAll('.fbar .btn').length===6,'筛选条应有 6 个入口');
+  ok(w.document.querySelectorAll('.fbar .btn').length===7,'筛选条应有 7 个入口');
 }
 go('#/cards/list');
 ok(w.document.querySelectorAll('.lst .li').length===36,'速查应一行一张列出 36 张');
-ok(w.document.querySelectorAll('.fbar .btn').length===6,'筛选条应有 6 个按钮');
+ok(w.document.querySelectorAll('.fbar .btn').length===7,'筛选条应有 7 个按钮');
 go('#/cards/all');
 ok(w.document.querySelectorAll('#cg .tile').length===36,'切回牌面模式应仍是 36 张');
 go('#/slots');
@@ -236,7 +236,7 @@ sec('三之二、样式挂钩');
    '.memcard','.memgrid','.mopt','.mrow','.lst','.li','.keys','.lay','.tableau','.fig',
    '.zoomer','.fbar','.pr','.tile','.spread','.nine',
    '.selbtn','.ncard','.nfrom','.ntext','.nmemo','.nact','mark.nmark','#toast',
-   '.drv','.dv','.ex .how','.row.lnav'].forEach(sel=>
+   '.drv','.dv','.ex .how','.row.lnav','.dom','.dm','.cblist','.cbrow','.cbhit'].forEach(sel=>
      ok(css.includes(sel+'{')||css.includes(sel+' ')||css.includes(sel+','),
         `样式表里找不到 ${sel} 的定义——很可能是 JS 加了组件但 CSS 没插进去`));
 }
@@ -280,6 +280,69 @@ sec('三之三之二、课程翻页');
     steps++;
   }
   ok(cur===1&&steps===11,`沿上一篇应能退回第 1 篇，实走 ${steps} 步到第 ${cur} 篇`);
+}
+sec('三之一、类名不得撞车');
+{
+  // @media 里的覆盖是正常写法，先剔掉，只查顶层的重复定义
+  let css=src('index.html');
+  for(;;){
+    const i=css.indexOf('@media');
+    if(i<0) break;
+    let j=css.indexOf('{',i), d=0, k=j;
+    for(;k<css.length;k++){ if(css[k]==='{')d++; else if(css[k]==='}'){d--; if(!d)break} }
+    css=css.slice(0,i)+css.slice(k+1);
+  }
+  const defs={};
+  // 只看「单个类名 + {」这种最容易撞的写法
+  // 只统计「独占一条选择器的裸类名」，后代/复合选择器（如 .tile .bar）不算
+  css.replace(/(?:^|[\n},])\s*\.([a-z][\w-]*)\s*\{/gm,(m,cls)=>{defs[cls]=(defs[cls]||0)+1;return m});
+  const dup=Object.entries(defs).filter(([,n])=>n>1).map(([c])=>c);
+  ok(dup.length===0,`这些类名被重复定义，极易互相串样式：${dup.join('、')}`);
+}
+sec('三之三之四、组合词典');
+{
+  const CB=w.eval('COMBOS');
+  ok(CB.length>=60,`组合词典太少：${CB.length}`);
+  CB.forEach(c=>{
+    ok(DECK.find(x=>x.n===c.a)&&DECK.find(x=>x.n===c.b),`组合引用了不存在的牌：${c.a}+${c.b}`);
+    ok(c.a!==c.b,'同一张牌不能和自己组合');
+    ok(c.t&&c.t.length>=2&&c.t.length<=24,`「${c.a}+${c.b}」的说法长度失当：${c.t}`);
+  });
+  ok(new Set(CB.map(c=>c.a+'-'+c.b)).size===CB.length,'同一个有序配对不应重复收录');
+  ok(new Set(CB.map(c=>c.f)).size>=3,'应按领域分组');
+  // 列表页
+  go('#/cards/comb');
+  ok(w.document.querySelectorAll('.cbrow').length===CB.length,'组合页应列出全部条目');
+  // 点一行应带着这两张牌跳进组合器
+  const row=w.document.querySelector('.cbrow');
+  const [ra,rb]=row.dataset.cb.split('-').map(Number);
+  row.click(); w.eval('route()');
+  ok(w.location.hash==='#/combo','点组合应进组合器');
+  ok(w.eval('comboA')===ra&&w.eval('comboB')===rb,'两张牌应已选好');
+  ok(w.document.querySelector('.cbhit'),'命中词典时应显示固定说法');
+  ok(view().includes(CB.find(c=>c.a===ra&&c.b===rb).t),'应显示该配对的固定说法');
+  // 未收录的配对不应硬凑
+  w.eval('comboA=3;comboB=13'); w.eval('route()');
+  const has=CB.some(c=>c.a===3&&c.b===13);
+  ok(has||!w.document.querySelector('.cbhit'),'词典里没有的配对不应显示固定说法');
+}
+sec('三之三之三、领域落点');
+{
+  DECK.forEach(c=>{
+    ok(c.dom&&c.dom.love&&c.dom.work&&c.dom.money,`${c.n} ${c.name} 缺领域落点`);
+    [c.dom.love,c.dom.work,c.dom.money].forEach(x=>
+      ok(x.length>=3&&x.length<=26,`${c.n} ${c.name} 的落点长度失当：${x}`));
+    ok(new Set([c.dom.love,c.dom.work,c.dom.money]).size===3,
+      `${c.n} ${c.name} 三个领域写成了一样的话`);
+  });
+  ['love','work','money'].forEach(k=>
+    ok(new Set(DECK.map(c=>c.dom[k])).size>=34,`${k} 这一栏有太多张牌写重了`));
+  go('#/card/34');
+  ok(view().includes('三个领域里怎么落'),'牌义页应有领域落点栏');
+  ok(w.document.querySelectorAll('.dom .dm').length===3,'应分感情/工作/钱三行');
+  ok(view().includes('流水')||view().includes('钱本身'),'鱼在钱这一栏应落到金钱本身');
+  go('#/card/32');
+  ok(/名气|名声/.test(view()),'月亮在工作栏应落到名声');
 }
 sec('三之四、推法与中文理解');
 {
